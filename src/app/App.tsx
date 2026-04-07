@@ -1,3 +1,4 @@
+import { BrowserRouter, Routes, Route } from "react-router";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { Partners } from "./components/Partners";
@@ -5,8 +6,9 @@ import { EventCatalog } from "./components/EventCatalog";
 import { HowItWorks } from "./components/HowItWorks";
 import { CollaborationForm } from "./components/CollaborationForm";
 import { Footer } from "./components/Footer";
+import { Admin } from "./pages/Admin";
 
-export default function App() {
+function Home() {
   return (
     <div
       style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: "100vh", overflowX: "hidden" }}
@@ -19,5 +21,16 @@ export default function App() {
       <CollaborationForm />
       <Footer />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

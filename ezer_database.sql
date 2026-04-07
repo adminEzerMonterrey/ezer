@@ -77,3 +77,16 @@ VALUES
     'https://images.unsplash.com/photo-1774334136160-1825daf3ce16?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwcGVvcGxlJTIwaGFuZHMlMjB0b2dldGhlciUyMGNvbW11bml0eSUyMHVuaXR5fGVufDF8fHx8MTc3NTUwNTQzM3ww&ixlib=rb-4.1.0&q=80&w=400', 
     30
 );
+
+-- Tabla de administradores
+CREATE TABLE IF NOT EXISTS administrators (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insertando un administrador por defecto
+-- Contraseña: "admin" (hash generado para bcrypt cost 10)
+INSERT IGNORE INTO administrators (email, password_hash) 
+VALUES ('admin@ezer.org', '$2b$10$SjTwVsiFwRCMPkGwKaDQPulDxW3mcJcC2qyM4BkAotoU0cVPAn03q');

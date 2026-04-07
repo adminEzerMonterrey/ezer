@@ -1,12 +1,5 @@
-import { useState } from "react";
-import { Calendar, Building2, Users, ArrowRight, Filter, ChevronDown } from "lucide-react";
-
-const EVENT_IMG_1 = "https://images.unsplash.com/photo-1758599667717-27c61bcdd14b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbnZpcm9ubWVudGFsJTIwY2xlYW51cCUyMHZvbHVudGVlcnMlMjBuYXR1cmV8ZW58MXx8fHwxNzc1NTA1NDI0fDA&ixlib=rb-4.1.0&q=80&w=400";
-const EVENT_IMG_2 = "https://images.unsplash.com/photo-1763310225230-6e15b125935a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGlsZHJlbiUyMGVkdWNhdGlvbiUyMHdvcmtzaG9wJTIwY2xhc3Nyb29tfGVufDF8fHx8MTc3NTUwNTQyNXww&ixlib=rb-4.1.0&q=80&w=400";
-const EVENT_IMG_3 = "https://images.unsplash.com/photo-1593113630400-ea4288922497?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb29kJTIwYmFuayUyMGRvbmF0aW9uJTIwY2hhcml0eSUyMHBlb3BsZXxlbnwxfHx8fDE3NzU1MDU0MjV8MA&ixlib=rb-4.1.0&q=80&w=400";
-const EVENT_IMG_4 = "https://images.unsplash.com/photo-1656311879551-562fe942a8ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3Jwb3JhdGUlMjBzb2NpYWwlMjByZXNwb25zaWJpbGl0eSUyMHRlYW0lMjBldmVudHxlbnwxfHx8fDE3NzU1MDU0MjV8MA&ixlib=rb-4.1.0&q=80&w=400";
-const EVENT_IMG_5 = "https://images.unsplash.com/photo-1694286080661-f44117e019ed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxub25wcm9maXQlMjBjb21tdW5pdHklMjBnYXRoZXJpbmclMjBwZW9wbGUlMjBzbWlsaW5nfGVufDF8fHx8MTc3NTUwNTQyNXww&ixlib=rb-4.1.0&q=80&w=400";
-const EVENT_IMG_6 = "https://images.unsplash.com/photo-1774334136160-1825daf3ce16?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwcGVvcGxlJTIwaGFuZHMlMjB0b2dldGhlciUyMGNvbW11bml0eSUyMHVuaXR5fGVufDF8fHx8MTc3NTUwNTQzM3ww&ixlib=rb-4.1.0&q=80&w=400";
+import { useState, useEffect } from "react";
+import { Building2, Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
 
 interface Event {
   id: number;
@@ -22,176 +15,398 @@ interface Event {
   spots: number;
 }
 
-const ALL_EVENTS: Event[] = [
-  {
-    id: 1,
-    title: "Jornada de Limpieza Costera",
-    company: "GreenEnergy S.A.",
-    date: "15 Abr 2026",
-    month: "ABR",
-    day: "15",
-    category: "Medio Ambiente",
-    audience: "Familias",
-    description: "Únete a nosotros para limpiar 5km de playa y contribuir a la preservación de ecosistemas marinos.",
-    image: EVENT_IMG_1,
-    spots: 40,
-  },
-  {
-    id: 2,
-    title: "Taller de Programación Infantil",
-    company: "InnovateTech Corp.",
-    date: "22 Abr 2026",
-    month: "ABR",
-    day: "22",
-    category: "Educación",
-    audience: "Niños 8–12",
-    description: "Voluntarios enseñan conceptos básicos de programación a niños de comunidades vulnerables.",
-    image: EVENT_IMG_2,
-    spots: 25,
-  },
-  {
-    id: 3,
-    title: "Banco de Alimentos Comunitario",
-    company: "NutriCorp Foods",
-    date: "10 May 2026",
-    month: "MAY",
-    day: "10",
-    category: "Alimentación",
-    audience: "Todos",
-    description: "Clasificación y distribución de alimentos para más de 500 familias en situación vulnerable.",
-    image: EVENT_IMG_3,
-    spots: 60,
-  },
-  {
-    id: 4,
-    title: "Reforestación Urbana",
-    company: "EcoBuilders S.A.",
-    date: "05 Jun 2026",
-    month: "JUN",
-    day: "05",
-    category: "Medio Ambiente",
-    audience: "Adultos",
-    description: "Plantación de 500 árboles nativos en parques y avenidas del área metropolitana.",
-    image: EVENT_IMG_4,
-    spots: 35,
-  },
-  {
-    id: 5,
-    title: "Mentorías Profesionales",
-    company: "ConsultaPro Group",
-    date: "18 Jun 2026",
-    month: "JUN",
-    day: "18",
-    category: "Educación",
-    audience: "Jóvenes",
-    description: "Profesionales senior brindan orientación de carrera a jóvenes de primer empleo.",
-    image: EVENT_IMG_5,
-    spots: 20,
-  },
-  {
-    id: 6,
-    title: "Brigada Médica Rural",
-    company: "MedGroup Internacional",
-    date: "08 Jul 2026",
-    month: "JUL",
-    day: "08",
-    category: "Salud",
-    audience: "Adultos mayores",
-    description: "Atención médica gratuita a comunidades rurales: consultas, vacunación y chequeos preventivos.",
-    image: EVENT_IMG_6,
-    spots: 30,
-  },
-];
-
-const CATEGORIES = ["Todos", "Medio Ambiente", "Educación", "Alimentación", "Salud"];
-const DATES = ["Todos", "Abril 2026", "Mayo 2026", "Junio 2026", "Julio 2026"];
-const COMPANIES = ["Todas", "GreenEnergy S.A.", "InnovateTech Corp.", "NutriCorp Foods", "EcoBuilders S.A.", "ConsultaPro Group", "MedGroup Internacional"];
-
 export function EventCatalog() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // States for filtering
   const [category, setCategory] = useState("Todos");
   const [dateFilter, setDateFilter] = useState("Todos");
   const [company, setCompany] = useState("Todas");
 
-  const filtered = ALL_EVENTS.filter((e) => {
+  // Filter options derived from loaded events
+  const [categories, setCategories] = useState<string[]>(["Todos"]);
+  const [dates, setDates] = useState<string[]>(["Todos"]);
+  const [companies, setCompanies] = useState<string[]>(["Todas"]);
+
+  // Pop-up states
+  const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch('/api/events');
+        const data = await res.json();
+        setEvents(data);
+
+        // Derive unique filters
+        const cats = Array.from(new Set(data.map((e: Event) => e.category)));
+        const dts = Array.from(new Set(data.map((e: Event) => e.month + ' 2026'))); // Simplified dynamically
+        const comps = Array.from(new Set(data.map((e: Event) => e.company)));
+
+        setCategories(["Todos", ...(cats as string[])]);
+        setDates(["Todos", "Abril 2026", "Mayo 2026", "Junio 2026", "Julio 2026"]); 
+        setCompanies(["Todas", ...(comps as string[])]);
+
+      } catch (e) {
+        console.error('Cant load events', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  const filtered = events.filter((e) => {
     const catOk = category === "Todos" || e.category === category;
     const compOk = company === "Todas" || e.company === company;
+    
+    // Simplistic date matching based on previous logic 
+    const isAbril = e.month === "ABR" || e.month === "ABR.";
+    const isMayo = e.month === "MAY" || e.month === "MAY.";
+    const isJunio = e.month === "JUN" || e.month === "JUN.";
+    const isJulio = e.month === "JUL" || e.month === "JUL.";
+
     const dateOk =
       dateFilter === "Todos" ||
-      (dateFilter === "Abril 2026" && e.month === "ABR") ||
-      (dateFilter === "Mayo 2026" && e.month === "MAY") ||
-      (dateFilter === "Junio 2026" && e.month === "JUN") ||
-      (dateFilter === "Julio 2026" && e.month === "JUL");
+      (dateFilter.includes("Abril") && isAbril) ||
+      (dateFilter.includes("Mayo") && isMayo) ||
+      (dateFilter.includes("Junio") && isJunio) ||
+      (dateFilter.includes("Julio") && isJulio);
+      
     return catOk && compOk && dateOk;
   });
 
   return (
-    <section
-      id="eventos"
-      className="py-16 md:py-24"
-      style={{ backgroundColor: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <span
-            style={{ color: "#E8401C", fontWeight: 700, fontSize: 13, letterSpacing: "0.12em" }}
-            className="uppercase"
-          >
-            ✦ Oportunidades de impacto
-          </span>
-          <h2
-            style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2, marginTop: 8 }}
-          >
-            Eventos disponibles
-          </h2>
-          <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 520 }} className="mx-auto text-base">
-            Explora las oportunidades de voluntariado y elige el que más impacte en tu comunidad.
-          </p>
-        </div>
-
-        {/* Filter Bar */}
-        <div
-          style={{ backgroundColor: "#F5F5F5", borderRadius: 12, border: "1px solid #E5E7EB" }}
-          className="flex flex-col sm:flex-row gap-3 p-4 mb-10 flex-wrap"
-        >
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Filter size={16} style={{ color: "#1A2E6C" }} />
-            <span style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14 }}>Filtrar:</span>
-          </div>
-          <FilterSelect label="Categoría" value={category} options={CATEGORIES} onChange={setCategory} />
-          <FilterSelect label="Fecha" value={dateFilter} options={DATES} onChange={setDateFilter} />
-          <FilterSelect label="Empresa" value={company} options={COMPANIES} onChange={setCompany} />
-          {(category !== "Todos" || dateFilter !== "Todos" || company !== "Todas") && (
-            <button
-              onClick={() => { setCategory("Todos"); setDateFilter("Todos"); setCompany("Todas"); }}
-              style={{ color: "#E8401C", fontWeight: 600, fontSize: 13 }}
-              className="ml-auto hover:underline"
+    <>
+      <section
+        id="eventos"
+        className="py-16 md:py-24"
+        style={{ backgroundColor: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <span
+              style={{ color: "#E8401C", fontWeight: 700, fontSize: 13, letterSpacing: "0.12em" }}
+              className="uppercase"
             >
-              Limpiar filtros ✕
-            </button>
+              ✦ Oportunidades de impacto
+            </span>
+            <h2
+              style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2, marginTop: 8 }}
+            >
+              Eventos disponibles
+            </h2>
+            <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 520 }} className="mx-auto text-base">
+              Explora las oportunidades de voluntariado y elige el que más impacte en tu comunidad.
+            </p>
+          </div>
+
+          {/* Filter Bar */}
+          <div
+            style={{ backgroundColor: "#F5F5F5", borderRadius: 12, border: "1px solid #E5E7EB" }}
+            className="flex flex-col sm:flex-row gap-3 p-4 mb-10 flex-wrap"
+          >
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Filter size={16} style={{ color: "#1A2E6C" }} />
+              <span style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14 }}>Filtrar:</span>
+            </div>
+            <FilterSelect label="Categoría" value={category} options={categories} onChange={setCategory} />
+            <FilterSelect label="Fecha" value={dateFilter} options={dates} onChange={setDateFilter} />
+            <FilterSelect label="Empresa" value={company} options={companies} onChange={setCompany} />
+            {(category !== "Todos" || dateFilter !== "Todos" || company !== "Todas") && (
+              <button
+                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); setCompany("Todas"); }}
+                style={{ color: "#E8401C", fontWeight: 600, fontSize: 13 }}
+                className="ml-auto hover:underline cursor-pointer"
+              >
+                Limpiar filtros ✕
+              </button>
+            )}
+          </div>
+
+          {/* Results count */}
+          <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 24 }}>
+            Mostrando <strong style={{ color: "#1A2E6C" }}>{filtered.length}</strong> evento{filtered.length !== 1 ? "s" : ""}
+          </p>
+
+          {/* Cards Grid */}
+          {loading ? (
+             <div className="text-center py-16" style={{ color: "#6B7280" }}>Cargando eventos...</div>
+          ) : filtered.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.map((event) => (
+                <div
+                  key={event.id}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: 12,
+                    border: "1px solid #E5E7EB",
+                    overflow: "hidden",
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    transition: "transform 0.2s, box-shadow 0.2s",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                  className="group hover:-translate-y-1 hover:shadow-xl"
+                >
+                  {/* Top accent bar */}
+                  <div style={{ height: 4, backgroundColor: "#E8401C", flexShrink: 0 }} />
+
+                  {/* Image */}
+                  <div style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0 }}>
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
+                      className="group-hover:scale-105"
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 12,
+                        right: 12,
+                        backgroundColor: "#F5C200",
+                        borderRadius: 8,
+                        padding: "6px 10px",
+                        textAlign: "center",
+                        minWidth: 52,
+                      }}
+                    >
+                      <div style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 20, lineHeight: 1 }}>{event.day}</div>
+                      <div style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 10, letterSpacing: "0.1em" }}>{event.month}</div>
+                    </div>
+                  </div>
+
+                  {/* Body */}
+                  <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span
+                        style={{
+                          backgroundColor: "#EEF2FF",
+                          color: "#1A2E6C",
+                          borderRadius: 20,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: "3px 10px",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        {event.audience}
+                      </span>
+                      <span
+                        style={{
+                          backgroundColor: "#FFF7ED",
+                          color: "#E8401C",
+                          borderRadius: 20,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: "3px 10px",
+                        }}
+                      >
+                        {event.category}
+                      </span>
+                    </div>
+
+                    <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 16, lineHeight: 1.3, marginBottom: 6 }}>
+                      {event.title}
+                    </h3>
+
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <Building2 size={13} style={{ color: "#9CA3AF", flexShrink: 0 }} />
+                      <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>{event.company}</span>
+                    </div>
+
+                    <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 14 }} className="line-clamp-2 flex-1">
+                      {event.description}
+                    </p>
+
+                    <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
+                      <div className="flex items-center gap-1.5">
+                        <Users size={13} style={{ color: "#9CA3AF" }} />
+                        <span style={{ color: "#6B7280", fontSize: 12 }}>{event.spots} lugares</span>
+                      </div>
+                      <button
+                        onClick={() => setSelectedEventName(event.title)}
+                        style={{
+                          color: "#E8401C",
+                          border: "1.5px solid #E8401C",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          padding: "7px 14px",
+                          backgroundColor: "transparent",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E8401C";
+                          (e.currentTarget as HTMLButtonElement).style.color = "#FFFFFF";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+                          (e.currentTarget as HTMLButtonElement).style.color = "#E8401C";
+                        }}
+                      >
+                        Me interesa <ArrowRight size={13} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-5xl mb-4">🔍</div>
+              <p style={{ color: "#6B7280" }}>No se encontraron eventos con los filtros seleccionados.</p>
+            </div>
           )}
         </div>
+      </section>
 
-        {/* Results count */}
-        <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 24 }}>
-          Mostrando <strong style={{ color: "#1A2E6C" }}>{filtered.length}</strong> evento{filtered.length !== 1 ? "s" : ""}
-        </p>
+      {/* Pop up (Modal) for Me Interesa */}
+      {selectedEventName && (
+        <InterestModal 
+          eventName={selectedEventName} 
+          onClose={() => setSelectedEventName(null)}
+        />
+      )}
+    </>
+  );
+}
 
-        {/* Cards Grid */}
-        {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
+function InterestModal({ eventName, onClose }: { eventName: string, onClose: () => void }) {
+  const [status, setStatus] = useState<'idle'|'loading'|'success'|'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatus('loading');
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name'),
+      company: formData.get('company'),
+      email: formData.get('email'),
+      description: formData.get('description'),
+      eventName
+    };
+
+    try {
+      const res = await fetch('/api/interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
+    } catch (err) {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0, width: '100%', height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        borderRadius: '16px',
+        maxWidth: '500px',
+        width: '100%',
+        padding: '30px',
+        position: 'relative'
+      }}>
+        <button 
+          onClick={onClose}
+          style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
+        >
+          <X size={20} />
+        </button>
+
+        {status === 'success' ? (
+          <div className="text-center py-8">
+            <div style={{ fontSize: '40px', marginBottom: '16px' }}>✨</div>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>¡Correo Enviado!</h3>
+            <p style={{ color: '#4B5563', fontSize: '14px', marginBottom: '24px' }}>
+              Nos podremos en contacto contigo pronto. ¡Gracias por tu interés en Ezer!
+            </p>
+            <button 
+              onClick={onClose}
+              style={{ backgroundColor: '#1A2E6C', color: 'white', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+            >
+              Cerrar
+            </button>
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="text-5xl mb-4">🔍</div>
-            <p style={{ color: "#6B7280" }}>No se encontraron eventos con los filtros seleccionados.</p>
-          </div>
+          <>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>Unirse / Me Interesa</h3>
+            <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '20px' }}>
+              Completa estos datos y la organización de Ezer se pondrá en contacto contigo.
+            </p>
+            
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Evento seleccionado</label>
+                <input type="text" value={eventName} readOnly disabled style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', backgroundColor: '#F3F4F6', color: '#6B7280' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Tu Nombre completo *</label>
+                <input required name="name" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu nombre" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa / Organización (Opcional)</label>
+                <input name="company" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Representas a alguien?" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Correo Electrónico *</label>
+                <input required name="email" type="email" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="correo@ejemplo.com" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Descripción / Comentarios *</label>
+                <textarea required name="description" rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical' }} placeholder="Cuenta por qué te interesa participar..."></textarea>
+              </div>
+
+              {status === 'error' && <p style={{ color: '#E8401C', fontSize: '13px' }}>Hubo un error al enviar tu interés. Por favor intenta de nuevo.</p>}
+
+              <button 
+                type="submit" 
+                disabled={status === 'loading'}
+                style={{ 
+                  backgroundColor: '#E8401C', 
+                  color: 'white', 
+                  padding: '12px', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  border: 'none', 
+                  cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                  opacity: status === 'loading' ? 0.7 : 1,
+                  marginTop: '4px'
+                }}
+              >
+                {status === 'loading' ? 'Enviando...' : 'Enviar Solicitud'}
+              </button>
+            </form>
+          </>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -239,141 +454,6 @@ function FilterSelect({
         size={15}
         style={{ color: "#1A2E6C", position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
       />
-    </div>
-  );
-}
-
-function EventCard({ event }: { event: Event }) {
-  return (
-    <div
-      style={{
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        border: "1px solid #E5E7EB",
-        overflow: "hidden",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-        transition: "transform 0.2s, box-shadow 0.2s",
-        display: "flex",
-        flexDirection: "column",
-      }}
-      className="group hover:-translate-y-1 hover:shadow-xl"
-    >
-      {/* Top accent bar */}
-      <div style={{ height: 4, backgroundColor: "#E8401C", flexShrink: 0 }} />
-
-      {/* Image */}
-      <div style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0 }}>
-        <img
-          src={event.image}
-          alt={event.title}
-          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
-          className="group-hover:scale-105"
-        />
-        {/* Date badge */}
-        <div
-          style={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            backgroundColor: "#F5C200",
-            borderRadius: 8,
-            padding: "6px 10px",
-            textAlign: "center",
-            minWidth: 52,
-          }}
-        >
-          <div style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 20, lineHeight: 1 }}>{event.day}</div>
-          <div style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 10, letterSpacing: "0.1em" }}>{event.month}</div>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
-        {/* Audience tag */}
-        <div className="flex items-center gap-2 mb-3">
-          <span
-            style={{
-              backgroundColor: "#EEF2FF",
-              color: "#1A2E6C",
-              borderRadius: 20,
-              fontSize: 11,
-              fontWeight: 700,
-              padding: "3px 10px",
-              letterSpacing: "0.04em",
-            }}
-          >
-            {event.audience}
-          </span>
-          <span
-            style={{
-              backgroundColor: "#FFF7ED",
-              color: "#E8401C",
-              borderRadius: 20,
-              fontSize: 11,
-              fontWeight: 700,
-              padding: "3px 10px",
-            }}
-          >
-            {event.category}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h3
-          style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 16, lineHeight: 1.3, marginBottom: 6 }}
-        >
-          {event.title}
-        </h3>
-
-        {/* Company */}
-        <div className="flex items-center gap-1.5 mb-3">
-          <Building2 size={13} style={{ color: "#9CA3AF", flexShrink: 0 }} />
-          <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>{event.company}</span>
-        </div>
-
-        {/* Description */}
-        <p
-          style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 14 }}
-          className="line-clamp-2 flex-1"
-        >
-          {event.description}
-        </p>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
-          <div className="flex items-center gap-1.5">
-            <Users size={13} style={{ color: "#9CA3AF" }} />
-            <span style={{ color: "#6B7280", fontSize: 12 }}>{event.spots} lugares</span>
-          </div>
-          <button
-            style={{
-              color: "#E8401C",
-              border: "1.5px solid #E8401C",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 700,
-              padding: "7px 14px",
-              backgroundColor: "transparent",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E8401C";
-              (e.currentTarget as HTMLButtonElement).style.color = "#FFFFFF";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
-              (e.currentTarget as HTMLButtonElement).style.color = "#E8401C";
-            }}
-          >
-            Me interesa <ArrowRight size={13} />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
