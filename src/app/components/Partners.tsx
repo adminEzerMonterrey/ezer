@@ -1,3 +1,4 @@
+// Fix for build error in Vercel related to figma import
 const partnersImg = "https://placehold.co/1200x200/FAFAFA/9CA3AF?text=Logos+de+Organizaciones+Aliadas";
 
 const PARTNER_NAMES = [
