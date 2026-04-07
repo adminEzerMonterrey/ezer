@@ -37,16 +37,21 @@ export function EventCatalog() {
       try {
         const res = await fetch('/api/events');
         const data = await res.json();
-        setEvents(data);
+        
+        if (Array.isArray(data)) {
+          setEvents(data);
 
-        // Derive unique filters
-        const cats = Array.from(new Set(data.map((e: Event) => e.category)));
-        const dts = Array.from(new Set(data.map((e: Event) => e.month + ' 2026'))); // Simplified dynamically
-        const comps = Array.from(new Set(data.map((e: Event) => e.company)));
+          // Derive unique filters
+          const cats = Array.from(new Set(data.map((e: Event) => e.category)));
+          const dts = Array.from(new Set(data.map((e: Event) => e.month + ' 2026'))); // Simplified dynamically
+          const comps = Array.from(new Set(data.map((e: Event) => e.company)));
 
-        setCategories(["Todos", ...(cats as string[])]);
-        setDates(["Todos", "Abril 2026", "Mayo 2026", "Junio 2026", "Julio 2026"]); 
-        setCompanies(["Todas", ...(comps as string[])]);
+          setCategories(["Todos", ...(cats as string[])]);
+          setDates(["Todos", "Abril 2026", "Mayo 2026", "Junio 2026", "Julio 2026"]); 
+          setCompanies(["Todas", ...(comps as string[])]);
+        } else {
+          console.error("API did not return an array", data);
+        }
 
       } catch (e) {
         console.error('Cant load events', e);

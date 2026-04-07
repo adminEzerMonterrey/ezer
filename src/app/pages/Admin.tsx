@@ -31,7 +31,9 @@ export function Admin() {
     try {
       const res = await fetch('/api/events');
       const data = await res.json();
-      setEvents(data);
+      if (Array.isArray(data)) {
+        setEvents(data);
+      }
     } catch (e) {
       console.error(e);
     } finally {
