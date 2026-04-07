@@ -1,4 +1,4 @@
-import partnersImg from "figma:asset/e37078d90d787a89700b187fbda8532128c9b05f.png";
+const partnersImg = "https://placehold.co/1200x200/FAFAFA/9CA3AF?text=Logos+de+Organizaciones+Aliadas";
 
 const PARTNER_NAMES = [
   "Fundación DeAcero",
