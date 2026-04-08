@@ -82,6 +82,7 @@ export function Footer() {
                 { label: "¿Cómo funciona?", href: "#como-funciona" },
                 { label: "Contáctanos", href: "#contacto" },
                 { label: "Registrar colaboración", href: "#contacto" },
+                { label: "Acceso Administrador", href: "/admin" },
               ].map((link) => (
                 <li key={link.label}>
                   <a
