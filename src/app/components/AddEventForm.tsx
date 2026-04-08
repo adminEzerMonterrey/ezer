@@ -11,6 +11,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     setLoading(true);
     setError('');
 
+    const formData = new FormData(e.currentTarget);
     const name = formData.get('title') as string;
     const company = formData.get('company') as string;
     const date = formData.get('event_date') as string;
@@ -19,55 +20,69 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const objective = formData.get('category') as string;
 
     try {
+      // 1. Obtener usuario
+      console.log("STEP 1: user");
       const { data: { user } } = await supabase.auth.getUser();
-      console.log("USER:", user);
-      console.log("USER ID:", user?.id);
-      
+
       if (!user) {
-        alert("No autenticado");
-        return;
+        throw new Error("No autenticado");
       }
 
-      if (!image) throw new Error('Debes seleccionar una imagen');
+      // 2. Subir imagen
+      console.log("STEP 2: uploading image");
+      let imageUrl = null;
 
-      const fileName = `${Date.now()}-${image.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('event-images')
-        .upload(fileName, image);
+      if (image) {
+        const fileName = `${Date.now()}-${image.name}`;
 
-      if (uploadError) {
-        throw new Error('Error al subir la imagen: ' + uploadError.message);
-      }
+        const { error: uploadError } = await supabase.storage
+          .from('event-images')
+          .upload(fileName, image);
 
-      const { data: publicUrlData } = supabase.storage
-        .from('event-images')
-        .getPublicUrl(fileName);
-
-      const imageUrl = publicUrlData.publicUrl;
-
-      const { error: insertError } = await supabase.from('events').insert([
-        {
-          name,
-          company,
-          date,
-          target_audience,
-          description,
-          objective,
-          image_url: imageUrl,
-          user_id: user.id // 🔥 CLAVE
+        if (uploadError) {
+          throw uploadError;
         }
-      ]);
+
+        // 3. Obtener URL pública
+        console.log("STEP 3: getting url");
+        const { data } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(fileName);
+
+        imageUrl = data.publicUrl;
+      }
+
+      // 4. Insertar evento
+      console.log("STEP 4: inserting");
+      const { error: insertError } = await supabase
+        .from('events')
+        .insert([
+          {
+            name,
+            company,
+            date,
+            target_audience,
+            description,
+            objective,
+            image_url: imageUrl,
+            user_id: user.id
+          }
+        ]);
 
       if (insertError) {
-        throw new Error(insertError.message || 'No se pudo guardar el evento');
+        throw insertError;
       }
 
+      alert("Evento creado ✅");
       (e.target as HTMLFormElement).reset();
       onEventAdded();
-    } catch (err: any) {
-      setError(err.message);
+
+    } catch (error: any) {
+      console.error("ERROR:", error);
+      alert(error.message);
+      setError(error.message);
     } finally {
-      setLoading(false);
+      setLoading(false); // 🔥 CLAVE
     }
   };
 
