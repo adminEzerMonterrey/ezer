@@ -4,6 +4,7 @@ import { supabase } from '../../supabaseClient';
 export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [image, setImage] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -18,7 +19,6 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       category: formData.get('category'),
       audience: formData.get('audience'),
       description: formData.get('description'),
-      image_url: formData.get('image_url'),
       spots: parseInt(formData.get('spots') as string, 10)
     };
 
@@ -26,9 +26,27 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuario no autenticado');
 
+      if (!image) throw new Error('Debes seleccionar una imagen');
+
+      const fileName = `${Date.now()}-${image.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('event-images')
+        .upload(fileName, image);
+
+      if (uploadError) {
+        throw new Error('Error al subir la imagen: ' + uploadError.message);
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('event-images')
+        .getPublicUrl(fileName);
+
+      const imageUrl = publicUrlData.publicUrl;
+
       const { error: insertError } = await supabase.from('events').insert([
         {
           ...data,
+          image_url: imageUrl,
           user_id: user.id
         }
       ]);
@@ -89,8 +107,14 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>URL de la Imagen</label>
-          <input required name="image_url" type="url" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="https://..." />
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen</label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} 
+            required 
+          />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

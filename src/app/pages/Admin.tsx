@@ -191,6 +191,7 @@ export function Admin() {
                     <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Título</th>
                     <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Fecha</th>
                     <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Empresa</th>
+                    <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Imagen</th>
                     <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
                   </tr>
                 </thead>
@@ -200,6 +201,19 @@ export function Admin() {
                       <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.title}</td>
                       <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date}</td>
                       <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.company}</td>
+                      <td style={{ padding: '16px', textAlign: 'center' }}>
+                        {event.image_url ? (
+                          <img 
+                            src={event.image_url} 
+                            alt={event.title || event.name}
+                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
+                          />
+                        ) : (
+                          <div style={{ width: '60px', height: '60px', backgroundColor: '#E5E7EB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#6B7280' }}>
+                            Sin imagen
+                          </div>
+                        )}
+                      </td>
                       <td style={{ padding: '16px', textAlign: 'center' }}>
                         <button 
                           onClick={() => {
@@ -223,7 +237,7 @@ export function Admin() {
                   ))}
                   {events.length === 0 && (
                     <tr>
-                      <td colSpan={4} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
+                      <td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
                         No hay eventos registrados en la base de datos.
                       </td>
                     </tr>
