@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '../../supabaseClient';
 
 export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -22,18 +23,18 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     };
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
 
-      if (!res.ok) {
-        throw new Error('No se pudo guardar el evento');
+      const { error: insertError } = await supabase.from('events').insert([
+        {
+          ...data,
+          user_id: user.id
+        }
+      ]);
+
+      if (insertError) {
+        throw new Error(insertError.message || 'No se pudo guardar el evento');
       }
 
       (e.target as HTMLFormElement).reset();

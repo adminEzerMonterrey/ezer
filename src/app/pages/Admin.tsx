@@ -5,13 +5,14 @@ import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { Trash2, LogOut, Pencil } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
+import { supabase } from '../../supabaseClient';
 
 export function Admin() {
   const [isAuthenticated, setIsAuth] = useState(false);
   const [tokenLoading, setTokenLoading] = useState(true);
   
   // Login states
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
@@ -25,19 +26,20 @@ export function Admin() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuth(true);
-    }
-    setTokenLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsAuth(true);
+      }
+      setTokenLoading(false);
+    });
   }, []);
 
   const loadEvents = async () => {
     setEventsLoading(true);
     try {
-      const res = await fetch('/api/events');
-      const data = await res.json();
-      if (Array.isArray(data)) {
+      const { data, error } = await supabase.from('events').select('*');
+      if (error) throw error;
+      if (data) {
         setEvents(data);
       }
     } catch (e) {
@@ -58,47 +60,37 @@ export function Admin() {
     setLoginLoading(true);
     setLoginError('');
 
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.message || 'Error en autenticación');
-      }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-      localStorage.setItem('token', data.token);
+    if (error) {
+      setLoginError(error.message);
+    } else {
       setIsAuth(true);
-    } catch (err: any) {
-      setLoginError(err.message);
-    } finally {
-      setLoginLoading(false);
     }
+    
+    setLoginLoading(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuth(false);
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('¿Seguro que deseas eliminar este evento?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/events?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (res.ok) {
-        loadEvents();
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        alert('Error al eliminar evento: ' + error.message);
       } else {
-        alert('Error al eliminar evento');
+        loadEvents();
       }
     } catch (e) {
       console.error(e);
@@ -124,11 +116,11 @@ export function Admin() {
 
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '6px' }}>Usuario</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '6px' }}>Correo Electrónico</label>
                 <input 
-                  type="text" 
-                  value={username} 
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB' }} 
                   required 
                 />

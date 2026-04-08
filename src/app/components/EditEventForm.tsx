@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '../../supabaseClient';
 
 export function EditEventForm({ 
   initialData, 
@@ -38,18 +39,14 @@ export function EditEventForm({
     };
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/events', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-      });
+      const { id, ...updateData } = data;
+      const { error: updateError } = await supabase
+        .from('events')
+        .update(updateData)
+        .eq('id', id);
 
-      if (!res.ok) {
-        throw new Error('No se pudo actualizar el evento');
+      if (updateError) {
+        throw new Error(updateError.message || 'No se pudo actualizar el evento');
       }
 
       onEventUpdated();
