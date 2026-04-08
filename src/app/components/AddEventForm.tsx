@@ -11,20 +11,22 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     setLoading(true);
     setError('');
 
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      title: formData.get('title'),
-      company: formData.get('company'),
-      event_date: formData.get('event_date'),
-      category: formData.get('category'),
-      audience: formData.get('audience'),
-      description: formData.get('description'),
-      spots: parseInt(formData.get('spots') as string, 10)
-    };
+    const name = formData.get('title') as string;
+    const company = formData.get('company') as string;
+    const date = formData.get('event_date') as string;
+    const target_audience = formData.get('audience') as string;
+    const description = formData.get('description') as string;
+    const objective = formData.get('category') as string;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuario no autenticado');
+      console.log("USER:", user);
+      console.log("USER ID:", user?.id);
+      
+      if (!user) {
+        alert("No autenticado");
+        return;
+      }
 
       if (!image) throw new Error('Debes seleccionar una imagen');
 
@@ -45,9 +47,14 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
       const { error: insertError } = await supabase.from('events').insert([
         {
-          ...data,
+          name,
+          company,
+          date,
+          target_audience,
+          description,
+          objective,
           image_url: imageUrl,
-          user_id: user.id
+          user_id: user.id // 🔥 CLAVE
         }
       ]);
 

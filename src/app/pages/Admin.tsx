@@ -198,8 +198,8 @@ export function Admin() {
                 <tbody>
                   {events.map((event) => (
                     <tr key={event.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
-                      <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.title}</td>
-                      <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date}</td>
+                      <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.name || event.title}</td>
+                      <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date || event.event_date}</td>
                       <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.company}</td>
                       <td style={{ padding: '16px', textAlign: 'center' }}>
                         {event.image_url ? (
