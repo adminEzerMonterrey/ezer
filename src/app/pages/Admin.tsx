@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { AddEventForm } from '../components/AddEventForm';
+import { EditEventForm } from '../components/EditEventForm';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { Trash2, LogOut } from 'lucide-react';
+import { Trash2, LogOut, Pencil } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 
 export function Admin() {
   const [isAuthenticated, setIsAuth] = useState(false);
@@ -17,6 +19,10 @@ export function Admin() {
   // Events state
   const [events, setEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  
+  // Edit Modal State
+  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -204,6 +210,16 @@ export function Admin() {
                       <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.company}</td>
                       <td style={{ padding: '16px', textAlign: 'center' }}>
                         <button 
+                          onClick={() => {
+                            setEditingEvent(event);
+                            setIsEditDialogOpen(true);
+                          }}
+                          style={{ backgroundColor: 'transparent', border: 'none', color: '#3B82F6', cursor: 'pointer', padding: '4px', marginRight: '8px' }}
+                          title="Editar evento"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <button 
                           onClick={() => handleDelete(event.id)}
                           style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
                           title="Eliminar evento"
@@ -226,6 +242,30 @@ export function Admin() {
           )}
         </div>
       </div>
+      
+      {/* Edit Event Modal */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle style={{ color: '#1A2E6C', fontSize: '20px', fontWeight: 800 }}>Actualizar Evento</DialogTitle>
+            <DialogDescription>
+              Modifica la información del evento seleccionado y guarda los cambios.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingEvent && (
+            <EditEventForm 
+              initialData={editingEvent} 
+              onEventUpdated={() => {
+                setIsEditDialogOpen(false);
+                loadEvents();
+              }}
+              onCancel={() => setIsEditDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+      
       <Footer />
     </div>
   );

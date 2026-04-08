@@ -76,6 +76,23 @@ export default async function handler(req, res) {
  
        await pool.query('DELETE FROM events WHERE id = ?', [id]);
        return res.status(200).json({ message: 'Evento eliminado exitosamente' });
+    }
+
+    else if (req.method === 'PUT') {
+      // Proteger PUT
+      const user = authenticate(req);
+      if (!user) return res.status(401).json({ message: 'No autorizado' });
+
+      const { id, title, company, event_date, category, audience, description, image_url, spots } = req.body;
+      
+      if (!id) return res.status(400).json({ message: 'ID del evento requerido para actualizar' });
+
+      await pool.query(
+        'UPDATE events SET title = ?, company = ?, event_date = ?, category = ?, audience = ?, description = ?, image_url = ?, spots = ? WHERE id = ?',
+        [title, company, event_date, category, audience, description, image_url, spots, id]
+      );
+      
+      return res.status(200).json({ message: 'Evento actualizado exitosamente' });
     } 
     
     else {
