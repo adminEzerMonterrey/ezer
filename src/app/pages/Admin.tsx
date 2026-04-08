@@ -26,12 +26,17 @@ export function Admin() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setIsAuth(true);
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) setIsAuth(true);
+      } catch (error) {
+        console.error('Error fetching session:', error);
+      } finally {
+        setTokenLoading(false);
       }
-      setTokenLoading(false);
-    });
+    };
+    checkSession();
   }, []);
 
   const loadEvents = async () => {
