@@ -21,12 +21,8 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
     try {
       // 1. Obtener usuario
-      console.log("STEP 1: user");
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error("No autenticado");
-      }
+      // 1. Obtener usuario (moved to step 4)
+      console.log("STEP 1: omitted user fetch here");
 
       // 2. Subir imagen
       console.log("STEP 2: uploading image");
@@ -54,6 +50,13 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
       // 4. Insertar evento
       console.log("STEP 4: inserting");
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("USER:", user);
+
+      if (!user) {
+        throw new Error("No autenticado");
+      }
+
       const { error: insertError } = await supabase
         .from('events')
         .insert([

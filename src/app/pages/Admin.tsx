@@ -65,18 +65,17 @@ export function Admin() {
     setLoginLoading(true);
     setLoginError('');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      setLoginError(error.message);
-    } else {
+    try {
+      await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
       setIsAuth(true);
+    } catch (error: any) {
+      setLoginError(error.message || 'Error al iniciar sesión');
+    } finally {
+      setLoginLoading(false);
     }
-    
-    setLoginLoading(false);
   };
 
   const handleLogout = async () => {
