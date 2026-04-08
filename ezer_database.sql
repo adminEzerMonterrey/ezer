@@ -81,12 +81,12 @@ VALUES
 -- Tabla de administradores
 CREATE TABLE IF NOT EXISTS administrators (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    username VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insertando un administrador por defecto
 -- Contraseña: "admin" (hash generado para bcrypt cost 10)
-INSERT IGNORE INTO administrators (email, password_hash) 
-VALUES ('admin@ezer.org', '$2b$10$SjTwVsiFwRCMPkGwKaDQPulDxW3mcJcC2qyM4BkAotoU0cVPAn03q');
+INSERT IGNORE INTO administrators (username, password_hash) 
+VALUES ('admin', '$2b$10$SjTwVsiFwRCMPkGwKaDQPulDxW3mcJcC2qyM4BkAotoU0cVPAn03q');

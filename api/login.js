@@ -23,13 +23,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Username and password are required' });
     }
 
-    const [rows] = await pool.query('SELECT * FROM administrators WHERE email = ? LIMIT 1', [email]);
+    const [rows] = await pool.query('SELECT * FROM administrators WHERE username = ? LIMIT 1', [username]);
     const user = rows[0];
 
     if (!user) {
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
     // Passwords match, generate token
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, username: user.username },
       JWT_SECRET,
       { expiresIn: '8h' }
     );
