@@ -1,6 +1,38 @@
 import { Mail, Phone, MapPin, Facebook, Instagram, Globe, Heart } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useCallback } from "react";
 
 export function Footer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNavClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      // If it's a route link (like /admin), use router navigation
+      if (href.startsWith("/") && !href.startsWith("/#")) {
+        e.preventDefault();
+        navigate(href);
+        return;
+      }
+
+      // If it's a hash link
+      if (href.startsWith("#")) {
+        e.preventDefault();
+        if (location.pathname !== "/") {
+          navigate("/" + href);
+        } else {
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth" });
+          } else {
+            window.location.hash = href;
+          }
+        }
+      }
+    },
+    [location.pathname, navigate]
+  );
+
   return (
     <footer
       style={{ backgroundColor: "#1A2E6C", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
@@ -87,6 +119,7 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
                     style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, transition: "color 0.2s" }}
                     onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F5C200")}
                     onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.65)")}
@@ -116,6 +149,7 @@ export function Footer() {
                 <li key={cat.label}>
                   <a
                     href="#eventos"
+                    onClick={(e) => handleNavClick(e, "#eventos")}
                     style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, transition: "color 0.2s", display: "flex", alignItems: "center", gap: 8 }}
                     onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F5C200")}
                     onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.65)")}

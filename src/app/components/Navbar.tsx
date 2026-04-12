@@ -1,8 +1,30 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Menu, X } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNavClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+      e.preventDefault();
+      if (location.pathname !== "/") {
+        // Navigate to home first, then scroll to the section
+        navigate("/" + hash);
+      } else {
+        // Already on home, just scroll to the section
+        const target = document.querySelector(hash);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.location.hash = hash;
+        }
+      }
+    },
+    [location.pathname, navigate]
+  );
 
   return (
     <nav style={{ backgroundColor: "#1A2E6C", fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="sticky top-0 z-50 w-full shadow-lg">
@@ -10,24 +32,32 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            <div
-              className="flex items-center justify-center rounded-xl"
-              style={{ width: 44, height: 44, backgroundColor: "#1A2E6C", border: "2px solid #F5C200" }}
+            <a
+              href="/"
+              onClick={(e) => handleNavClick(e, "#inicio")}
+              className="flex items-center gap-3"
+              style={{ textDecoration: "none" }}
             >
-              <EzerLogoIcon />
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-white font-extrabold tracking-widest text-xl">EZER</span>
-              <span style={{ color: "#F5C200", fontSize: 10 }} className="tracking-wider font-medium uppercase">
-                Enabling Excellence
-              </span>
-            </div>
+              <div
+                className="flex items-center justify-center rounded-xl"
+                style={{ width: 44, height: 44, backgroundColor: "#1A2E6C", border: "2px solid #F5C200" }}
+              >
+                <EzerLogoIcon />
+              </div>
+              <div className="flex flex-col leading-none">
+                <span className="text-white font-extrabold tracking-widest text-xl">EZER</span>
+                <span style={{ color: "#F5C200", fontSize: 10 }} className="tracking-wider font-medium uppercase">
+                  Enabling Excellence
+                </span>
+              </div>
+            </a>
           </div>
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8">
             <a
               href="#inicio"
+              onClick={(e) => handleNavClick(e, "#inicio")}
               className="text-white font-medium hover:opacity-80 transition-opacity relative group text-sm"
             >
               Inicio
@@ -38,6 +68,7 @@ export function Navbar() {
             </a>
             <a
               href="#eventos"
+              onClick={(e) => handleNavClick(e, "#eventos")}
               className="text-white font-medium hover:opacity-80 transition-opacity relative group text-sm"
             >
               Eventos
@@ -48,6 +79,7 @@ export function Navbar() {
             </a>
             <a
               href="#contacto"
+              onClick={(e) => handleNavClick(e, "#contacto")}
               className="text-white font-medium hover:opacity-80 transition-opacity relative group text-sm"
             >
               Contáctanos
@@ -62,6 +94,7 @@ export function Navbar() {
           <div className="hidden md:block">
             <a
               href="#contacto"
+              onClick={(e) => handleNavClick(e, "#contacto")}
               style={{ backgroundColor: "#F5C200", color: "#1A2E6C", borderRadius: 8 }}
               className="inline-flex items-center gap-2 px-5 py-2.5 font-bold text-sm hover:brightness-105 active:scale-95 transition-all duration-200 shadow-md"
             >
@@ -89,28 +122,28 @@ export function Navbar() {
           <div className="flex flex-col gap-1">
             <a
               href="#inicio"
-              onClick={() => setMenuOpen(false)}
+              onClick={(e) => { handleNavClick(e, "#inicio"); setMenuOpen(false); }}
               className="text-white font-medium py-3 px-3 rounded-lg hover:bg-white/10 transition-colors text-sm"
             >
               Inicio
             </a>
             <a
               href="#eventos"
-              onClick={() => setMenuOpen(false)}
+              onClick={(e) => { handleNavClick(e, "#eventos"); setMenuOpen(false); }}
               className="text-white font-medium py-3 px-3 rounded-lg hover:bg-white/10 transition-colors text-sm"
             >
               Eventos
             </a>
             <a
               href="#contacto"
-              onClick={() => setMenuOpen(false)}
+              onClick={(e) => { handleNavClick(e, "#contacto"); setMenuOpen(false); }}
               className="text-white font-medium py-3 px-3 rounded-lg hover:bg-white/10 transition-colors text-sm"
             >
               Contáctanos
             </a>
             <a
               href="#contacto"
-              onClick={() => setMenuOpen(false)}
+              onClick={(e) => { handleNavClick(e, "#contacto"); setMenuOpen(false); }}
               style={{ backgroundColor: "#F5C200", color: "#1A2E6C", borderRadius: 8 }}
               className="mt-2 text-center font-bold py-3 px-4 text-sm"
             >

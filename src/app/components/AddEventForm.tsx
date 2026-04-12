@@ -24,7 +24,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       // 1. Obtener usuario (moved to step 4)
       console.log("STEP 1: omitted user fetch here");
 
-            // 2. Subir imagen (versión mejorada)
+      // 2. Subir imagen (versión mejorada)
       if (!image) {
         throw new Error("La imagen es obligatoria");
       }
@@ -92,7 +92,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '20px' }}>Agregar Nuevo Evento</h3>
       {error && <div style={{ color: '#E8401C', marginBottom: '10px' }}>{error}</div>}
       <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Título</label>
           <input required name="title" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. Limpieza Costera" />
@@ -131,12 +131,12 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen</label>
-          <input 
-            type="file" 
-            accept="image/*" 
+          <input
+            type="file"
+            accept="image/*"
             onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
-            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} 
-            required 
+            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
+            required
           />
         </div>
 
@@ -146,16 +146,16 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            style={{ 
-              backgroundColor: '#E8401C', 
-              color: 'white', 
-              padding: '10px 24px', 
-              borderRadius: '8px', 
-              fontWeight: 600, 
-              border: 'none', 
+            style={{
+              backgroundColor: '#E8401C',
+              color: 'white',
+              padding: '10px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.7 : 1
             }}
