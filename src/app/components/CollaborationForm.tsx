@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Send, CheckCircle, Building, Mail, Phone, Download, FileText, ArrowRight, Upload, X, Paperclip } from "lucide-react";
+import { supabase } from "../../supabaseClient";
 
 const emptyForm = {
   org: "",
@@ -9,6 +10,8 @@ const emptyForm = {
 
 export function CollaborationForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [form, setForm] = useState(emptyForm);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -34,9 +37,51 @@ export function CollaborationForm() {
     if (file) handleFileSelect(file);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError("");
+
+    try {
+      // 1. Guardar en Supabase
+      const { error: dbError } = await supabase
+        .from('collaboration_requests')
+        .insert([{
+          organization: form.org,
+          email: form.email,
+          phone: form.phone || null,
+          has_file: !!attachedFile,
+          file_name: attachedFile?.name || null,
+        }]);
+
+      if (dbError) {
+        console.error('Error saving to Supabase:', dbError);
+      }
+
+      // 2. Enviar correo vía API
+      try {
+        await fetch('/api/collaboration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            org: form.org,
+            email: form.email,
+            phone: form.phone,
+            hasFile: !!attachedFile,
+            fileName: attachedFile?.name || null,
+          })
+        });
+      } catch (emailErr) {
+        console.error('Email API failed (data saved to DB):', emailErr);
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError("Hubo un error al enviar. Intenta de nuevo.");
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const formatSize = (bytes: number) => {
@@ -393,8 +438,13 @@ export function CollaborationForm() {
                   </p>
                 </div>
 
+                {submitError && (
+                  <p style={{ color: '#E8401C', fontSize: 13, textAlign: 'center' }}>{submitError}</p>
+                )}
+
                 <button
                   type="submit"
+                  disabled={submitting}
                   style={{
                     backgroundColor: "#F5C200",
                     color: "#1A2E6C",
@@ -404,7 +454,7 @@ export function CollaborationForm() {
                     fontFamily: "'Plus Jakarta Sans', sans-serif",
                     fontWeight: 800,
                     fontSize: 15,
-                    cursor: "pointer",
+                    cursor: submitting ? "not-allowed" : "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -412,12 +462,13 @@ export function CollaborationForm() {
                     transition: "all 0.2s",
                     boxShadow: "0 4px 16px rgba(245,194,0,0.4)",
                     marginTop: 4,
+                    opacity: submitting ? 0.7 : 1,
                   }}
                   onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.05)")}
                   onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)")}
                 >
                   <Send size={17} />
-                  {attachedFile ? "Enviar solicitud con documento" : "Enviar solicitud de contacto"}
+                  {submitting ? "Enviando..." : attachedFile ? "Enviar solicitud con documento" : "Enviar solicitud de contacto"}
                 </button>
 
                 <p style={{ color: "#9CA3AF", fontSize: 12, textAlign: "center", marginTop: -4 }}>
