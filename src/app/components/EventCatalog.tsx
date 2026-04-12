@@ -37,7 +37,37 @@ export function EventCatalog() {
       try {
         const res = await fetch('/api/events');
         const data = await res.json();
-        
+
+        if (Array.isArray(data)) {
+          const formattedEvents = data.map((e: any) => {
+            const dateObj = new Date(e.date);
+
+            return {
+              id: e.id,
+              title: e.name, // 🔥 CAMBIO
+              company: e.company,
+              date: e.date,
+              month: dateObj.toLocaleString('es-MX', { month: 'short' }).toUpperCase(),
+              day: dateObj.getDate().toString(),
+              category: e.objective,
+              audience: e.target_audience,
+              description: e.description,
+              image: e.image_url, // 🔥 CAMBIO CLAVE
+              spots: e.spots || 0
+            };
+          });
+
+          setEvents(formattedEvents);
+
+          // filtros
+          const cats = Array.from(new Set(formattedEvents.map(e => e.category)));
+          const comps = Array.from(new Set(formattedEvents.map(e => e.company)));
+
+          setCategories(["Todos", ...cats]);
+          setCompanies(["Todas", ...comps]);
+        }
+
+
         if (Array.isArray(data)) {
           setEvents(data);
 
@@ -47,7 +77,7 @@ export function EventCatalog() {
           const comps = Array.from(new Set(data.map((e: Event) => e.company)));
 
           setCategories(["Todos", ...(cats as string[])]);
-          setDates(["Todos", "Abril 2026", "Mayo 2026", "Junio 2026", "Julio 2026"]); 
+          setDates(["Todos", "Abril 2026", "Mayo 2026", "Junio 2026", "Julio 2026"]);
           setCompanies(["Todas", ...(comps as string[])]);
         } else {
           console.error("API did not return an array", data);
@@ -65,7 +95,7 @@ export function EventCatalog() {
   const filtered = events.filter((e) => {
     const catOk = category === "Todos" || e.category === category;
     const compOk = company === "Todas" || e.company === company;
-    
+
     // Simplistic date matching based on previous logic 
     const isAbril = e.month === "ABR" || e.month === "ABR.";
     const isMayo = e.month === "MAY" || e.month === "MAY.";
@@ -78,7 +108,7 @@ export function EventCatalog() {
       (dateFilter.includes("Mayo") && isMayo) ||
       (dateFilter.includes("Junio") && isJunio) ||
       (dateFilter.includes("Julio") && isJulio);
-      
+
     return catOk && compOk && dateOk;
   });
 
@@ -138,7 +168,7 @@ export function EventCatalog() {
 
           {/* Cards Grid */}
           {loading ? (
-             <div className="text-center py-16" style={{ color: "#6B7280" }}>Cargando eventos...</div>
+            <div className="text-center py-16" style={{ color: "#6B7280" }}>Cargando eventos...</div>
           ) : filtered.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((event) => (
@@ -276,8 +306,8 @@ export function EventCatalog() {
 
       {/* Pop up (Modal) for Me Interesa */}
       {selectedEventName && (
-        <InterestModal 
-          eventName={selectedEventName} 
+        <InterestModal
+          eventName={selectedEventName}
           onClose={() => setSelectedEventName(null)}
         />
       )}
@@ -286,7 +316,7 @@ export function EventCatalog() {
 }
 
 function InterestModal({ eventName, onClose }: { eventName: string, onClose: () => void }) {
-  const [status, setStatus] = useState<'idle'|'loading'|'success'|'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -334,7 +364,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
         padding: '30px',
         position: 'relative'
       }}>
-        <button 
+        <button
           onClick={onClose}
           style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
         >
@@ -348,7 +378,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
             <p style={{ color: '#4B5563', fontSize: '14px', marginBottom: '24px' }}>
               Nos podremos en contacto contigo pronto. ¡Gracias por tu interés en Ezer!
             </p>
-            <button 
+            <button
               onClick={onClose}
               style={{ backgroundColor: '#1A2E6C', color: 'white', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
             >
@@ -361,7 +391,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
             <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '20px' }}>
               Completa estos datos y la organización de Ezer se pondrá en contacto contigo.
             </p>
-            
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Evento seleccionado</label>
@@ -390,16 +420,16 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
 
               {status === 'error' && <p style={{ color: '#E8401C', fontSize: '13px' }}>Hubo un error al enviar tu interés. Por favor intenta de nuevo.</p>}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={status === 'loading'}
-                style={{ 
-                  backgroundColor: '#E8401C', 
-                  color: 'white', 
-                  padding: '12px', 
-                  borderRadius: '8px', 
-                  fontWeight: 600, 
-                  border: 'none', 
+                style={{
+                  backgroundColor: '#E8401C',
+                  color: 'white',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  border: 'none',
                   cursor: status === 'loading' ? 'not-allowed' : 'pointer',
                   opacity: status === 'loading' ? 0.7 : 1,
                   marginTop: '4px'

@@ -24,29 +24,27 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       // 1. Obtener usuario (moved to step 4)
       console.log("STEP 1: omitted user fetch here");
 
-      // 2. Subir imagen
-      console.log("STEP 2: uploading image");
-      let imageUrl = null;
-
-      if (image) {
-        const fileName = `${Date.now()}-${image.name}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('event-images')
-          .upload(fileName, image);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        // 3. Obtener URL pública
-        console.log("STEP 3: getting url");
-        const { data } = supabase.storage
-          .from('event-images')
-          .getPublicUrl(fileName);
-
-        imageUrl = data.publicUrl;
+            // 2. Subir imagen (versión mejorada)
+      if (!image) {
+        throw new Error("La imagen es obligatoria");
       }
+
+      const fileName = `events/${crypto.randomUUID()}-${image.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('event-images') // ⚠️ asegúrate que este nombre exista
+        .upload(fileName, image);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // 3. Obtener URL pública
+      const { data } = supabase.storage
+        .from('event-images')
+        .getPublicUrl(fileName);
+
+      const imageUrl = data.publicUrl;
 
       // 4. Insertar evento
       console.log("STEP 4: inserting");
