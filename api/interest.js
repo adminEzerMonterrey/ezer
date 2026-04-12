@@ -23,8 +23,7 @@ export default async function handler(req, res) {
   try {
     // Si no hay configuración real de SMTP, usamos uno de prueba de ethereal (o console.log en entorno dev)
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-      port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587,
+      service: 'gmail',
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
