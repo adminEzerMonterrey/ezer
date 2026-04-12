@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 
     const info = await transporter.sendMail({
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
-      to: process.env.EZER_CONTACT_EMAIL || process.env.SMTP_USER, 
+      to: 'ethan.rivera@udem.edu', 
       subject: `Nuevo Interesado en Evento: ${eventName}`,
       text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\nDescripción y Motivo: ${description}`,
       html: `
