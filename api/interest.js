@@ -44,7 +44,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: 'Email sent implicitly (DEV MODE)' });
     }
 
-    const info = await transporter.sendMail({
+    // 1. Mensaje para el administrador (Ethan)
+    const adminInfo = await transporter.sendMail({
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
       to: 'ethan.rivera@udem.edu', 
       subject: `Nuevo Interesado en Evento: ${eventName}`,
@@ -62,7 +63,28 @@ export default async function handler(req, res) {
       `,
     });
 
-    console.log('Message sent: %s', info.messageId);
+    // 2. Mensaje de confirmación para el usuario que llenó el formulario
+    const userInfo = await transporter.sendMail({
+      from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
+      to: email, 
+      subject: `Confirmación de solicitud para evento: ${eventName}`,
+      text: `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nEmpresa: ${company}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`,
+      html: `
+        <h2>¡Gracias por tu interés, ${name}!</h2>
+        <p>Hemos recibido correctamente tus datos para participar en el evento <strong>${eventName}</strong>.</p>
+        <p><strong>Resumen de tu solicitud:</strong></p>
+        <ul>
+          <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
+          <li><strong>Tus comentarios:</strong> ${description}</li>
+        </ul>
+        <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles.</p>
+        <br>
+        <p>Atentamente,<br><strong>Equipo EZER</strong></p>
+      `,
+    });
+
+    console.log('Message sent to admin: %s', adminInfo.messageId);
+    console.log('Message sent to user: %s', userInfo.messageId);
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
