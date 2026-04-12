@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Building2, Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
+import { supabase } from "../../supabaseClient";
 
 interface Event {
   id: number;
@@ -35,37 +36,41 @@ export function EventCatalog() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch('/api/events');
-        const data = await res.json();
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .order('date', { ascending: true });
 
-        if (Array.isArray(data)) {
-          const formattedEvents = data.map((e: any) => {
-            const dateObj = new Date(e.date);
-
-            return {
-              id: e.id,
-              title: e.name, // 🔥 CAMBIO
-              company: e.company,
-              date: e.date,
-              month: dateObj.toLocaleString('es-MX', { month: 'short' }).toUpperCase(),
-              day: dateObj.getDate().toString(),
-              category: e.objective,
-              audience: e.target_audience,
-              description: e.description,
-              image: e.image_url, // 🔥 CAMBIO CLAVE
-              spots: e.spots || 0
-            };
-          });
-
-          setEvents(formattedEvents);
-
-          // filtros
-          const cats = Array.from(new Set(formattedEvents.map(e => e.category)));
-          const comps = Array.from(new Set(formattedEvents.map(e => e.company)));
-
-          setCategories(["Todos", ...cats]);
-          setCompanies(["Todas", ...comps]);
+        if (error) {
+          console.error(error);
+          return;
         }
+
+        const formattedEvents = data.map((e: any) => {
+          const dateObj = new Date(e.date);
+
+          return {
+            id: e.id,
+            title: e.name,
+            company: e.company,
+            date: e.date,
+            month: dateObj.toLocaleString('es-MX', { month: 'short' }).toUpperCase(),
+            day: dateObj.getDate().toString(),
+            category: e.objective,
+            audience: e.target_audience,
+            description: e.description,
+            image: e.image_url,
+            spots: e.spots || 0
+          };
+        });
+
+        setEvents(formattedEvents);
+
+        const cats = Array.from(new Set(formattedEvents.map(e => e.category)));
+        const comps = Array.from(new Set(formattedEvents.map(e => e.company)));
+
+        setCategories(["Todos", ...cats]);
+        setCompanies(["Todas", ...comps]);
 
       } catch (e) {
         console.error('Cant load events', e);
@@ -73,7 +78,6 @@ export function EventCatalog() {
         setLoading(false);
       }
     };
-    fetchEvents();
   }, []);
 
   const filtered = events.filter((e) => {
