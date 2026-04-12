@@ -78,6 +78,8 @@ export function EventCatalog() {
         setLoading(false);
       }
     };
+    fetchEvents();
+
   }, []);
 
   const filtered = events.filter((e) => {
