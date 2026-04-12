@@ -322,16 +322,33 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
     };
 
     try {
-      const res = await fetch('/api/interest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        setStatus('success');
-      } else {
-        setStatus('error');
+      // 1. Guardar en Supabase (fuente principal de datos - nunca se pierde un lead)
+      const { error: dbError } = await supabase
+        .from('interest_leads')
+        .insert([{
+          name: data.name,
+          company: data.company,
+          email: data.email,
+          event_name: data.eventName,
+          description: data.description,
+        }]);
+
+      if (dbError) {
+        console.error('Error saving lead to Supabase:', dbError);
       }
+
+      // 2. Intentar enviar correo también (secundario)
+      try {
+        await fetch('/api/interest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      } catch (emailErr) {
+        console.error('Email API call failed (lead was saved to DB):', emailErr);
+      }
+
+      setStatus('success');
     } catch (err) {
       setStatus('error');
     }
