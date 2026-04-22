@@ -17,6 +17,25 @@ interface Event {
   cost: string | number;
 }
 
+const formatCost = (costValue: string | number | null | undefined) => {
+  if (costValue == null || costValue === '') return "Gratuito";
+  const strCost = costValue.toString();
+  
+  if (strCost.toLowerCase().includes('grat')) {
+    return strCost;
+  }
+
+  // Remove $ and commas in case user entered them manually
+  const cleanStr = strCost.replace(/\$/g, '').replace(/,/g, '').trim();
+  const numericValue = parseFloat(cleanStr);
+  
+  if (!isNaN(numericValue)) {
+    return `$${numericValue.toLocaleString('en-US')}`;
+  }
+
+  return strCost.includes('$') ? strCost : `$${strCost}`;
+};
+
 export function EventCatalog() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,7 +263,7 @@ export function EventCatalog() {
                         <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>{event.company}</span>
                       </div>
                       <span style={{ color: "#16A34A", fontSize: 12, fontWeight: 700, backgroundColor: "#DCFCE7", padding: "2px 8px", borderRadius: "12px" }}>
-                        Costo Aproximado: {typeof event.cost === 'number' ? `$${event.cost}` : (event.cost.toString().includes('$') ? event.cost : (event.cost.toString().toLowerCase().includes('grat') ? event.cost : `$${event.cost}`))}
+                        Costo Aproximado: {formatCost(event.cost)}
                       </span>
                     </div>
 
