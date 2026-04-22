@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { org, email, phone, hasFile, fileName } = req.body;
+  const { org, email, phone, hasFile, fileName, fileData, fileType } = req.body;
 
   if (!org || !email) {
     return res.status(400).json({ message: 'Organization and email are required' });
@@ -56,6 +56,14 @@ export default async function handler(req, res) {
         </ul>
         <p><em>Revisa el panel de Supabase para ver todos los detalles.</em></p>
       `,
+      attachments: (hasFile && fileData && fileName) ? [
+        {
+          filename: fileName,
+          content: fileData,
+          encoding: 'base64',
+          contentType: fileType || 'application/octet-stream'
+        }
+      ] : []
     });
 
     // 2. Correo de confirmación al usuario

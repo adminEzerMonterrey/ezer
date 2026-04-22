@@ -58,6 +58,21 @@ export function CollaborationForm() {
         console.error('Error saving to Supabase:', dbError);
       }
 
+      let fileBase64 = null;
+      let fileMimeType = null;
+      if (attachedFile) {
+        fileBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(attachedFile);
+          reader.onload = () => {
+            const result = reader.result as string;
+            resolve(result.split(',')[1]);
+          };
+          reader.onerror = error => reject(error);
+        });
+        fileMimeType = attachedFile.type || 'application/octet-stream';
+      }
+
       // 2. Enviar correo vía API
       try {
         await fetch('/api/collaboration', {
@@ -69,6 +84,8 @@ export function CollaborationForm() {
             phone: form.phone,
             hasFile: !!attachedFile,
             fileName: attachedFile?.name || null,
+            fileData: fileBase64,
+            fileType: fileMimeType,
           })
         });
       } catch (emailErr) {
