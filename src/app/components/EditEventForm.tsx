@@ -12,6 +12,7 @@ export function EditEventForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [image, setImage] = useState<File | null>(null);
 
   // Formatear la fecha a YYYY-MM-DD para el input type="date"
   const formattedDate = initialData.event_date 
@@ -34,16 +35,36 @@ export function EditEventForm({
       category: formData.get('category'),
       audience: formData.get('audience'),
       description: formData.get('description'),
-      image_url: formData.get('image_url'),
       cost: formData.get('cost'),
       spots: parseInt(formData.get('spots') as string, 10)
     };
 
     try {
+      let imageUrl = initialData.image_url || initialData.image;
+
+      if (image) {
+        const fileName = `events/${crypto.randomUUID()}-${image.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('event-images')
+          .upload(fileName, image);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(fileName);
+
+        imageUrl = publicUrlData.publicUrl;
+      }
+
       const { id, ...updateData } = data;
+      const finalDataToUpdate = { ...updateData, image_url: imageUrl };
+
       const { error: updateError } = await supabase
         .from('events')
-        .update(updateData)
+        .update(finalDataToUpdate)
         .eq('id', id);
 
       if (updateError) {
@@ -70,7 +91,7 @@ export function EditEventForm({
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa/Organizador</label>
-          <input required defaultValue={initialData.company} name="company" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          <input required name="company" type="text" value="EZER" readOnly style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: '#F3F4F6', color: '#6B7280' }} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -116,8 +137,13 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>URL de la Imagen</label>
-          <input required defaultValue={initialData.image || initialData.image_url} name="image_url" type="url" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen (Dejar en blanco para mantener la actual)</label>
+          <input 
+            type="file" 
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} 
+          />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
