@@ -102,7 +102,7 @@ export function CollaborationForm() {
           <h2
             style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2, marginTop: 8 }}
           >
-            ¿Quieres colaborar con EZER?
+            ¿Eres una Asociación y quieres colaborar?
           </h2>
           <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 560 }} className="mx-auto text-base">
             Regístra tu interés y descarga el formato oficial para enviarnos los detalles de tu evento.
