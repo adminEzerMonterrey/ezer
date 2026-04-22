@@ -4,7 +4,7 @@ export function HowItWorks() {
       number: "01",
       icon: "🏢",
       title: "Asociación se registra",
-      description: "La asociación llena el formulario de colaboración, descarga el formato oficial, y lo adjunta con sus datos e intereses.",
+      description: "1. Llenar datos en el formulario.\n2. Descargar el formato oficial.\n3. Subir el formato contestado.",
       color: "#E8401C",
     },
     {
@@ -89,7 +89,7 @@ export function HowItWorks() {
                 <h3 style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 16, marginBottom: 8, lineHeight: 1.3 }}>
                   {step.title}
                 </h3>
-                <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6 }}>{step.description}</p>
+                <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-line" }}>{step.description}</p>
               </div>
             </div>
           ))}
