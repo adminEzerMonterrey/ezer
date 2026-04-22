@@ -238,9 +238,14 @@ export function EventCatalog() {
                       {event.title}
                     </h3>
 
-                    <div className="flex items-center gap-1.5 mb-3">
-                      <Building2 size={13} style={{ color: "#9CA3AF", flexShrink: 0 }} />
-                      <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>{event.company}</span>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-1.5">
+                        <Building2 size={13} style={{ color: "#9CA3AF", flexShrink: 0 }} />
+                        <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>{event.company}</span>
+                      </div>
+                      <span style={{ color: "#16A34A", fontSize: 12, fontWeight: 700, backgroundColor: "#DCFCE7", padding: "2px 8px", borderRadius: "12px" }}>
+                        {typeof event.cost === 'number' ? `$${event.cost}` : event.cost}
+                      </span>
                     </div>
 
                     <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 14 }} className="line-clamp-2 flex-1">
@@ -248,16 +253,9 @@ export function EventCatalog() {
                     </p>
 
                     <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1.5">
-                          <Users size={13} style={{ color: "#9CA3AF" }} />
-                          <span style={{ color: "#6B7280", fontSize: 12 }}>{event.spots} lugares</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span style={{ color: "#16A34A", fontSize: 12, fontWeight: 700 }}>
-                            Costo aprox: {typeof event.cost === 'number' ? `$${event.cost}` : event.cost}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-1.5">
+                        <Users size={13} style={{ color: "#9CA3AF" }} />
+                        <span style={{ color: "#6B7280", fontSize: 12 }}>{event.spots} lugares</span>
                       </div>
                       <button
                         onClick={() => setSelectedEventName(event.title)}
