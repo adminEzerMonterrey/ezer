@@ -66,20 +66,17 @@ export function Partners() {
                 alt={`Logo de ${partner.name}`}
                 title={partner.name}
                 style={{
-                  height: "80px",
-                  maxWidth: "240px",
+                  height: "120px",
+                  maxWidth: "320px",
                   objectFit: "contain",
                   display: "block",
-                  filter: "grayscale(100%)",
-                  transition: "all 0.3s ease",
+                  transition: "transform 0.3s ease",
                   cursor: "pointer"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.filter = "grayscale(0%)";
                   e.currentTarget.style.transform = "scale(1.05)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.filter = "grayscale(100%)";
                   e.currentTarget.style.transform = "scale(1)";
                 }}
               />
