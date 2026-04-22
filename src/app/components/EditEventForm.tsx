@@ -95,7 +95,7 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha (YYYY-MM-DD)</label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha de cierre de convocatoria (YYYY-MM-DD)</label>
           <input required defaultValue={formattedDate} name="event_date" type="date" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
         </div>
 
