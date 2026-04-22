@@ -67,11 +67,22 @@ export function Navbar() {
               />
             </a>
             <a
+              href="#registro"
+              onClick={(e) => handleNavClick(e, "#registro")}
+              className="text-white font-medium hover:opacity-80 transition-opacity relative group text-sm"
+            >
+              Registro
+              <span
+                style={{ backgroundColor: "#F5C200" }}
+                className="absolute -bottom-1 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-300"
+              />
+            </a>
+            <a
               href="#eventos"
               onClick={(e) => handleNavClick(e, "#eventos")}
               className="text-white font-medium hover:opacity-80 transition-opacity relative group text-sm"
             >
-              Eventos
+              Catálogo de Eventos
               <span
                 style={{ backgroundColor: "#F5C200" }}
                 className="absolute -bottom-1 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-300"
@@ -128,11 +139,18 @@ export function Navbar() {
               Inicio
             </a>
             <a
+              href="#registro"
+              onClick={(e) => { handleNavClick(e, "#registro"); setMenuOpen(false); }}
+              className="text-white font-medium py-3 px-3 rounded-lg hover:bg-white/10 transition-colors text-sm"
+            >
+              Registro
+            </a>
+            <a
               href="#eventos"
               onClick={(e) => { handleNavClick(e, "#eventos"); setMenuOpen(false); }}
               className="text-white font-medium py-3 px-3 rounded-lg hover:bg-white/10 transition-colors text-sm"
             >
-              Eventos
+              Catálogo de Eventos
             </a>
             <a
               href="#contacto"

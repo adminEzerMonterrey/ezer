@@ -92,7 +92,7 @@ export function CollaborationForm() {
 
   return (
     <section
-      id="contacto"
+      id="registro"
       className="py-16 md:py-24"
       style={{ backgroundColor: "#F5F5F5", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
     >

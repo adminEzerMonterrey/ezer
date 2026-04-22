@@ -35,6 +35,7 @@ export function Footer() {
 
   return (
     <footer
+      id="contacto"
       style={{ backgroundColor: "#1A2E6C", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       className="w-full"
     >
@@ -110,10 +111,10 @@ export function Footer() {
             <ul className="flex flex-col gap-3">
               {[
                 { label: "Inicio", href: "#inicio" },
-                { label: "Eventos disponibles", href: "#eventos" },
+                { label: "Registro", href: "#registro" },
+                { label: "Catálogo de Eventos", href: "#eventos" },
                 { label: "¿Cómo funciona?", href: "#como-funciona" },
                 { label: "Contáctanos", href: "#contacto" },
-                { label: "Registrar colaboración", href: "#contacto" },
                 { label: "Acceso Administrador", href: "/admin" },
               ].map((link) => (
                 <li key={link.label}>
