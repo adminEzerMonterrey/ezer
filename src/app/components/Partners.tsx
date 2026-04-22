@@ -49,13 +49,13 @@ export function Partners() {
             borderRadius: 12,
             border: "1px solid #F3F4F6",
             backgroundColor: "#FAFAFA",
-            padding: "30px 24px",
+            padding: "40px 30px",
             display: "flex",
             flexWrap: "wrap",
-            gap: "30px",
+            gap: "50px",
             justifyContent: "center",
             alignItems: "center",
-            minHeight: "150px"
+            minHeight: "180px"
           }}
         >
           {partners.length > 0 ? (
@@ -66,16 +66,22 @@ export function Partners() {
                 alt={`Logo de ${partner.name}`}
                 title={partner.name}
                 style={{
-                  height: "50px",
-                  maxWidth: "180px",
+                  height: "80px",
+                  maxWidth: "240px",
                   objectFit: "contain",
                   display: "block",
                   filter: "grayscale(100%)",
-                  transition: "filter 0.3s ease",
+                  transition: "all 0.3s ease",
                   cursor: "pointer"
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.filter = "grayscale(0%)")}
-                onMouseLeave={(e) => (e.currentTarget.style.filter = "grayscale(100%)")}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.filter = "grayscale(0%)";
+                  e.currentTarget.style.transform = "scale(1.05)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.filter = "grayscale(100%)";
+                  e.currentTarget.style.transform = "scale(1)";
+                }}
               />
             ))
           ) : (
