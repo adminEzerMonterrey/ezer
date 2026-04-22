@@ -248,9 +248,16 @@ export function EventCatalog() {
                       </span>
                     </div>
 
-                    <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 14 }} className="line-clamp-2 flex-1">
+                    <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 12 }} className="line-clamp-2 flex-1">
                       {event.description}
                     </p>
+
+                    <div style={{ backgroundColor: "#F9FAFB", padding: "8px 12px", borderRadius: 8, marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 14 }}>📅</span>
+                      <span style={{ color: "#374151", fontSize: 12, fontWeight: 600 }}>
+                        Cierre de convocatoria: <span style={{ color: "#E8401C", fontWeight: 800 }}>{event.day} {event.month}</span>
+                      </span>
+                    </div>
 
                     <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
                       <div className="flex items-center gap-1.5">
