@@ -27,9 +27,9 @@ export function EditEventForm({
     setError('');
 
     const formData = new FormData(e.currentTarget);
-    const data = {
-      id: initialData.id,
-      name: formData.get('title'),
+    const titleVal = formData.get('title_input');
+
+    const updatePayload: any = {
       company: formData.get('company'),
       date: formData.get('event_date'),
       objective: formData.get('category'),
@@ -38,6 +38,13 @@ export function EditEventForm({
       cost: formData.get('cost'),
       spots: parseInt(formData.get('spots') as string, 10)
     };
+
+    if (initialData.hasOwnProperty('name')) updatePayload.name = titleVal;
+    if (initialData.hasOwnProperty('title')) updatePayload.title = titleVal;
+    if (!initialData.hasOwnProperty('name') && !initialData.hasOwnProperty('title')) {
+      updatePayload.name = titleVal;
+    }
+
 
     try {
       let imageUrl = initialData.image_url || initialData.image;
@@ -59,13 +66,12 @@ export function EditEventForm({
         imageUrl = publicUrlData.publicUrl;
       }
 
-      const { id, ...updateData } = data;
-      const finalDataToUpdate = { ...updateData, image_url: imageUrl };
+      const finalDataToUpdate = { ...updatePayload, image_url: imageUrl };
 
       const { error: updateError } = await supabase
         .from('events')
         .update(finalDataToUpdate)
-        .eq('id', id);
+        .eq('id', initialData.id);
 
       if (updateError) {
         throw new Error(updateError.message || 'No se pudo actualizar el evento');
@@ -86,7 +92,7 @@ export function EditEventForm({
         
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Título</label>
-          <input required defaultValue={initialData.name} name="title" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          <input required defaultValue={initialData.name || initialData.title} name="title_input" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
