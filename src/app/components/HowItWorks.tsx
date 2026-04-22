@@ -10,8 +10,8 @@ export function HowItWorks() {
     {
       number: "02",
       icon: "🤝",
-      title: "EZER conecta",
-      description: "Nuestro equipo vincula a la empresa con ONGs que mejor se ajustan a su perfil, y te contactará vía Email o Teléfono.",
+      title: "EZER se pondrá en contacto",
+      description: "EZER te contactará vía mail o vía teléfono.",
       color: "#F5C200",
     },
     {
