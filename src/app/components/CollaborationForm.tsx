@@ -243,6 +243,8 @@ export function CollaborationForm() {
                   <a
                     href="/Registro_Ezer.pdf"
                     download="Registro_Ezer.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     style={{
                       display: "flex",
                       alignItems: "center",
