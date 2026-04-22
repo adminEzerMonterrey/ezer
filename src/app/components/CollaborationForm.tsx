@@ -229,7 +229,7 @@ export function CollaborationForm() {
                       }}
                     >
                       <FileText size={20} style={{ color: "#1A2E6C" }} />
-                      <span style={{ fontSize: 9, color: "#E8401C", fontWeight: 800, letterSpacing: "0.05em" }}>DOCX</span>
+                      <span style={{ fontSize: 9, color: "#E8401C", fontWeight: 800, letterSpacing: "0.05em" }}>PDF</span>
                     </div>
                     <div>
                       <p style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14, marginBottom: 3 }}>
@@ -240,10 +240,9 @@ export function CollaborationForm() {
                       </p>
                     </div>
                   </div>
-                  {/* ⚠️ Reemplaza el href con el enlace real al documento cuando esté disponible */}
                   <a
-                    href="#"
-                    download
+                    href="/Registro_Ezer.pdf"
+                    download="Registro_Ezer.pdf"
                     style={{
                       display: "flex",
                       alignItems: "center",
