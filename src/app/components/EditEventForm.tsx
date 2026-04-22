@@ -86,7 +86,7 @@ export function EditEventForm({
         
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Título</label>
-          <input required defaultValue={initialData.title} name="title" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          <input required defaultValue={initialData.name} name="title" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -101,7 +101,7 @@ export function EditEventForm({
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Categoría</label>
-          <select required defaultValue={initialData.category} name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+          <select required defaultValue={initialData.objective} name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             <option value="Medio Ambiente">Medio Ambiente</option>
             <option value="Educación">Educación</option>
             <option value="Alimentación">Alimentación</option>
@@ -112,7 +112,7 @@ export function EditEventForm({
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Audiencia</label>
-          <select required defaultValue={initialData.audience} name="audience" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+          <select required defaultValue={initialData.target_audience} name="audience" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             <option value="Público General">Público General</option>
             <option value="Estudiantes">Estudiantes</option>
             <option value="Profesionistas">Profesionistas</option>

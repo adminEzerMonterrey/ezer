@@ -19,6 +19,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
     const cost = formData.get('cost') as string;
+    const spots = parseInt(formData.get('spots') as string, 10);
 
     try {
       // 1. Obtener usuario
@@ -67,6 +68,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             description,
             objective,
             cost,
+            spots,
             image_url: imageUrl,
             user_id: user.id
           }
