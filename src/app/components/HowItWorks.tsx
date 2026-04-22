@@ -3,8 +3,8 @@ export function HowItWorks() {
     {
       number: "01",
       icon: "🏢",
-      title: "Empresa se registra",
-      description: "La empresa llena el formulario de colaboración, descarga el formato oficial, y lo adjunta con sus datos e intereses.",
+      title: "Asociación se registra",
+      description: "La asociación llena el formulario de colaboración, descarga el formato oficial, y lo adjunta con sus datos e intereses.",
       color: "#E8401C",
     },
     {
@@ -44,7 +44,7 @@ export function HowItWorks() {
             ¿Cómo funciona?
           </h2>
           <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 480 }} className="mx-auto text-base">
-            En cuatro pasos sencillos, tu empresa puede generar un impacto real en la comunidad.
+            En cuatro pasos sencillos, tu asociación puede generar un impacto real en la comunidad.
           </p>
         </div>
 
