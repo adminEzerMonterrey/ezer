@@ -29,11 +29,11 @@ export function EditEventForm({
     const formData = new FormData(e.currentTarget);
     const data = {
       id: initialData.id,
-      title: formData.get('title'),
+      name: formData.get('title'),
       company: formData.get('company'),
-      event_date: formData.get('event_date'),
-      category: formData.get('category'),
-      audience: formData.get('audience'),
+      date: formData.get('event_date'),
+      objective: formData.get('category'),
+      target_audience: formData.get('audience'),
       description: formData.get('description'),
       cost: formData.get('cost'),
       spots: parseInt(formData.get('spots') as string, 10)
