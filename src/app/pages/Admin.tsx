@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AddEventForm } from '../components/AddEventForm';
 import { EditEventForm } from '../components/EditEventForm';
+import { AddPartnerForm } from '../components/AddPartnerForm';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { Trash2, LogOut, Pencil } from 'lucide-react';
@@ -21,6 +22,13 @@ export function Admin() {
   const [events, setEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
   
+  // Partners state
+  const [partners, setPartners] = useState<any[]>([]);
+  const [partnersLoading, setPartnersLoading] = useState(false);
+
+  // Tabs state
+  const [activeTab, setActiveTab] = useState<'eventos' | 'aliados'>('eventos');
+
   // Edit Modal State
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -54,9 +62,23 @@ export function Admin() {
     }
   };
 
+  const loadPartners = async () => {
+    setPartnersLoading(true);
+    try {
+      const { data, error } = await supabase.from('partners').select('*');
+      if (error) throw error;
+      if (data) setPartners(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setPartnersLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadEvents();
+      loadPartners();
     }
   }, [isAuthenticated]);
 
@@ -95,6 +117,20 @@ export function Admin() {
         alert('Error al eliminar evento: ' + error.message);
       } else {
         loadEvents();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeletePartner = async (id: number) => {
+    if (!confirm('¿Seguro que deseas eliminar esta empresa aliada?')) return;
+    try {
+      const { error } = await supabase.from('partners').delete().eq('id', id);
+      if (error) {
+        alert('Error al eliminar empresa: ' + error.message);
+      } else {
+        loadPartners();
       }
     } catch (e) {
       console.error(e);
@@ -181,74 +217,149 @@ export function Admin() {
             </button>
           </div>
 
-          <AddEventForm onEventAdded={loadEvents} />
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
+            <button 
+              onClick={() => setActiveTab('eventos')}
+              style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'eventos' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'eventos' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
+            >
+              Eventos
+            </button>
+            <button 
+              onClick={() => setActiveTab('aliados')}
+              style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'aliados' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'aliados' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
+            >
+              Empresas Aliadas
+            </button>
+          </div>
 
-          <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '16px' }}>Eventos Actuales</h3>
-          
-          {eventsLoading ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando eventos...</div>
+          {activeTab === 'eventos' ? (
+            <>
+              <AddEventForm onEventAdded={loadEvents} />
+
+              <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '16px' }}>Eventos Actuales</h3>
+              
+              {eventsLoading ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando eventos...</div>
+              ) : (
+                <div style={{ border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                    <thead style={{ backgroundColor: '#F9FAFB' }}>
+                      <tr>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Título</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Fecha</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Empresa</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Imagen</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {events.map((event) => (
+                        <tr key={event.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
+                          <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.name || event.title}</td>
+                          <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date || event.event_date}</td>
+                          <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.company}</td>
+                          <td style={{ padding: '16px', textAlign: 'center' }}>
+                            {event.image_url ? (
+                              <img 
+                                src={event.image_url} 
+                                alt={event.title || event.name}
+                                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
+                              />
+                            ) : (
+                              <div style={{ width: '60px', height: '60px', backgroundColor: '#E5E7EB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#6B7280' }}>
+                                Sin imagen
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ padding: '16px', textAlign: 'center' }}>
+                            <button 
+                              onClick={() => {
+                                setEditingEvent(event);
+                                setIsEditDialogOpen(true);
+                              }}
+                              style={{ backgroundColor: 'transparent', border: 'none', color: '#3B82F6', cursor: 'pointer', padding: '4px', marginRight: '8px' }}
+                              title="Editar evento"
+                            >
+                              <Pencil size={18} />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(event.id)}
+                              style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
+                              title="Eliminar evento"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {events.length === 0 && (
+                        <tr>
+                          <td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
+                            No hay eventos registrados en la base de datos.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           ) : (
-            <div style={{ border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead style={{ backgroundColor: '#F9FAFB' }}>
-                  <tr>
-                    <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Título</th>
-                    <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Fecha</th>
-                    <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Empresa</th>
-                    <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Imagen</th>
-                    <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {events.map((event) => (
-                    <tr key={event.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
-                      <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.name || event.title}</td>
-                      <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date || event.event_date}</td>
-                      <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.company}</td>
-                      <td style={{ padding: '16px', textAlign: 'center' }}>
-                        {event.image_url ? (
-                          <img 
-                            src={event.image_url} 
-                            alt={event.title || event.name}
-                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
-                          />
-                        ) : (
-                          <div style={{ width: '60px', height: '60px', backgroundColor: '#E5E7EB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#6B7280' }}>
-                            Sin imagen
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ padding: '16px', textAlign: 'center' }}>
-                        <button 
-                          onClick={() => {
-                            setEditingEvent(event);
-                            setIsEditDialogOpen(true);
-                          }}
-                          style={{ backgroundColor: 'transparent', border: 'none', color: '#3B82F6', cursor: 'pointer', padding: '4px', marginRight: '8px' }}
-                          title="Editar evento"
-                        >
-                          <Pencil size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(event.id)}
-                          style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
-                          title="Eliminar evento"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {events.length === 0 && (
-                    <tr>
-                      <td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
-                        No hay eventos registrados en la base de datos.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <>
+              <AddPartnerForm onPartnerAdded={loadPartners} />
+
+              <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '16px' }}>Empresas Aliadas Actuales</h3>
+              
+              {partnersLoading ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando aliados...</div>
+              ) : (
+                <div style={{ border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                    <thead style={{ backgroundColor: '#F9FAFB' }}>
+                      <tr>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Nombre</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '100px', textAlign: 'center' }}>Logo</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {partners.map((partner) => (
+                        <tr key={partner.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
+                          <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{partner.name}</td>
+                          <td style={{ padding: '16px', textAlign: 'center' }}>
+                            {partner.logo_url ? (
+                              <img 
+                                src={partner.logo_url} 
+                                alt={partner.name}
+                                style={{ width: '80px', height: '40px', objectFit: 'contain', borderRadius: '4px' }}
+                              />
+                            ) : (
+                              <span style={{ fontSize: '12px', color: '#9CA3AF' }}>Sin logo</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '16px', textAlign: 'center' }}>
+                            <button 
+                              onClick={() => handleDeletePartner(partner.id)}
+                              style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
+                              title="Eliminar aliado"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {partners.length === 0 && (
+                        <tr>
+                          <td colSpan={3} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
+                            No hay empresas aliadas registradas.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

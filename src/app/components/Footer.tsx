@@ -35,7 +35,6 @@ export function Footer() {
 
   return (
     <footer
-      id="contacto"
       style={{ backgroundColor: "#1A2E6C", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       className="w-full"
     >

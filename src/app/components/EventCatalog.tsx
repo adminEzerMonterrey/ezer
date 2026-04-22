@@ -14,6 +14,7 @@ interface Event {
   description: string;
   image: string;
   spots: number;
+  cost: string | number;
 }
 
 export function EventCatalog() {
@@ -23,12 +24,11 @@ export function EventCatalog() {
   // States for filtering
   const [category, setCategory] = useState("Todos");
   const [dateFilter, setDateFilter] = useState("Todos");
-  const [company, setCompany] = useState("Todas");
 
   // Filter options derived from loaded events
-  const [categories, setCategories] = useState<string[]>(["Todos"]);
+  const predefinedCategories = ["Todos", "Medio Ambiente", "Educación", "Alimentación", "Salud", "Otro"];
+  const [categories, setCategories] = useState<string[]>(predefinedCategories);
   const [dates, setDates] = useState<string[]>(["Todos"]);
-  const [companies, setCompanies] = useState<string[]>(["Todas"]);
 
   // Pop-up states
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
@@ -60,17 +60,18 @@ export function EventCatalog() {
             audience: e.target_audience,
             description: e.description,
             image: e.image_url,
-            spots: e.spots || 0
+            spots: e.spots || 0,
+            cost: e.cost || "Gratuito"
           };
         });
 
         setEvents(formattedEvents);
 
-        const cats = Array.from(new Set(formattedEvents.map(e => e.category)));
-        const comps = Array.from(new Set(formattedEvents.map(e => e.company)));
-
-        setCategories(["Todos", ...cats]);
-        setCompanies(["Todas", ...comps]);
+        // Merge DB categories with predefined (just in case there are custom ones)
+        const dbCats = Array.from(new Set(formattedEvents.map(e => e.category)));
+        const allCats = Array.from(new Set([...predefinedCategories, ...dbCats]));
+        
+        setCategories(allCats);
 
       } catch (e) {
         console.error('Cant load events', e);
@@ -84,7 +85,6 @@ export function EventCatalog() {
 
   const filtered = events.filter((e) => {
     const catOk = category === "Todos" || e.category === category;
-    const compOk = company === "Todas" || e.company === company;
 
     // Simplistic date matching based on previous logic 
     const isAbril = e.month === "ABR" || e.month === "ABR.";
@@ -99,7 +99,7 @@ export function EventCatalog() {
       (dateFilter.includes("Junio") && isJunio) ||
       (dateFilter.includes("Julio") && isJulio);
 
-    return catOk && compOk && dateOk;
+    return catOk && dateOk;
   });
 
   return (
@@ -138,11 +138,10 @@ export function EventCatalog() {
               <span style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14 }}>Filtrar:</span>
             </div>
             <FilterSelect label="Categoría" value={category} options={categories} onChange={setCategory} />
-            <FilterSelect label="Fecha" value={dateFilter} options={dates} onChange={setDateFilter} />
-            <FilterSelect label="Empresa" value={company} options={companies} onChange={setCompany} />
-            {(category !== "Todos" || dateFilter !== "Todos" || company !== "Todas") && (
+            <FilterSelect label="Cierre de convocatoria" value={dateFilter} options={dates} onChange={setDateFilter} />
+            {(category !== "Todos" || dateFilter !== "Todos") && (
               <button
-                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); setCompany("Todas"); }}
+                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); }}
                 style={{ color: "#E8401C", fontWeight: 600, fontSize: 13 }}
                 className="ml-auto hover:underline cursor-pointer"
               >
@@ -199,6 +198,7 @@ export function EventCatalog() {
                         minWidth: 52,
                       }}
                     >
+                      <div style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 10, marginBottom: 2 }}>CIERRE</div>
                       <div style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 20, lineHeight: 1 }}>{event.day}</div>
                       <div style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 10, letterSpacing: "0.1em" }}>{event.month}</div>
                     </div>
@@ -248,9 +248,16 @@ export function EventCatalog() {
                     </p>
 
                     <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
-                      <div className="flex items-center gap-1.5">
-                        <Users size={13} style={{ color: "#9CA3AF" }} />
-                        <span style={{ color: "#6B7280", fontSize: 12 }}>{event.spots} lugares</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5">
+                          <Users size={13} style={{ color: "#9CA3AF" }} />
+                          <span style={{ color: "#6B7280", fontSize: 12 }}>{event.spots} lugares</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span style={{ color: "#16A34A", fontSize: 12, fontWeight: 700 }}>
+                            Costo aprox: {typeof event.cost === 'number' ? `$${event.cost}` : event.cost}
+                          </span>
+                        </div>
                       </div>
                       <button
                         onClick={() => setSelectedEventName(event.title)}
@@ -315,6 +322,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
     const formData = new FormData(e.currentTarget);
     const data = {
       name: formData.get('name'),
+      phone: formData.get('phone'),
       company: formData.get('company'),
       email: formData.get('email'),
       description: formData.get('description'),
@@ -327,6 +335,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
         .from('interest_leads')
         .insert([{
           name: data.name,
+          phone: data.phone,
           company: data.company,
           email: data.email,
           event_name: data.eventName,
@@ -408,6 +417,11 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Tu Nombre completo *</label>
                 <input required name="name" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu nombre" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Teléfono *</label>
+                <input required name="phone" type="tel" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu teléfono o celular" />
               </div>
 
               <div>

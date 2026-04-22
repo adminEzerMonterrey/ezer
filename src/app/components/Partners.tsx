@@ -1,25 +1,23 @@
-// Fix for build error in Vercel related to figma import
-const partnersImg = "https://placehold.co/1200x200/FAFAFA/9CA3AF?text=Logos+de+Organizaciones+Aliadas";
-
-const PARTNER_NAMES = [
-  "Fundación DeAcero",
-  "Casa Hogar Padre Severiano Martínez",
-  "Arco Iris de Jesús A.B.P.",
-  "Hogar de la Misericordia",
-  "Hogar San Vicente de Paul",
-  "Fundación Ricardo, Andrés y José A. Chapa González A.C.",
-  "Compartiendo Generosidad ABP",
-  "Fomento Educativo",
-  "Fundación Jesús M. Montemayor A.C.",
-  "Cayam",
-  "Fundación Promax",
-  "Treviño Elizondo A.B.P.",
-  "Nacional Monte de Piedad",
-  "Casa Luis Reizo Elizondo",
-  "NL Igualdad e Inclusión",
-];
+import { useState, useEffect } from 'react';
+import { supabase } from '../../supabaseClient';
 
 export function Partners() {
+  const [partners, setPartners] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const { data, error } = await supabase.from('partners').select('*');
+        if (!error && data) {
+          setPartners(data);
+        }
+      } catch (e) {
+        console.error("Error fetching partners:", e);
+      }
+    };
+    fetchPartners();
+  }, []);
+
   return (
     <section
       style={{
@@ -45,26 +43,44 @@ export function Partners() {
           Colaboradores y alianzas que confían en EZER
         </p>
 
-        {/* Logos grid via image */}
+        {/* Logos grid via db */}
         <div
           style={{
             borderRadius: 12,
-            overflow: "hidden",
             border: "1px solid #F3F4F6",
             backgroundColor: "#FAFAFA",
-            padding: "20px 24px",
+            padding: "30px 24px",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "30px",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "150px"
           }}
         >
-          <img
-            src={partnersImg}
-            alt="Colaboradores y alianzas de EZER: Fundación DeAcero, Casa Hogar Padre Severiano Martínez, Arco Iris de Jesús, Hogar de la Misericordia, Fundación Chapa González, Compartiendo Generosidad ABP, Fomento Educativo, Fundación Jesús M. Montemayor, Cayam, Fundación Promax, Treviño Elizondo, Nacional Monte de Piedad, NL Igualdad e Inclusión y más."
-            style={{
-              width: "100%",
-              height: "auto",
-              objectFit: "contain",
-              display: "block",
-            }}
-          />
+          {partners.length > 0 ? (
+            partners.map((partner) => (
+              <img
+                key={partner.id}
+                src={partner.logo_url}
+                alt={`Logo de ${partner.name}`}
+                title={partner.name}
+                style={{
+                  height: "50px",
+                  maxWidth: "180px",
+                  objectFit: "contain",
+                  display: "block",
+                  filter: "grayscale(100%)",
+                  transition: "filter 0.3s ease",
+                  cursor: "pointer"
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.filter = "grayscale(0%)")}
+                onMouseLeave={(e) => (e.currentTarget.style.filter = "grayscale(100%)")}
+              />
+            ))
+          ) : (
+            <p style={{ color: "#9CA3AF", fontSize: 14 }}>Aún no hay organizaciones aliadas registradas.</p>
+          )}
         </div>
 
         {/* Count badge */}
@@ -82,7 +98,7 @@ export function Partners() {
           >
             <span style={{ fontSize: 16 }}>🤝</span>
             <span style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 13 }}>
-              18+ organizaciones aliadas
+              {partners.length > 0 ? `${partners.length}+ organizaciones aliadas` : "Organizaciones aliadas"}
             </span>
             <span
               style={{

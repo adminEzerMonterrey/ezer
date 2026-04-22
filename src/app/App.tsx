@@ -6,6 +6,7 @@ import { Partners } from "./components/Partners";
 import { EventCatalog } from "./components/EventCatalog";
 import { HowItWorks } from "./components/HowItWorks";
 import { CollaborationForm } from "./components/CollaborationForm";
+import { ContactSection } from "./components/ContactSection";
 import { Footer } from "./components/Footer";
 import { Admin } from "./pages/Admin";
 
@@ -38,6 +39,7 @@ function Home() {
       <EventCatalog />
       <HowItWorks />
       <CollaborationForm />
+      <ContactSection />
       <Footer />
     </div>
   );

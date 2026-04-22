@@ -14,10 +14,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, company, email, eventName, description } = req.body;
+  const { name, phone, company, email, eventName, description } = req.body;
 
-  if (!name || !email || !eventName) {
-    return res.status(400).json({ message: 'Name, email, and eventName are required' });
+  if (!name || !phone || !email || !eventName) {
+    return res.status(400).json({ message: 'Name, phone, email, and eventName are required' });
   }
 
   try {
@@ -36,6 +36,7 @@ export default async function handler(req, res) {
       console.log(`Event: ${eventName}`);
       console.log(`Name: ${name}`);
       console.log(`Company: ${company}`);
+      console.log(`Phone: ${phone}`);
       console.log(`Email: ${email}`);
       console.log(`Description: ${description}`);
       console.log('-------------------------');
@@ -54,6 +55,7 @@ export default async function handler(req, res) {
         <p><strong>Evento seleccionado:</strong> ${eventName}</p>
         <ul>
           <li><strong>Nombre:</strong> ${name}</li>
+          <li><strong>Teléfono:</strong> ${phone}</li>
           <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
           <li><strong>Correo Electrónico:</strong> <a href="mailto:${email}">${email}</a></li>
         </ul>
@@ -67,12 +69,13 @@ export default async function handler(req, res) {
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
       to: email, 
       subject: `Confirmación de solicitud para evento: ${eventName}`,
-      text: `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nEmpresa: ${company}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`,
+      text: `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`,
       html: `
         <h2>¡Gracias por tu interés, ${name}!</h2>
         <p>Hemos recibido correctamente tus datos para participar en el evento <strong>${eventName}</strong>.</p>
         <p><strong>Resumen de tu solicitud:</strong></p>
         <ul>
+          <li><strong>Teléfono:</strong> ${phone}</li>
           <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
           <li><strong>Tus comentarios:</strong> ${description}</li>
         </ul>

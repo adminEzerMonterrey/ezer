@@ -18,6 +18,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const target_audience = formData.get('audience') as string;
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
+    const cost = formData.get('cost') as string;
 
     try {
       // 1. Obtener usuario
@@ -65,6 +66,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             target_audience,
             description,
             objective,
+            cost,
             image_url: imageUrl,
             user_id: user.id
           }
@@ -100,7 +102,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa/Organizador</label>
-          <input required name="company" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. Ezer S.A." />
+          <input required name="company" type="text" value="EZER" readOnly style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: '#F3F4F6', color: '#6B7280' }} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -121,12 +123,28 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Audiencia</label>
-          <input required name="audience" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. Todo público, Familias" />
+          <select required name="audience" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+            <option value="Público General">Público General</option>
+            <option value="Estudiantes">Estudiantes</option>
+            <option value="Profesionistas">Profesionistas</option>
+            <option value="Familias">Familias</option>
+            <option value="Voluntarios Corporativos">Voluntarios Corporativos</option>
+            <option value="Otro">Otro</option>
+          </select>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios Disponibles</label>
-          <input required name="spots" type="number" min="1" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. 40" />
+          <select required name="spots" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+            {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(num => (
+              <option key={num} value={num}>{num}</option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Costo (Aproximado)</label>
+          <input name="cost" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. 500 MXN o Gratuito" />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

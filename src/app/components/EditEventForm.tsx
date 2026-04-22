@@ -35,6 +35,7 @@ export function EditEventForm({
       audience: formData.get('audience'),
       description: formData.get('description'),
       image_url: formData.get('image_url'),
+      cost: formData.get('cost'),
       spots: parseInt(formData.get('spots') as string, 10)
     };
 
@@ -90,12 +91,28 @@ export function EditEventForm({
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Audiencia</label>
-          <input required defaultValue={initialData.audience} name="audience" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          <select required defaultValue={initialData.audience} name="audience" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+            <option value="Público General">Público General</option>
+            <option value="Estudiantes">Estudiantes</option>
+            <option value="Profesionistas">Profesionistas</option>
+            <option value="Familias">Familias</option>
+            <option value="Voluntarios Corporativos">Voluntarios Corporativos</option>
+            <option value="Otro">Otro</option>
+          </select>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios Disponibles</label>
-          <input required defaultValue={initialData.spots} name="spots" type="number" min="1" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          <select required defaultValue={initialData.spots} name="spots" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+            {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(num => (
+              <option key={num} value={num}>{num}</option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Costo (Aproximado)</label>
+          <input defaultValue={initialData.cost} name="cost" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. 500 MXN o Gratuito" />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

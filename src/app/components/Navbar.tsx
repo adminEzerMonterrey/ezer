@@ -104,8 +104,8 @@ export function Navbar() {
           {/* CTA Button */}
           <div className="hidden md:block">
             <a
-              href="#contacto"
-              onClick={(e) => handleNavClick(e, "#contacto")}
+              href="#registro"
+              onClick={(e) => handleNavClick(e, "#registro")}
               style={{ backgroundColor: "#F5C200", color: "#1A2E6C", borderRadius: 8 }}
               className="inline-flex items-center gap-2 px-5 py-2.5 font-bold text-sm hover:brightness-105 active:scale-95 transition-all duration-200 shadow-md"
             >
@@ -160,8 +160,8 @@ export function Navbar() {
               Contáctanos
             </a>
             <a
-              href="#contacto"
-              onClick={(e) => { handleNavClick(e, "#contacto"); setMenuOpen(false); }}
+              href="#registro"
+              onClick={(e) => { handleNavClick(e, "#registro"); setMenuOpen(false); }}
               style={{ backgroundColor: "#F5C200", color: "#1A2E6C", borderRadius: 8 }}
               className="mt-2 text-center font-bold py-3 px-4 text-sm"
             >
