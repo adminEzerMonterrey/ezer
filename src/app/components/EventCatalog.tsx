@@ -244,7 +244,7 @@ export function EventCatalog() {
                         <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>{event.company}</span>
                       </div>
                       <span style={{ color: "#16A34A", fontSize: 12, fontWeight: 700, backgroundColor: "#DCFCE7", padding: "2px 8px", borderRadius: "12px" }}>
-                        Costo Aproximado $: {typeof event.cost === 'number' ? event.cost : event.cost.toString().replace('$', '')}
+                        Costo Aproximado: {typeof event.cost === 'number' ? `$${event.cost}` : (event.cost.toString().includes('$') ? event.cost : (event.cost.toString().toLowerCase().includes('grat') ? event.cost : `$${event.cost}`))}
                       </span>
                     </div>
 
