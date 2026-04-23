@@ -5,12 +5,15 @@ const EXPORT_FILE_NAME = 'interes-voluntariado.xlsx';
 
 const EXCEL_COLUMNS = [
   { key: 'name', header: 'Nombre' },
-  { key: 'company', header: 'Organizacion / Empresa' },
-  { key: 'phone', header: 'Telefono' },
-  { key: 'email', header: 'Correo electronico' },
-  { key: 'event_name', header: 'Evento de interes' },
-  { key: 'description', header: 'Comentarios' },
-  { key: 'created_at', header: 'Fecha de registro' },
+  { key: 'company', header: 'Empresa / Organización' },
+  { key: 'email', header: 'Correo electrónico' },
+  { key: 'event_name', header: 'Nombre del evento' },
+  { key: 'description', header: 'Descripción' },
+  {
+    key: 'created_at',
+    header: 'Fecha de creación',
+    formatter: (value) => formatDateInSpanish(value),
+  },
 ];
 
 function getSupabaseAdminClient() {
@@ -42,6 +45,23 @@ function normalizeCellValue(value) {
   return JSON.stringify(value);
 }
 
+function formatDateInSpanish(value) {
+  if (!value) {
+    return '';
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return normalizeCellValue(value);
+  }
+
+  return new Intl.DateTimeFormat('es-MX', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+  }).format(date);
+}
+
 async function fetchInterestLeads() {
   const supabase = getSupabaseAdminClient();
 
@@ -62,7 +82,11 @@ function buildExcelRows(rows) {
     const formattedRow = {};
 
     for (const column of EXCEL_COLUMNS) {
-      formattedRow[column.header] = normalizeCellValue(row[column.key]);
+      const value = column.formatter
+        ? column.formatter(row[column.key], row)
+        : normalizeCellValue(row[column.key]);
+
+      formattedRow[column.header] = value;
     }
 
     return formattedRow;
