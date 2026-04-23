@@ -166,7 +166,14 @@ export function Admin() {
       const link = document.createElement('a');
       const contentDisposition = response.headers.get('Content-Disposition');
       const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const fileName = fileNameMatch?.[1] || 'interes-voluntariado.xlsx';
+      const fallbackDate = new Intl.DateTimeFormat('es-MX', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+        .format(new Date())
+        .replace(/\//g, '-');
+      const fileName = fileNameMatch?.[1] || `Voluntarios - ${fallbackDate}.xlsx`;
 
       link.href = downloadUrl;
       link.download = fileName;

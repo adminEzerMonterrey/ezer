@@ -1,8 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 
-const EXPORT_FILE_NAME = 'interes-voluntariado.xlsx';
-
 const EXCEL_COLUMNS = [
   { key: 'name', header: 'Nombre' },
   { key: 'company', header: 'Empresa / Organización' },
@@ -62,6 +60,18 @@ function formatDateInSpanish(value) {
   }).format(date);
 }
 
+function buildExportFileName() {
+  const formattedDate = new Intl.DateTimeFormat('es-MX', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(new Date())
+    .replace(/\//g, '-');
+
+  return `Voluntarios - ${formattedDate}.xlsx`;
+}
+
 async function fetchInterestLeads() {
   const supabase = getSupabaseAdminClient();
 
@@ -94,7 +104,17 @@ function buildExcelRows(rows) {
 }
 
 function buildWorkbookBuffer(rows) {
-  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const headers = EXCEL_COLUMNS.map((column) => column.header);
+  const worksheet = XLSX.utils.aoa_to_sheet([headers]);
+
+  if (rows.length > 0) {
+    XLSX.utils.sheet_add_json(worksheet, rows, {
+      origin: 'A2',
+      skipHeader: true,
+    });
+  }
+
+  worksheet['!cols'] = headers.map((header) => ({ wch: Math.max(header.length + 4, 20) }));
   const workbook = XLSX.utils.book_new();
 
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Voluntarios');
@@ -123,6 +143,11 @@ export default async function handler(req, res) {
     const rows = await fetchInterestLeads();
     const excelRows = buildExcelRows(rows);
     const workbookBuffer = buildWorkbookBuffer(excelRows);
+    const fileName = buildExportFileName();
+
+    if (rows.length === 0) {
+      console.warn('API /export-interest-leads: no se encontraron registros en interest_leads.');
+    }
 
     res.setHeader(
       'Content-Type',
@@ -130,7 +155,7 @@ export default async function handler(req, res) {
     );
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="${EXPORT_FILE_NAME}"`,
+      `attachment; filename="${fileName}"`,
     );
 
     return res.status(200).send(workbookBuffer);
