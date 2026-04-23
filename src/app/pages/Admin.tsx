@@ -4,7 +4,7 @@ import { EditEventForm } from '../components/EditEventForm';
 import { AddPartnerForm } from '../components/AddPartnerForm';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { Trash2, LogOut, Pencil } from 'lucide-react';
+import { Trash2, LogOut, Pencil, Download } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { supabase } from '../../supabaseClient';
 
@@ -25,6 +25,10 @@ export function Admin() {
   // Partners state
   const [partners, setPartners] = useState<any[]>([]);
   const [partnersLoading, setPartnersLoading] = useState(false);
+
+  // Export state
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportError, setExportError] = useState('');
 
   // Tabs state
   const [activeTab, setActiveTab] = useState<'eventos' | 'aliados'>('eventos');
@@ -137,6 +141,46 @@ export function Admin() {
     }
   };
 
+  const handleExportInterestLeads = async () => {
+    setExportLoading(true);
+    setExportError('');
+
+    try {
+      const response = await fetch('/api/export-interest-leads');
+
+      if (!response.ok) {
+        let message = 'No se pudo exportar el archivo.';
+
+        try {
+          const errorData = await response.json();
+          message = errorData.message || message;
+        } catch {
+          // Ignorar respuesta no JSON.
+        }
+
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const fileName = fileNameMatch?.[1] || 'interes-voluntariado.xlsx';
+
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error: any) {
+      setExportError(error.message || 'No se pudo exportar el Excel.');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   if (tokenLoading) return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }}></div>;
 
   if (!isAuthenticated) {
@@ -209,13 +253,39 @@ export function Admin() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
             <h1 style={{ color: '#1A2E6C', fontWeight: 800, fontSize: '32px' }}>Panel de Control (Eventos)</h1>
-            <button 
-              onClick={handleLogout}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', backgroundColor: '#FEE2E2', color: '#991B1B', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
-            >
-              <LogOut size={16} /> Cerrar Sesión
-            </button>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <button
+                onClick={handleExportInterestLeads}
+                disabled={exportLoading}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: exportLoading ? '#CBD5E1' : '#1A2E6C',
+                  color: '#FFFFFF',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: exportLoading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <Download size={16} /> {exportLoading ? 'Exportando...' : 'Exportar leads'}
+              </button>
+              <button 
+                onClick={handleLogout}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', backgroundColor: '#FEE2E2', color: '#991B1B', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+              >
+                <LogOut size={16} /> Cerrar Sesión
+              </button>
+            </div>
           </div>
+
+          {exportError && (
+            <div style={{ backgroundColor: '#FEF2F2', color: '#991B1B', padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginBottom: '20px' }}>
+              {exportError}
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
             <button 
