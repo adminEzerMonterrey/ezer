@@ -372,7 +372,7 @@ export function Admin() {
               onClick={() => setActiveTab('estadisticas')}
               style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'estadisticas' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'estadisticas' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
             >
-              📊 Estadísticas Hero
+              Estadísticas
             </button>
           </div>
 
