@@ -89,10 +89,19 @@ export function Admin() {
     setInterestLeadsError('');
 
     try {
+      // TEMP DEBUG: rastrea exactamente lo que devuelve Supabase en el cliente.
+      console.log('[TEMP DEBUG][Admin] Loading interest_leads from browser client...');
       const { data, error } = await supabase
         .from('interest_leads')
         .select('id, name, company, email, event_name, description, created_at')
         .order('created_at', { ascending: false });
+
+      // TEMP DEBUG: deja visible si Supabase respondió error o lista vacía.
+      console.log('[TEMP DEBUG][Admin] interest_leads browser response:', {
+        error: error ? error.message : null,
+        rows: data?.length ?? 0,
+        sample: data?.[0] ?? null,
+      });
 
       if (error) {
         throw error;
@@ -103,6 +112,8 @@ export function Admin() {
       return rows;
     } catch (e: any) {
       console.error('Error loading interest leads:', e);
+      // TEMP DEBUG: conserva el error completo para inspección en consola.
+      console.error('[TEMP DEBUG][Admin] loadInterestLeads failed:', e);
       setInterestLeadsError(e.message || 'No se pudieron cargar los leads.');
       setInterestLeads([]);
       return [];
@@ -184,7 +195,17 @@ export function Admin() {
     setExportError('');
 
     try {
+      // TEMP DEBUG: confirma que el botón sí está disparando la exportación.
+      console.log('[TEMP DEBUG][Admin] Starting export-interest-leads request...');
       const response = await fetch('/api/export-interest-leads');
+
+      // TEMP DEBUG: deja visible qué respondió la API antes de descargar.
+      console.log('[TEMP DEBUG][Admin] export-interest-leads raw response:', {
+        ok: response.ok,
+        status: response.status,
+        contentType: response.headers.get('Content-Type'),
+        contentDisposition: response.headers.get('Content-Disposition'),
+      });
 
       if (!response.ok) {
         let message = 'No se pudo exportar el archivo.';
@@ -211,6 +232,12 @@ export function Admin() {
       }
 
       const blob = await response.blob();
+
+      // TEMP DEBUG: si el blob sale demasiado pequeño, eso puede indicar respuesta incorrecta.
+      console.log('[TEMP DEBUG][Admin] export-interest-leads blob info:', {
+        size: blob.size,
+        type: blob.type,
+      });
 
       const fallbackDate = new Intl.DateTimeFormat('es-MX', {
         year: 'numeric',
@@ -341,6 +368,7 @@ export function Admin() {
             </div>
           )}
 
+          {/* TEMP DEBUG START: panel visual para revisar interest_leads desde el navegador */}
           <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
               <div>
@@ -419,6 +447,7 @@ export function Admin() {
               </div>
             )}
           </div>
+          {/* TEMP DEBUG END: quitar este bloque cuando la exportación quede validada */}
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
             <button 
