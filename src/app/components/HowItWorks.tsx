@@ -34,9 +34,10 @@ export function HowItWorks() {
     <section
       id="como-funciona"
       style={{
-        background: "linear-gradient(180deg, #EEF2FF 0%, #F1F5F9 100%)",
+        backgroundColor: "#F8FAFC",
         fontFamily: "'Plus Jakarta Sans', sans-serif",
-        borderTop: "4px solid #1A2E6C",
+        borderTop: "1px solid #E5E7EB",
+        borderBottom: "1px solid #E5E7EB",
       }}
       className="py-16 md:py-20"
     >
