@@ -31,7 +31,7 @@ export function Admin() {
   const [exportError, setExportError] = useState('');
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<'eventos' | 'aliados' | 'estadisticas' | 'configuracion'>('eventos');
+  const [activeTab, setActiveTab] = useState<'eventos' | 'aliados' | 'estadisticas'>('eventos');
 
   // Hero stats state
   const [heroStats, setHeroStats] = useState({
@@ -42,12 +42,6 @@ export function Admin() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsSaving, setStatsSaving] = useState(false);
   const [statsSaved, setStatsSaved] = useState(false);
-
-  // Config state (correo destino)
-  const [adminEmail, setAdminEmail] = useState('');
-  const [configLoading, setConfigLoading] = useState(false);
-  const [configSaving, setConfigSaving] = useState(false);
-  const [configSaved, setConfigSaved] = useState(false);
 
   // Edit Modal State
   const [editingEvent, setEditingEvent] = useState<any>(null);
@@ -131,43 +125,11 @@ export function Admin() {
     }
   };
 
-  const loadConfig = async () => {
-    setConfigLoading(true);
-    try {
-      const { data } = await supabase.from('app_settings').select('value').eq('key', 'admin_email').single();
-      if (data?.value) setAdminEmail(data.value);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setConfigLoading(false);
-    }
-  };
-
-  const saveConfig = async () => {
-    if (!adminEmail.trim()) return;
-    setConfigSaving(true);
-    try {
-      const { error } = await supabase.from('app_settings').upsert(
-        [{ key: 'admin_email', value: adminEmail.trim() }],
-        { onConflict: 'key' }
-      );
-      if (error) throw error;
-      setConfigSaved(true);
-      setTimeout(() => setConfigSaved(false), 3000);
-    } catch (e) {
-      console.error(e);
-      alert('Error al guardar la configuración.');
-    } finally {
-      setConfigSaving(false);
-    }
-  };
-
   useEffect(() => {
     if (isAuthenticated) {
       loadEvents();
       loadPartners();
       loadHeroStats();
-      loadConfig();
     }
   }, [isAuthenticated]);
 
@@ -412,79 +374,9 @@ export function Admin() {
             >
               Estadísticas
             </button>
-            <button 
-              onClick={() => setActiveTab('configuracion')}
-              style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'configuracion' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'configuracion' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
-            >
-              Configuración
-            </button>
           </div>
 
-          {activeTab === 'configuracion' ? (
-            <div style={{ maxWidth: 520 }}>
-              <div style={{ backgroundColor: '#FFF7ED', border: '1px solid #FDE68A', borderRadius: 12, padding: '16px 20px', marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <span style={{ fontSize: 20 }}>✉️</span>
-                <p style={{ color: '#92400E', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-                  El correo que configures aquí recibirá todas las notificaciones de <strong>interesados en eventos</strong> y <strong>solicitudes de colaboración</strong>.
-                </p>
-              </div>
-
-              {configLoading ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando configuración...</div>
-              ) : (
-                <div style={{ backgroundColor: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 12, padding: '24px' }}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 8 }}>
-                    📬 Correo destino de notificaciones
-                  </label>
-                  <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, lineHeight: 1.5 }}>
-                    Todos los formularios del sitio enviarán notificaciones a este correo.
-                  </p>
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <input
-                      type="email"
-                      value={adminEmail}
-                      onChange={(e) => setAdminEmail(e.target.value)}
-                      placeholder="correo@ejemplo.com"
-                      style={{
-                        flex: 1,
-                        minWidth: 220,
-                        padding: '10px 14px',
-                        borderRadius: 8,
-                        border: '1.5px solid #D1D5DB',
-                        fontSize: 14,
-                        fontFamily: "'Plus Jakarta Sans', sans-serif",
-                        color: '#1A2E6C',
-                        outline: 'none',
-                      }}
-                    />
-                    <button
-                      onClick={saveConfig}
-                      disabled={configSaving || !adminEmail.trim()}
-                      style={{
-                        padding: '10px 24px',
-                        backgroundColor: configSaving || !adminEmail.trim() ? '#CBD5E1' : '#1A2E6C',
-                        color: 'white',
-                        borderRadius: 8,
-                        fontWeight: 700,
-                        fontSize: 14,
-                        border: 'none',
-                        cursor: configSaving || !adminEmail.trim() ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.2s',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {configSaving ? 'Guardando...' : 'Guardar'}
-                    </button>
-                  </div>
-                  {configSaved && (
-                    <p style={{ color: '#16A34A', fontWeight: 600, fontSize: 13, marginTop: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      ✅ ¡Correo actualizado correctamente!
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : activeTab === 'estadisticas' ? (
+          {activeTab === 'estadisticas' ? (
             <div style={{ maxWidth: 560 }}>
               <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '16px 20px', marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>ℹ️</span>

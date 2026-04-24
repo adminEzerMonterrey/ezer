@@ -1,22 +1,4 @@
 import nodemailer from 'nodemailer';
-import { createClient } from '@supabase/supabase-js';
-
-async function getAdminEmail() {
-  try {
-    const supabase = createClient(
-      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
-    );
-    const { data } = await supabase
-      .from('app_settings')
-      .select('value')
-      .eq('key', 'admin_email')
-      .single();
-    return data?.value || 'ethan.rivera@udem.edu';
-  } catch {
-    return 'ethan.rivera@udem.edu';
-  }
-}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -57,12 +39,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: 'Logged (DEV MODE)' });
     }
 
-    const adminEmail = await getAdminEmail();
-
     // 1. Correo al administrador
     await transporter.sendMail({
       from: `"Ezer Colaboraciones" <${process.env.SMTP_USER}>`,
-      to: adminEmail,
+      to: 'ethan.rivera@udem.edu',
       subject: `Nueva Solicitud de Colaboración: ${org}`,
       text: `Nueva solicitud de colaboración recibida.\n\nOrganización: ${org}\nCorreo: ${email}\nTeléfono: ${phone || 'No proporcionado'}\nDocumento adjunto: ${hasFile ? fileName : 'No'}`,
       html: `
