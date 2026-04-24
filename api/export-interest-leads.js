@@ -155,6 +155,7 @@ export default async function handler(req, res) {
         ? `Bearer ${rawAuthorizationHeader}`
         : '';
     const rows = await fetchInterestLeads(authorizationHeader);
+
     const excelRows = buildExcelRows(rows);
     const workbookBuffer = buildWorkbookBuffer(excelRows);
     const fileName = buildExportFileName();

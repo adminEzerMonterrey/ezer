@@ -26,6 +26,11 @@ export function Admin() {
   const [partners, setPartners] = useState<any[]>([]);
   const [partnersLoading, setPartnersLoading] = useState(false);
 
+  // Leads debug state
+  const [interestLeads, setInterestLeads] = useState<any[]>([]);
+  const [interestLeadsLoading, setInterestLeadsLoading] = useState(false);
+  const [interestLeadsError, setInterestLeadsError] = useState('');
+
   // Export state
   const [exportLoading, setExportLoading] = useState(false);
   const [exportError, setExportError] = useState('');
@@ -79,10 +84,38 @@ export function Admin() {
     }
   };
 
+  const loadInterestLeads = async () => {
+    setInterestLeadsLoading(true);
+    setInterestLeadsError('');
+
+    try {
+      const { data, error } = await supabase
+        .from('interest_leads')
+        .select('id, name, company, email, event_name, description, created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      const rows = data ?? [];
+      setInterestLeads(rows);
+      return rows;
+    } catch (e: any) {
+      console.error('Error loading interest leads:', e);
+      setInterestLeadsError(e.message || 'No se pudieron cargar los leads.');
+      setInterestLeads([]);
+      return [];
+    } finally {
+      setInterestLeadsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadEvents();
       loadPartners();
+      loadInterestLeads();
     }
   }, [isAuthenticated]);
 
@@ -92,10 +125,15 @@ export function Admin() {
     setLoginError('');
 
     try {
-      await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
+
+      if (error) {
+        throw error;
+      }
+
       setIsAuth(true);
     } catch (error: any) {
       setLoginError(error.message || 'Error al iniciar sesión');
@@ -146,17 +184,7 @@ export function Admin() {
     setExportError('');
 
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const response = await fetch('/api/export-interest-leads', {
-        headers: session?.access_token
-          ? {
-              Authorization: `Bearer ${session.access_token}`,
-            }
-          : undefined,
-      });
+      const response = await fetch('/api/export-interest-leads');
 
       if (!response.ok) {
         let message = 'No se pudo exportar el archivo.';
@@ -171,11 +199,19 @@ export function Admin() {
         throw new Error(message);
       }
 
+      const contentType = response.headers.get('Content-Type') || '';
+
+      if (!contentType.includes('spreadsheetml') && !contentType.includes('octet-stream')) {
+        const responseText = await response.text();
+        throw new Error(
+          responseText.includes('<!DOCTYPE html') || responseText.includes('<html')
+            ? 'La app se está ejecutando sin la API local. Para probar la exportación necesitas correr el proyecto con `npm run dev` usando Vercel, no solo con Vite.'
+            : 'La respuesta de exportación no tiene un formato de archivo válido.',
+        );
+      }
+
       const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const contentDisposition = response.headers.get('Content-Disposition');
-      const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
+
       const fallbackDate = new Intl.DateTimeFormat('es-MX', {
         year: 'numeric',
         month: '2-digit',
@@ -183,8 +219,9 @@ export function Admin() {
       })
         .format(new Date())
         .replace(/\//g, '-');
-      const fileName = fileNameMatch?.[1] || `Voluntarios - ${fallbackDate}.xlsx`;
-
+      const fileName = `Voluntarios - ${fallbackDate}.xlsx`;
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
       link.href = downloadUrl;
       link.download = fileName;
       document.body.appendChild(link);
@@ -303,6 +340,85 @@ export function Admin() {
               {exportError}
             </div>
           )}
+
+          <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <div>
+                <h3 style={{ color: '#1A2E6C', fontWeight: 700, fontSize: '18px', marginBottom: '4px' }}>Debug temporal: interest_leads</h3>
+                <p style={{ color: '#64748B', fontSize: '13px' }}>
+                  Registros cargados: <strong>{interestLeads.length}</strong>
+                </p>
+                <p style={{ color: '#94A3B8', fontSize: '12px', marginTop: '4px' }}>
+                  Este panel usa el cliente del navegador. Si RLS filtra la tabla, aqui puede salir vacio aunque la exportacion por API si tenga acceso.
+                </p>
+              </div>
+              <button
+                onClick={loadInterestLeads}
+                disabled={interestLeadsLoading}
+                style={{
+                  padding: '8px 14px',
+                  backgroundColor: interestLeadsLoading ? '#CBD5E1' : '#0F172A',
+                  color: '#FFFFFF',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: interestLeadsLoading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {interestLeadsLoading ? 'Cargando...' : 'Recargar leads'}
+              </button>
+            </div>
+
+            {interestLeadsError && (
+              <div style={{ backgroundColor: '#FEF2F2', color: '#991B1B', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', marginBottom: '12px' }}>
+                {interestLeadsError}
+              </div>
+            )}
+
+            {interestLeadsLoading ? (
+              <div style={{ color: '#64748B', fontSize: '14px' }}>Cargando datos de interest_leads...</div>
+            ) : interestLeads.length > 0 ? (
+              <div style={{ border: '1px solid #E5E7EB', borderRadius: '10px', overflowX: 'auto', backgroundColor: '#FFFFFF' }}>
+                <table style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead style={{ backgroundColor: '#F8FAFC' }}>
+                    <tr>
+                      <th style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', color: '#475569', fontSize: '12px', fontWeight: 700 }}>ID</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', color: '#475569', fontSize: '12px', fontWeight: 700 }}>Nombre</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', color: '#475569', fontSize: '12px', fontWeight: 700 }}>Empresa</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', color: '#475569', fontSize: '12px', fontWeight: 700 }}>Correo</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', color: '#475569', fontSize: '12px', fontWeight: 700 }}>Evento</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', color: '#475569', fontSize: '12px', fontWeight: 700 }}>Descripcion</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', color: '#475569', fontSize: '12px', fontWeight: 700 }}>Creado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {interestLeads.map((lead) => (
+                      <tr key={lead.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
+                        <td style={{ padding: '10px 12px', color: '#111827', fontSize: '13px' }}>{lead.id}</td>
+                        <td style={{ padding: '10px 12px', color: '#111827', fontSize: '13px' }}>{lead.name || '-'}</td>
+                        <td style={{ padding: '10px 12px', color: '#111827', fontSize: '13px' }}>{lead.company || '-'}</td>
+                        <td style={{ padding: '10px 12px', color: '#111827', fontSize: '13px' }}>{lead.email || '-'}</td>
+                        <td style={{ padding: '10px 12px', color: '#111827', fontSize: '13px' }}>{lead.event_name || '-'}</td>
+                        <td style={{ padding: '10px 12px', color: '#111827', fontSize: '13px' }}>{lead.description || '-'}</td>
+                        <td style={{ padding: '10px 12px', color: '#111827', fontSize: '13px' }}>
+                          {lead.created_at
+                            ? new Intl.DateTimeFormat('es-MX', {
+                                dateStyle: 'short',
+                                timeStyle: 'short',
+                              }).format(new Date(lead.created_at))
+                            : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ color: '#64748B', fontSize: '14px' }}>
+                No llegaron registros desde `interest_leads`.
+              </div>
+            )}
+          </div>
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
             <button 
