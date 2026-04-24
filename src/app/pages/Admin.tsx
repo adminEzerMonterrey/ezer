@@ -146,7 +146,17 @@ export function Admin() {
     setExportError('');
 
     try {
-      const response = await fetch('/api/export-interest-leads');
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/export-interest-leads', {
+        headers: session?.access_token
+          ? {
+              Authorization: `Bearer ${session.access_token}`,
+            }
+          : undefined,
+      });
 
       if (!response.ok) {
         let message = 'No se pudo exportar el archivo.';

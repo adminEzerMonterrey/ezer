@@ -14,11 +14,12 @@ const EXCEL_COLUMNS = [
   },
 ];
 
-function getSupabaseAdminClient() {
+function getSupabaseAdminClient(authorizationHeader = '') {
   const supabaseUrl =
     process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseKey = serviceRoleKey || anonKey;
 
   if (!supabaseUrl || !supabaseKey) {
     throw new Error(
@@ -28,6 +29,13 @@ function getSupabaseAdminClient() {
 
   return createClient(supabaseUrl, supabaseKey, {
     auth: { persistSession: false },
+    global: authorizationHeader
+      ? {
+          headers: {
+            Authorization: authorizationHeader,
+          },
+        }
+      : undefined,
   });
 }
 
@@ -72,8 +80,8 @@ function buildExportFileName() {
   return `Voluntarios - ${formattedDate}.xlsx`;
 }
 
-async function fetchInterestLeads() {
-  const supabase = getSupabaseAdminClient();
+async function fetchInterestLeads(authorizationHeader = '') {
+  const supabase = getSupabaseAdminClient(authorizationHeader);
 
   const { data, error } = await supabase
     .from('interest_leads')
@@ -140,7 +148,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const rows = await fetchInterestLeads();
+    const rawAuthorizationHeader = req.headers.authorization || '';
+    const authorizationHeader = rawAuthorizationHeader.startsWith('Bearer ')
+      ? rawAuthorizationHeader
+      : rawAuthorizationHeader
+        ? `Bearer ${rawAuthorizationHeader}`
+        : '';
+    const rows = await fetchInterestLeads(authorizationHeader);
     const excelRows = buildExcelRows(rows);
     const workbookBuffer = buildWorkbookBuffer(excelRows);
     const fileName = buildExportFileName();
