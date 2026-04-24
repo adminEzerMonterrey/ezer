@@ -338,7 +338,7 @@ export function Admin() {
                   cursor: exportLoading ? 'not-allowed' : 'pointer'
                 }}
               >
-                <Download size={16} /> {exportLoading ? 'Exportando...' : 'Exportar leads'}
+                <Download size={16} /> {exportLoading ? 'Exportando...' : 'Exportar Interesados'}
               </button>
               <button 
                 onClick={handleLogout}
