@@ -5,9 +5,6 @@ export function ContactSection() {
     <section id="contacto" className="py-20" style={{ backgroundColor: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span style={{ color: "#E8401C", fontWeight: 700, fontSize: 13, letterSpacing: "0.12em" }} className="uppercase">
-            ✦ Hablemos
-          </span>
           <h2 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(2rem, 5vw, 3rem)", lineHeight: 1.2, marginTop: 8 }}>
             Contáctanos
           </h2>

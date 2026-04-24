@@ -131,14 +131,8 @@ export function EventCatalog() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-12">
-            <span
-              style={{ color: "#E8401C", fontWeight: 700, fontSize: 13, letterSpacing: "0.12em" }}
-              className="uppercase"
-            >
-              ✦ Oportunidades de impacto
-            </span>
             <h2
-              style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2, marginTop: 8 }}
+              style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2 }}
             >
               ¿Eres empresa y quieres colaborar?
             </h2>
