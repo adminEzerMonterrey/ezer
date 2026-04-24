@@ -497,6 +497,9 @@ function FilterSelect({
 }) {
   return (
     <div className="relative flex-1 min-w-[160px]">
+      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6B7280", marginBottom: 4, paddingLeft: 2, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+        {label}
+      </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -520,7 +523,7 @@ function FilterSelect({
       >
         {options.map((opt) => (
           <option key={opt} value={opt}>
-            {label}: {opt}
+            {opt}
           </option>
         ))}
       </select>

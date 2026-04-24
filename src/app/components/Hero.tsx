@@ -1,8 +1,30 @@
-import { ArrowRight, PlayCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "../../supabaseClient";
 
 const HERO_IMAGE = "https://images.unsplash.com/photo-1769837230054-7f3a7356dde1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb21tdW5pdHklMjB2b2x1bnRlZXJpbmclMjB0ZWFtd29yayUyMG91dGRvb3J8ZW58MXx8fHwxNzc1NTA1NDI0fDA&ixlib=rb-4.1.0&q=80&w=1080";
 
+const DEFAULT_STATS = [
+  { key: "eventos_realizados", value: "120+", label: "Eventos realizados" },
+  { key: "empresas_aliadas",   value: "18",   label: "Empresas aliadas" },
+  { key: "voluntarios_activos", value: "3,200+", label: "Voluntarios activos" },
+];
+
 export function Hero() {
+  const [stats, setStats] = useState(DEFAULT_STATS);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data, error } = await supabase.from('hero_stats').select('*');
+      if (!error && data && data.length > 0) {
+        setStats(DEFAULT_STATS.map((def) => {
+          const row = data.find((r: any) => r.key === def.key);
+          return row ? { ...def, value: row.value } : def;
+        }));
+      }
+    };
+    fetchStats();
+  }, []);
   return (
     <section
       id="inicio"
@@ -60,12 +82,8 @@ export function Hero() {
 
             {/* Stats */}
             <div className="mt-12 flex flex-wrap gap-8 justify-center lg:justify-start">
-              {[
-                { value: "120+", label: "Eventos realizados" },
-                { value: "18", label: "Empresas aliadas" },
-                { value: "3,200+", label: "Voluntarios activos" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center lg:text-left">
+              {stats.map((stat) => (
+                <div key={stat.key} className="text-center lg:text-left">
                   <div style={{ color: "#E8401C", fontWeight: 800, fontSize: "1.75rem", lineHeight: 1 }}>
                     {stat.value}
                   </div>

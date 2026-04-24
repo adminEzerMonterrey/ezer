@@ -33,7 +33,11 @@ export function HowItWorks() {
   return (
     <section
       id="como-funciona"
-      style={{ backgroundColor: "#F5F5F5", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      style={{
+        background: "linear-gradient(180deg, #EEF2FF 0%, #F1F5F9 100%)",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        borderTop: "4px solid #1A2E6C",
+      }}
       className="py-16 md:py-20"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

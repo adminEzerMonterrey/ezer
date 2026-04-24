@@ -111,7 +111,11 @@ export function CollaborationForm() {
     <section
       id="registro"
       className="py-16 md:py-24"
-      style={{ backgroundColor: "#F5F5F5", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      style={{
+        backgroundColor: "#FFFFFF",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        borderTop: "4px solid #F5C200",
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}

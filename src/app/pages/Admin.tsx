@@ -31,7 +31,17 @@ export function Admin() {
   const [exportError, setExportError] = useState('');
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<'eventos' | 'aliados'>('eventos');
+  const [activeTab, setActiveTab] = useState<'eventos' | 'aliados' | 'estadisticas'>('eventos');
+
+  // Hero stats state
+  const [heroStats, setHeroStats] = useState({
+    eventos_realizados: '120+',
+    empresas_aliadas: '18',
+    voluntarios_activos: '3,200+',
+  });
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsSaving, setStatsSaving] = useState(false);
+  const [statsSaved, setStatsSaved] = useState(false);
 
   // Edit Modal State
   const [editingEvent, setEditingEvent] = useState<any>(null);
@@ -79,10 +89,47 @@ export function Admin() {
     }
   };
 
+  const loadHeroStats = async () => {
+    setStatsLoading(true);
+    try {
+      const { data, error } = await supabase.from('hero_stats').select('*');
+      if (!error && data && data.length > 0) {
+        const map: Record<string, string> = {};
+        data.forEach((row: any) => { map[row.key] = row.value; });
+        setHeroStats(prev => ({ ...prev, ...map }));
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  const saveHeroStats = async () => {
+    setStatsSaving(true);
+    try {
+      const rows = [
+        { key: 'eventos_realizados',  value: heroStats.eventos_realizados },
+        { key: 'empresas_aliadas',    value: heroStats.empresas_aliadas },
+        { key: 'voluntarios_activos', value: heroStats.voluntarios_activos },
+      ];
+      const { error } = await supabase.from('hero_stats').upsert(rows, { onConflict: 'key' });
+      if (error) throw error;
+      setStatsSaved(true);
+      setTimeout(() => setStatsSaved(false), 3000);
+    } catch (e) {
+      console.error(e);
+      alert('Error al guardar estadísticas.');
+    } finally {
+      setStatsSaving(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadEvents();
       loadPartners();
+      loadHeroStats();
     }
   }, [isAuthenticated]);
 
@@ -321,9 +368,90 @@ export function Admin() {
             >
               Empresas Aliadas
             </button>
+            <button 
+              onClick={() => setActiveTab('estadisticas')}
+              style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'estadisticas' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'estadisticas' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
+            >
+              📊 Estadísticas Hero
+            </button>
           </div>
 
-          {activeTab === 'eventos' ? (
+          {activeTab === 'estadisticas' ? (
+            <div style={{ maxWidth: 560 }}>
+              <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '16px 20px', marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <span style={{ fontSize: 20 }}>ℹ️</span>
+                <p style={{ color: '#3730A3', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+                  Estos valores se muestran en la sección principal (Hero) de la página de inicio.
+                  Los cambios se reflejan en tiempo real para todos los visitantes.
+                </p>
+              </div>
+
+              {statsLoading ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando estadísticas...</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  {[
+                    { key: 'eventos_realizados',  label: '🎯 Eventos realizados',   placeholder: 'Ej: 120+' },
+                    { key: 'empresas_aliadas',    label: '🏢 Empresas aliadas',     placeholder: 'Ej: 18' },
+                    { key: 'voluntarios_activos', label: '🙌 Voluntarios activos',  placeholder: 'Ej: 3,200+' },
+                  ].map(({ key, label, placeholder }) => (
+                    <div key={key} style={{ backgroundColor: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>
+                        {label}
+                      </label>
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          value={(heroStats as any)[key]}
+                          onChange={(e) => setHeroStats(prev => ({ ...prev, [key]: e.target.value }))}
+                          placeholder={placeholder}
+                          style={{
+                            flex: 1,
+                            padding: '10px 14px',
+                            borderRadius: 8,
+                            border: '1.5px solid #D1D5DB',
+                            fontSize: 16,
+                            fontWeight: 700,
+                            color: '#1A2E6C',
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            outline: 'none',
+                          }}
+                        />
+                        <div style={{ backgroundColor: '#EEF2FF', borderRadius: 8, padding: '10px 16px', fontSize: 13, color: '#4B5563', flexShrink: 0 }}>
+                          Vista previa: <strong style={{ color: '#E8401C' }}>{(heroStats as any)[key]}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 8 }}>
+                    <button
+                      onClick={saveHeroStats}
+                      disabled={statsSaving}
+                      style={{
+                        padding: '12px 28px',
+                        backgroundColor: statsSaving ? '#CBD5E1' : '#1A2E6C',
+                        color: 'white',
+                        borderRadius: 8,
+                        fontWeight: 700,
+                        fontSize: 14,
+                        border: 'none',
+                        cursor: statsSaving ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {statsSaving ? 'Guardando...' : 'Guardar cambios'}
+                    </button>
+                    {statsSaved && (
+                      <span style={{ color: '#16A34A', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        ✅ ¡Guardado correctamente!
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : activeTab === 'eventos' ? (
             <>
               <AddEventForm onEventAdded={loadEvents} />
 
