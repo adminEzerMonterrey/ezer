@@ -1,4 +1,22 @@
 import nodemailer from 'nodemailer';
+import { createClient } from '@supabase/supabase-js';
+
+async function getAdminEmail() {
+  try {
+    const supabase = createClient(
+      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
+    );
+    const { data } = await supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'admin_email')
+      .single();
+    return data?.value || 'ethan.rivera@udem.edu';
+  } catch {
+    return 'ethan.rivera@udem.edu';
+  }
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -44,10 +62,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: 'Email sent implicitly (DEV MODE)' });
     }
 
+    const adminEmail = await getAdminEmail();
+
     // 1. Mensaje para el administrador (Ethan)
     const adminInfo = await transporter.sendMail({
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
-      to: 'ethan.rivera@udem.edu', 
+      to: adminEmail, 
       subject: `Nuevo Interesado en Evento: ${eventName}`,
       text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\nDescripción y Motivo: ${description}`,
       html: `
