@@ -25,7 +25,7 @@ export function Partners() {
         borderBottom: "1px solid #F3F4F6",
         fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
-      className="py-10"
+      className="py-8 md:py-10"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Label */}
@@ -36,7 +36,7 @@ export function Partners() {
             fontWeight: 600,
             letterSpacing: "0.1em",
             textAlign: "center",
-            marginBottom: 28,
+            marginBottom: 22,
           }}
           className="uppercase"
         >
@@ -49,13 +49,13 @@ export function Partners() {
             borderRadius: 12,
             border: "1px solid #F3F4F6",
             backgroundColor: "#FAFAFA",
-            padding: "40px 30px",
+            padding: "32px 24px",
             display: "flex",
             flexWrap: "wrap",
-            gap: "50px",
+            gap: "36px",
             justifyContent: "center",
             alignItems: "center",
-            minHeight: "180px"
+            minHeight: "160px"
           }}
         >
           {partners.length > 0 ? (
@@ -87,7 +87,7 @@ export function Partners() {
         </div>
 
         {/* Count badge */}
-        <div className="flex justify-center mt-5">
+        <div className="flex justify-center mt-4">
           <div
             style={{
               display: "inline-flex",

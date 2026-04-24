@@ -15,46 +15,55 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const name = formData.get('title') as string;
     const company = formData.get('company') as string;
     const date = formData.get('event_date') as string;
-    const target_audience = formData.get('audience') as string;
+    const targetAudience = formData.get('audience') as string;
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
     const cost = formData.get('cost') as string;
-    const spots = parseInt(formData.get('spots') as string, 10);
+    const spotsMin = parseInt(formData.get('spots_min') as string, 10);
+    const spotsMax = parseInt(formData.get('spots_max') as string, 10);
+
+    if (!Number.isFinite(spotsMin) || !Number.isFinite(spotsMax)) {
+      setError('Debes capturar un rango válido de espacios disponibles.');
+      setLoading(false);
+      return;
+    }
+
+    if (spotsMin < 0 || spotsMax < 0) {
+      setError('Los espacios disponibles no pueden ser negativos.');
+      setLoading(false);
+      return;
+    }
+
+    if (spotsMin > spotsMax) {
+      setError('El mínimo de espacios no puede ser mayor que el máximo.');
+      setLoading(false);
+      return;
+    }
 
     try {
-      // 1. Obtener usuario
-      // 1. Obtener usuario (moved to step 4)
-      console.log("STEP 1: omitted user fetch here");
-
-      // 2. Subir imagen (versión mejorada)
       if (!image) {
-        throw new Error("La imagen es obligatoria");
+        throw new Error('La imagen es obligatoria');
       }
 
       const fileName = `events/${crypto.randomUUID()}-${image.name}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('event-images') // ⚠️ asegúrate que este nombre exista
+        .from('event-images')
         .upload(fileName, image);
 
       if (uploadError) {
         throw uploadError;
       }
 
-      // 3. Obtener URL pública
       const { data } = supabase.storage
         .from('event-images')
         .getPublicUrl(fileName);
 
       const imageUrl = data.publicUrl;
-
-      // 4. Insertar evento
-      console.log("STEP 4: inserting");
       const { data: { user } } = await supabase.auth.getUser();
-      console.log("USER:", user);
 
       if (!user) {
-        throw new Error("No autenticado");
+        throw new Error('No autenticado');
       }
 
       const { error: insertError } = await supabase
@@ -64,13 +73,14 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             name,
             company,
             date,
-            target_audience,
+            target_audience: targetAudience,
             description,
             objective,
             cost,
-            spots,
+            spots_min: spotsMin,
+            spots_max: spotsMax,
             image_url: imageUrl,
-            user_id: user.id
+            user_id: user.id,
           }
         ]);
 
@@ -78,16 +88,16 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         throw insertError;
       }
 
-      alert("Evento creado ✅");
+      alert('Evento creado correctamente.');
       (e.target as HTMLFormElement).reset();
+      setImage(null);
       onEventAdded();
-
-    } catch (error: any) {
-      console.error("ERROR:", error);
-      alert(error.message);
-      setError(error.message);
+    } catch (submitError: any) {
+      console.error('ERROR:', submitError);
+      alert(submitError.message);
+      setError(submitError.message);
     } finally {
-      setLoading(false); // 🔥 CLAVE
+      setLoading(false);
     }
   };
 
@@ -108,7 +118,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha de cierre de convocatoria (YYYY-MM-DD)</label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha de cierre de convocatoria</label>
           <input required name="event_date" type="date" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
         </div>
 
@@ -137,18 +147,26 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios Disponibles</label>
-          <select required name="spots" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
-            {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(num => (
-              <option key={num} value={num}>{num}</option>
-            ))}
-          </select>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios mínimos</label>
+            <input required name="spots_min" type="number" min="0" step="1" defaultValue="10" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios máximos</label>
+            <input required name="spots_max" type="number" min="0" step="1" defaultValue="20" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Costo (Aproximado)</label>
           <input name="cost" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. 500 MXN o Gratuito" />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+            Captura un rango sencillo. Si el evento tiene una cantidad fija, escribe el mismo número en ambos campos.
+          </p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

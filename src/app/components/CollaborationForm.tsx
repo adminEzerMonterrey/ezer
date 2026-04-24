@@ -110,7 +110,7 @@ export function CollaborationForm() {
   return (
     <section
       id="registro"
-      className="py-16 md:py-24"
+      className="py-12 md:py-16"
       style={{
         backgroundColor: "#FFFFFF",
         fontFamily: "'Plus Jakarta Sans', sans-serif",
@@ -119,7 +119,7 @@ export function CollaborationForm() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h2
             style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2, marginTop: 8 }}
           >
@@ -130,7 +130,7 @@ export function CollaborationForm() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-start max-w-5xl mx-auto">
           {/* Left: Illustration + Why cards */}
           <div className="flex flex-col gap-6">
             <CollaborationIllustration />

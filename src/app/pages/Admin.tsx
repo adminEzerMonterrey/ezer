@@ -7,6 +7,7 @@ import { Footer } from '../components/Footer';
 import { Trash2, LogOut, Pencil, Download } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { supabase } from '../../supabaseClient';
+import { formatSpotsRange } from '../eventSpots';
 
 export function Admin() {
   const [isAuthenticated, setIsAuth] = useState(false);
@@ -467,6 +468,7 @@ export function Admin() {
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Título</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Fecha</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Empresa</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Espacios</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Imagen</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
                       </tr>
@@ -477,6 +479,9 @@ export function Admin() {
                           <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.name || event.title}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date || event.event_date}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.company}</td>
+                          <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>
+                            {formatSpotsRange(event.spots_min ?? event.spots ?? 0, event.spots_max ?? event.spots ?? 0)}
+                          </td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
                             {event.image_url ? (
                               <img 
@@ -513,7 +518,7 @@ export function Admin() {
                       ))}
                       {events.length === 0 && (
                         <tr>
-                          <td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
+                          <td colSpan={6} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
                             No hay eventos registrados en la base de datos.
                           </td>
                         </tr>

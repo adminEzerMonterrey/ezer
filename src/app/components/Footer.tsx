@@ -1,68 +1,40 @@
-import { Mail, Phone, MapPin, Facebook, Instagram, Globe, Heart } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useCallback } from "react";
+import { Mail, MapPin, Facebook, Instagram, Globe, Heart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { navItems } from "../navigation";
 
 export function Footer() {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleNavClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-      // If it's a route link (like /admin), use router navigation
-      if (href.startsWith("/") && !href.startsWith("/#")) {
-        e.preventDefault();
-        navigate(href);
-        return;
-      }
-
-      // If it's a hash link
-      if (href.startsWith("#")) {
-        e.preventDefault();
-        if (location.pathname !== "/") {
-          navigate("/" + href);
-        } else {
-          const target = document.querySelector(href);
-          if (target) {
-            target.scrollIntoView({ behavior: "smooth" });
-          } else {
-            window.location.hash = href;
-          }
-        }
-      }
-    },
-    [location.pathname, navigate]
-  );
 
   return (
     <footer
       style={{ backgroundColor: "#1A2E6C", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       className="w-full"
     >
-      {/* Main footer content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
-          {/* Brand column */}
-          <div className="sm:col-span-2 lg:col-span-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12">
+          <div>
             <div className="mb-4">
               <img
-                src="/LOGO EZER ABP.jpg"
+                src="/logo-ezer-sin-fondo.png"
                 alt="Logo oficial Asociación EZER ABP"
-                style={{ height: 60, width: "auto", objectFit: "contain" }}
+                style={{ height: 80, width: "auto", objectFit: "contain" }}
               />
             </div>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, lineHeight: 1.7, marginBottom: 20, fontStyle: "italic" }}>
               "Que nadie se prive de lo que es destino y vocación de todos, Servir."
             </p>
-            {/* Social Links */}
             <div className="flex items-center gap-3">
               {[
                 { icon: <Facebook size={16} />, href: "https://www.facebook.com/ezerabp/", label: "Facebook" },
                 { icon: <Instagram size={16} />, href: "https://www.instagram.com/ezerabp/", label: "Instagram" },
                 { icon: <Globe size={16} />, href: "https://www.ezer.org.mx/", label: "Sitio web" },
-              ].map((social, i) => (
+              ].map((social) => (
                 <a
-                  key={i}
+                  key={social.label}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
                   style={{
                     width: 36,
                     height: 36,
@@ -76,12 +48,12 @@ export function Footer() {
                     transition: "all 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F5C200";
-                    (e.currentTarget as HTMLAnchorElement).style.color = "#1A2E6C";
+                    e.currentTarget.style.backgroundColor = "#F5C200";
+                    e.currentTarget.style.color = "#1A2E6C";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "rgba(255,255,255,0.1)";
-                    (e.currentTarget as HTMLAnchorElement).style.color = "#FFFFFF";
+                    e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
+                    e.currentTarget.style.color = "#FFFFFF";
                   }}
                 >
                   {social.icon}
@@ -90,67 +62,28 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h4 style={{ color: "#F5C200", fontWeight: 700, fontSize: 13, letterSpacing: "0.1em", marginBottom: 16 }} className="uppercase">
               Navegación
             </h4>
             <ul className="flex flex-col gap-3">
-              {[
-                { label: "Inicio", href: "#inicio" },
-                { label: "Registro", href: "#registro" },
-                { label: "Catálogo de Eventos", href: "#eventos" },
-                { label: "¿Cómo funciona?", href: "#como-funciona" },
-                { label: "Contáctanos", href: "#contacto" },
-                { label: "Acceso Administrador", href: "/admin" },
-              ].map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => handleNavClick(e, link.href)}
+              {[...navItems, { label: "Acceso Administrador", path: "/admin" }].map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
                     style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, transition: "color 0.2s" }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F5C200")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.65)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#F5C200")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
                     className="flex items-center gap-2 group"
                   >
                     <span style={{ color: "#E8401C", fontSize: 10 }}>▶</span>
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Categories */}
-          <div>
-            <h4 style={{ color: "#F5C200", fontWeight: 700, fontSize: 13, letterSpacing: "0.1em", marginBottom: 16 }} className="uppercase">
-              Categorías
-            </h4>
-            <ul className="flex flex-col gap-3">
-              {[
-                { label: "Medio Ambiente", emoji: "🌿" },
-                { label: "Educación", emoji: "📚" },
-                { label: "Alimentación", emoji: "🍎" },
-                { label: "Salud", emoji: "💊" },
-                { label: "Desarrollo comunitario", emoji: "🏘️" },
-              ].map((cat) => (
-                <li key={cat.label}>
-                  <a
-                    href="#eventos"
-                    onClick={(e) => handleNavClick(e, "#eventos")}
-                    style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, transition: "color 0.2s", display: "flex", alignItems: "center", gap: 8 }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F5C200")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.65)")}
-                  >
-                    <span style={{ fontSize: 15 }}>{cat.emoji}</span>
-                    {cat.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
           <div>
             <h4 style={{ color: "#F5C200", fontWeight: 700, fontSize: 13, letterSpacing: "0.1em", marginBottom: 16 }} className="uppercase">
               Contacto
@@ -200,25 +133,25 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Divider */}
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: 40, paddingTop: 24 }} className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textAlign: "center" }}>
-            © 2026 EZER – Enabling Excellence. Todos los derechos reservados.
+            © 2026 EZER - Enabling Excellence. Todos los derechos reservados.
           </p>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textAlign: "center" }} className="flex items-center gap-1.5">
             Hecho con <Heart size={12} style={{ color: "#E8401C" }} fill="#E8401C" /> para comunidades que importan
           </p>
           <div className="flex items-center gap-4">
             {["Privacidad", "Términos", "Cookies"].map((link) => (
-              <a
+              <button
                 key={link}
-                href="#"
-                style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, transition: "color 0.2s" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F5C200")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.4)")}
+                type="button"
+                onClick={() => navigate("/contactanos")}
+                style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, transition: "color 0.2s", background: "transparent", border: "none", cursor: "pointer" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#F5C200")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
               >
                 {link}
-              </a>
+              </button>
             ))}
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
@@ -10,38 +10,59 @@ import { ContactSection } from "./components/ContactSection";
 import { Footer } from "./components/Footer";
 import { Admin } from "./pages/Admin";
 
-function Home() {
-  const location = useLocation();
-
+function ScrollToTop() {
   useEffect(() => {
-    if (location.hash) {
-      // Small delay to let the DOM render before scrolling
-      const timer = setTimeout(() => {
-        const target = document.querySelector(location.hash);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      // No hash — scroll to top
-      window.scrollTo(0, 0);
-    }
-  }, [location]);
+    window.scrollTo(0, 0);
+  }, []);
 
+  return null;
+}
+
+function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: "100vh", overflowX: "hidden" }}
+      className="bg-white"
     >
+      <ScrollToTop />
       <Navbar />
-      <Hero />
-      <Partners />
-      <EventCatalog />
-      <HowItWorks />
-      <CollaborationForm />
-      <ContactSection />
+      {children}
       <Footer />
     </div>
+  );
+}
+
+function HomePage() {
+  return (
+    <AppShell>
+      <Hero />
+      <Partners />
+    </AppShell>
+  );
+}
+
+function RegistrationPage() {
+  return (
+    <AppShell>
+      <HowItWorks />
+      <CollaborationForm />
+    </AppShell>
+  );
+}
+
+function EventCatalogPage() {
+  return (
+    <AppShell>
+      <EventCatalog />
+    </AppShell>
+  );
+}
+
+function ContactPage() {
+  return (
+    <AppShell>
+      <ContactSection />
+    </AppShell>
   );
 }
 
@@ -49,8 +70,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/registro" element={<RegistrationPage />} />
+        <Route path="/catalogo-eventos" element={<EventCatalogPage />} />
+        <Route path="/contactanos" element={<ContactPage />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

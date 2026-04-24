@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Building2, Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
 import { supabase } from "../../supabaseClient";
+import { formatSpotsRange } from "../eventSpots";
 
 interface Event {
   id: number;
@@ -13,22 +14,22 @@ interface Event {
   audience: string;
   description: string;
   image: string;
-  spots: number;
+  spotsMin: number;
+  spotsMax: number;
   cost: string | number;
 }
 
 const formatCost = (costValue: string | number | null | undefined) => {
   if (costValue == null || costValue === '') return "Gratuito";
   const strCost = costValue.toString();
-  
+
   if (strCost.toLowerCase().includes('grat')) {
     return strCost;
   }
 
-  // Remove $ and commas in case user entered them manually
   const cleanStr = strCost.replace(/\$/g, '').replace(/,/g, '').trim();
   const numericValue = parseFloat(cleanStr);
-  
+
   if (!isNaN(numericValue)) {
     return `$${numericValue.toLocaleString('en-US')}`;
   }
@@ -39,17 +40,12 @@ const formatCost = (costValue: string | number | null | undefined) => {
 export function EventCatalog() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // States for filtering
   const [category, setCategory] = useState("Todos");
   const [dateFilter, setDateFilter] = useState("Todos");
 
-  // Filter options derived from loaded events
   const predefinedCategories = ["Todos", "Niños", "Mujeres", "Adultos Mayores", "Educación", "Salud", "Discapacidad", "Medio Ambiente"];
   const [categories, setCategories] = useState<string[]>(predefinedCategories);
-  const [dates, setDates] = useState<string[]>(["Todos"]);
-
-  // Pop-up states
+  const [dates] = useState<string[]>(["Todos"]);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,6 +63,8 @@ export function EventCatalog() {
 
         const formattedEvents = data.map((e: any) => {
           const dateObj = new Date(e.date);
+          const spotsMin = e.spots_min ?? e.spots ?? 0;
+          const spotsMax = e.spots_max ?? e.spots ?? 0;
 
           return {
             id: e.id,
@@ -79,33 +77,30 @@ export function EventCatalog() {
             audience: e.target_audience,
             description: e.description,
             image: e.image_url,
-            spots: e.spots || 0,
+            spotsMin,
+            spotsMax,
             cost: e.cost || "Gratuito"
           };
         });
 
         setEvents(formattedEvents);
 
-        // Merge DB categories with predefined (just in case there are custom ones)
         const dbCats = Array.from(new Set(formattedEvents.map(e => e.category)));
         const allCats = Array.from(new Set([...predefinedCategories, ...dbCats]));
-        
         setCategories(allCats);
-
-      } catch (e) {
-        console.error('Cant load events', e);
+      } catch (fetchError) {
+        console.error('Cant load events', fetchError);
       } finally {
         setLoading(false);
       }
     };
-    fetchEvents();
 
+    fetchEvents();
   }, []);
 
   const filtered = events.filter((e) => {
     const catOk = category === "Todos" || e.category === category;
 
-    // Simplistic date matching based on previous logic 
     const isAbril = e.month === "ABR" || e.month === "ABR.";
     const isMayo = e.month === "MAY" || e.month === "MAY.";
     const isJunio = e.month === "JUN" || e.month === "JUN.";
@@ -125,12 +120,11 @@ export function EventCatalog() {
     <>
       <section
         id="eventos"
-        className="py-16 md:py-24"
+        className="pt-8 pb-12 md:pt-10 md:pb-16"
         style={{ backgroundColor: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <h2
               style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2 }}
             >
@@ -141,10 +135,9 @@ export function EventCatalog() {
             </p>
           </div>
 
-          {/* Filter Bar */}
           <div
             style={{ backgroundColor: "#F5F5F5", borderRadius: 12, border: "1px solid #E5E7EB" }}
-            className="flex flex-col sm:flex-row gap-3 p-4 mb-10 flex-wrap"
+            className="flex flex-col sm:flex-row gap-3 p-4 mb-8 flex-wrap"
           >
             <div className="flex items-center gap-2 flex-shrink-0">
               <Filter size={16} style={{ color: "#1A2E6C" }} />
@@ -163,12 +156,10 @@ export function EventCatalog() {
             )}
           </div>
 
-          {/* Results count */}
           <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 24 }}>
             Mostrando <strong style={{ color: "#1A2E6C" }}>{filtered.length}</strong> evento{filtered.length !== 1 ? "s" : ""}
           </p>
 
-          {/* Cards Grid */}
           {loading ? (
             <div className="text-center py-16" style={{ color: "#6B7280" }}>Cargando eventos...</div>
           ) : filtered.length > 0 ? (
@@ -188,10 +179,8 @@ export function EventCatalog() {
                   }}
                   className="group hover:-translate-y-1 hover:shadow-xl"
                 >
-                  {/* Top accent bar */}
                   <div style={{ height: 4, backgroundColor: "#E8401C", flexShrink: 0 }} />
 
-                  {/* Image */}
                   <div style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0 }}>
                     <img
                       src={event.image}
@@ -217,7 +206,6 @@ export function EventCatalog() {
                     </div>
                   </div>
 
-                  {/* Body */}
                   <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
                     <div className="flex items-center gap-2 mb-3">
                       <span
@@ -275,7 +263,7 @@ export function EventCatalog() {
                     <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
                       <div className="flex items-center gap-1.5">
                         <Users size={13} style={{ color: "#9CA3AF" }} />
-                        <span style={{ color: "#6B7280", fontSize: 12 }}>{event.spots} lugares</span>
+                        <span style={{ color: "#6B7280", fontSize: 12 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
                       </div>
                       <button
                         onClick={() => setSelectedEventName(event.title)}
@@ -319,7 +307,6 @@ export function EventCatalog() {
         </div>
       </section>
 
-      {/* Pop up (Modal) for Me Interesa */}
       {selectedEventName && (
         <InterestModal
           eventName={selectedEventName}
@@ -348,7 +335,6 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
     };
 
     try {
-      // 1. Guardar en Supabase (fuente principal de datos - nunca se pierde un lead)
       const { error: dbError } = await supabase
         .from('interest_leads')
         .insert([{
@@ -364,7 +350,6 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
         console.error('Error saving lead to Supabase:', dbError);
       }
 
-      // 2. Intentar enviar correo también (secundario)
       try {
         await fetch('/api/interest', {
           method: 'POST',

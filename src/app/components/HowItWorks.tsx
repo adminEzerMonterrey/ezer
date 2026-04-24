@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export function HowItWorks() {
   const steps = [
     {
@@ -32,17 +34,17 @@ export function HowItWorks() {
 
   return (
     <section
-      id="como-funciona"
+      id="registro"
       style={{
         backgroundColor: "#F8FAFC",
         fontFamily: "'Plus Jakarta Sans', sans-serif",
         borderTop: "1px solid #E5E7EB",
         borderBottom: "1px solid #E5E7EB",
       }}
-      className="py-16 md:py-20"
+      className="pt-8 pb-12 md:pt-10 md:pb-16"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h2
             style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2, marginTop: 8 }}
           >
@@ -54,15 +56,13 @@ export function HowItWorks() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 relative">
-          {/* Connector line (desktop) */}
           <div
             className="hidden lg:block absolute top-14 left-0 right-0"
             style={{ height: 2, background: "linear-gradient(to right, #E8401C, #F5C200, #E8401C, #F5C200)", zIndex: 0, opacity: 0.3, margin: "0 12%" }}
           />
 
-          {steps.map((step, i) => (
-            <div key={i} className="relative z-10 flex flex-col items-center text-center">
-              {/* Number circle */}
+          {steps.map((step) => (
+            <div key={step.number} className="relative z-10 flex flex-col items-center text-center">
               <div
                 style={{
                   width: 60,
@@ -100,15 +100,14 @@ export function HowItWorks() {
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="text-center mt-12">
-          <a
-            href="#contacto"
+        <div className="text-center mt-10">
+          <Link
+            to="/contactanos"
             style={{ backgroundColor: "#1A2E6C", color: "#FFFFFF", borderRadius: 8 }}
             className="inline-flex items-center gap-2 px-8 py-3.5 font-bold text-sm hover:brightness-110 active:scale-95 transition-all duration-200 shadow-lg"
           >
             Comenzar ahora →
-          </a>
+          </Link>
         </div>
       </div>
     </section>
