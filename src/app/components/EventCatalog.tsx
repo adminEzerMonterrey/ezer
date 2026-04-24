@@ -45,7 +45,7 @@ export function EventCatalog() {
   const [dateFilter, setDateFilter] = useState("Todos");
 
   // Filter options derived from loaded events
-  const predefinedCategories = ["Todos", "Medio Ambiente", "Educación", "Alimentación", "Salud", "Otro"];
+  const predefinedCategories = ["Todos", "Niños", "Mujeres", "Adultos Mayores", "Educación", "Salud", "Discapacidad", "Medio Ambiente"];
   const [categories, setCategories] = useState<string[]>(predefinedCategories);
   const [dates, setDates] = useState<string[]>(["Todos"]);
 

@@ -115,11 +115,13 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Categoría</label>
           <select required name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
-            <option value="Medio Ambiente">Medio Ambiente</option>
+            <option value="Niños">Niños</option>
+            <option value="Mujeres">Mujeres</option>
+            <option value="Adultos Mayores">Adultos Mayores</option>
             <option value="Educación">Educación</option>
-            <option value="Alimentación">Alimentación</option>
             <option value="Salud">Salud</option>
-            <option value="Otro">Otro</option>
+            <option value="Discapacidad">Discapacidad</option>
+            <option value="Medio Ambiente">Medio Ambiente</option>
           </select>
         </div>
 
