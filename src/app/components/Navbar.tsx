@@ -35,21 +35,14 @@ export function Navbar() {
             <a
               href="/"
               onClick={(e) => handleNavClick(e, "#inicio")}
-              className="flex items-center gap-3"
+              className="flex items-center"
               style={{ textDecoration: "none" }}
             >
-              <div
-                className="flex items-center justify-center rounded-xl"
-                style={{ width: 44, height: 44, backgroundColor: "#1A2E6C", border: "2px solid #F5C200" }}
-              >
-                <EzerLogoIcon />
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-white font-extrabold tracking-widest text-xl">EZER</span>
-                <span style={{ color: "#F5C200", fontSize: 10 }} className="tracking-wider font-medium uppercase">
-                  Enabling Excellence
-                </span>
-              </div>
+              <img
+                src="/LOGO EZER ABP.jpg"
+                alt="Logo oficial Asociación EZER ABP"
+                style={{ height: 52, width: "auto", objectFit: "contain" }}
+              />
             </a>
           </div>
 
@@ -174,16 +167,4 @@ export function Navbar() {
   );
 }
 
-function EzerLogoIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Human figure */}
-      <circle cx="14" cy="8" r="3.5" fill="#E8401C" />
-      <path d="M8 22 Q8 16 14 15 Q20 16 20 22" fill="#E8401C" />
-      {/* Stars */}
-      <path d="M6 7 L6.5 8.5 L8 8.5 L6.8 9.5 L7.3 11 L6 10 L4.7 11 L5.2 9.5 L4 8.5 L5.5 8.5 Z" fill="#F5C200" />
-      <path d="M21 5 L21.4 6.2 L22.6 6.2 L21.6 7 L22 8.2 L21 7.4 L20 8.2 L20.4 7 L19.4 6.2 L20.6 6.2 Z" fill="#F5C200" />
-      <path d="M22 14 L22.3 15 L23.3 15 L22.5 15.6 L22.8 16.6 L22 16 L21.2 16.6 L21.5 15.6 L20.7 15 L21.7 15 Z" fill="#F5C200" />
-    </svg>
-  );
-}
+

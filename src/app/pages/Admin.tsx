@@ -92,10 +92,15 @@ export function Admin() {
     setLoginError('');
 
     try {
-      await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
+
+      if (error) {
+        throw error;
+      }
+
       setIsAuth(true);
     } catch (error: any) {
       setLoginError(error.message || 'Error al iniciar sesión');
@@ -161,11 +166,19 @@ export function Admin() {
         throw new Error(message);
       }
 
+      const contentType = response.headers.get('Content-Type') || '';
+
+      if (!contentType.includes('spreadsheetml') && !contentType.includes('octet-stream')) {
+        const responseText = await response.text();
+        throw new Error(
+          responseText.includes('<!DOCTYPE html') || responseText.includes('<html')
+            ? 'La app se está ejecutando sin la API local. Para probar la exportación necesitas correr el proyecto con `npm run dev` usando Vercel, no solo con Vite.'
+            : 'La respuesta de exportación no tiene un formato de archivo válido.',
+        );
+      }
+
       const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const contentDisposition = response.headers.get('Content-Disposition');
-      const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
+
       const fallbackDate = new Intl.DateTimeFormat('es-MX', {
         year: 'numeric',
         month: '2-digit',
@@ -173,8 +186,9 @@ export function Admin() {
       })
         .format(new Date())
         .replace(/\//g, '-');
-      const fileName = fileNameMatch?.[1] || `Voluntarios - ${fallbackDate}.xlsx`;
-
+      const fileName = `Voluntarios - ${fallbackDate}.xlsx`;
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
       link.href = downloadUrl;
       link.download = fileName;
       document.body.appendChild(link);

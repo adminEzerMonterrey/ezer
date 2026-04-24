@@ -14,20 +14,27 @@ const EXCEL_COLUMNS = [
   },
 ];
 
-function getSupabaseAdminClient() {
+function getSupabaseAdminClient(authorizationHeader = '') {
   const supabaseUrl =
     process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const shouldForwardUserAuth = false;
 
-  if (!supabaseUrl || !supabaseKey) {
+  if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
-      'Faltan variables de entorno de Supabase. Se recomienda SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY para esta API.',
+      'La exportacion requiere SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY configuradas en el entorno del servidor.',
     );
   }
 
-  return createClient(supabaseUrl, supabaseKey, {
+  return createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
+    global: shouldForwardUserAuth
+      ? {
+          headers: {
+            Authorization: authorizationHeader,
+          },
+        }
+      : undefined,
   });
 }
 
@@ -72,8 +79,8 @@ function buildExportFileName() {
   return `Voluntarios - ${formattedDate}.xlsx`;
 }
 
-async function fetchInterestLeads() {
-  const supabase = getSupabaseAdminClient();
+async function fetchInterestLeads(authorizationHeader = '') {
+  const supabase = getSupabaseAdminClient(authorizationHeader);
 
   const { data, error } = await supabase
     .from('interest_leads')
@@ -105,14 +112,10 @@ function buildExcelRows(rows) {
 
 function buildWorkbookBuffer(rows) {
   const headers = EXCEL_COLUMNS.map((column) => column.header);
-  const worksheet = XLSX.utils.aoa_to_sheet([headers]);
-
-  if (rows.length > 0) {
-    XLSX.utils.sheet_add_json(worksheet, rows, {
-      origin: 'A2',
-      skipHeader: true,
-    });
-  }
+  const dataRows = rows.map((row) =>
+    EXCEL_COLUMNS.map((column) => row[column.header] ?? ''),
+  );
+  const worksheet = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
 
   worksheet['!cols'] = headers.map((header) => ({ wch: Math.max(header.length + 4, 20) }));
   const workbook = XLSX.utils.book_new();
@@ -140,7 +143,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const rows = await fetchInterestLeads();
+    const rawAuthorizationHeader = req.headers.authorization || '';
+    const authorizationHeader = rawAuthorizationHeader.startsWith('Bearer ')
+      ? rawAuthorizationHeader
+      : rawAuthorizationHeader
+        ? `Bearer ${rawAuthorizationHeader}`
+        : '';
+    const rows = await fetchInterestLeads(authorizationHeader);
+
     const excelRows = buildExcelRows(rows);
     const workbookBuffer = buildWorkbookBuffer(excelRows);
     const fileName = buildExportFileName();

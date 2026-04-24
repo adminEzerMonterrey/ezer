@@ -43,24 +43,12 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand column */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                style={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: 12,
-                  border: "2px solid #F5C200",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "rgba(245,194,0,0.08)",
-                }}
-              >
-                <EzerIcon />
-              </div>
-              <div>
-                <div style={{ color: "#FFFFFF", fontWeight: 800, fontSize: 20, letterSpacing: "0.1em" }}>EZER</div>
-              </div>
+            <div className="mb-4">
+              <img
+                src="/LOGO EZER ABP.jpg"
+                alt="Logo oficial Asociación EZER ABP"
+                style={{ height: 60, width: "auto", objectFit: "contain" }}
+              />
             </div>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, lineHeight: 1.7, marginBottom: 20, fontStyle: "italic" }}>
               "Que nadie se prive de lo que es destino y vocación de todos, Servir."
@@ -236,16 +224,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function EzerIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-      <circle cx="13" cy="7.5" r="3.5" fill="#E8401C" />
-      <path d="M7 21 Q7 15 13 14 Q19 15 19 21" fill="#E8401C" />
-      <path d="M5 6.5 L5.5 8.2 L7.2 8.2 L5.8 9.3 L6.3 11 L5 10 L3.7 11 L4.2 9.3 L2.8 8.2 L4.5 8.2 Z" fill="#F5C200" />
-      <path d="M20 4 L20.4 5.4 L21.8 5.4 L20.7 6.3 L21.1 7.7 L20 6.9 L18.9 7.7 L19.3 6.3 L18.2 5.4 L19.6 5.4 Z" fill="#F5C200" />
-    </svg>
   );
 }
