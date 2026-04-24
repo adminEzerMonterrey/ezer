@@ -18,17 +18,15 @@ function getSupabaseAdminClient(authorizationHeader = '') {
   const supabaseUrl =
     process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
-  const supabaseKey = serviceRoleKey || anonKey;
-  const shouldForwardUserAuth = !serviceRoleKey && Boolean(authorizationHeader);
+  const shouldForwardUserAuth = false;
 
-  if (!supabaseUrl || !supabaseKey) {
+  if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
-      'Faltan variables de entorno de Supabase. Se recomienda SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY para esta API.',
+      'La exportacion requiere SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY configuradas en el entorno del servidor.',
     );
   }
 
-  return createClient(supabaseUrl, supabaseKey, {
+  return createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
     global: shouldForwardUserAuth
       ? {
@@ -83,25 +81,11 @@ function buildExportFileName() {
 
 async function fetchInterestLeads(authorizationHeader = '') {
   const supabase = getSupabaseAdminClient(authorizationHeader);
-  const hasServiceRoleKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
-
-  // TEMP DEBUG: confirma si esta API está consultando como service role o como cliente degradado.
-  console.log('[TEMP DEBUG][API] fetchInterestLeads auth mode:', {
-    hasServiceRoleKey,
-    forwardedUserAuth: !hasServiceRoleKey && Boolean(authorizationHeader),
-  });
 
   const { data, error } = await supabase
     .from('interest_leads')
     .select(EXCEL_COLUMNS.map((column) => column.key).join(', '))
     .order('created_at', { ascending: false });
-
-  // TEMP DEBUG: deja visible si Supabase devuelve filas o una lista vacía.
-  console.log('[TEMP DEBUG][API] interest_leads query result:', {
-    error: error ? error.message : null,
-    rows: data?.length ?? 0,
-    sample: data?.[0] ?? null,
-  });
 
   if (error) {
     throw new Error(`No se pudieron obtener los registros de interest_leads: ${error.message}`);
@@ -165,26 +149,11 @@ export default async function handler(req, res) {
       : rawAuthorizationHeader
         ? `Bearer ${rawAuthorizationHeader}`
         : '';
-
-    // TEMP DEBUG: confirma que el request llegó al endpoint correcto.
-    console.log('[TEMP DEBUG][API] /api/export-interest-leads request:', {
-      method: req.method,
-      hasAuthorizationHeader: Boolean(authorizationHeader),
-    });
-
     const rows = await fetchInterestLeads(authorizationHeader);
 
     const excelRows = buildExcelRows(rows);
     const workbookBuffer = buildWorkbookBuffer(excelRows);
     const fileName = buildExportFileName();
-
-    // TEMP DEBUG: ayuda a detectar archivos corruptos o vacíos antes de enviarlos.
-    console.log('[TEMP DEBUG][API] workbook generated:', {
-      fileName,
-      sourceRows: rows.length,
-      excelRows: excelRows.length,
-      bufferBytes: workbookBuffer?.length ?? 0,
-    });
 
     if (rows.length === 0) {
       console.warn('API /export-interest-leads: no se encontraron registros en interest_leads.');
