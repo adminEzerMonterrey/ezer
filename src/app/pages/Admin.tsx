@@ -32,7 +32,7 @@ export function Admin() {
   const [exportError, setExportError] = useState('');
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<'eventos' | 'aliados' | 'estadisticas'>('eventos');
+  const [activeTab, setActiveTab] = useState<'eventos' | 'aliados' | 'estadisticas' | 'configuracion'>('eventos');
 
   // Hero stats state
   const [heroStats, setHeroStats] = useState({
@@ -43,6 +43,11 @@ export function Admin() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsSaving, setStatsSaving] = useState(false);
   const [statsSaved, setStatsSaved] = useState(false);
+
+  // Config state
+  const [adminEmail, setAdminEmail] = useState('ethan.rivera@udem.edu');
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailSaved, setEmailSaved] = useState(false);
 
   // Edit Modal State
   const [editingEvent, setEditingEvent] = useState<any>(null);
@@ -126,11 +131,38 @@ export function Admin() {
     }
   };
 
+  const loadConfig = async () => {
+    try {
+      const { data, error } = await supabase.from('hero_stats').select('*').eq('key', 'admin_email').single();
+      if (!error && data) {
+        setAdminEmail(data.value);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const saveAdminEmail = async () => {
+    setEmailSaving(true);
+    try {
+      const { error } = await supabase.from('hero_stats').upsert({ key: 'admin_email', value: adminEmail }, { onConflict: 'key' });
+      if (error) throw error;
+      setEmailSaved(true);
+      setTimeout(() => setEmailSaved(false), 3000);
+    } catch (e) {
+      console.error(e);
+      alert('Error al guardar el correo de administrador.');
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadEvents();
       loadPartners();
       loadHeroStats();
+      loadConfig();
     }
   }, [isAuthenticated]);
 
@@ -375,9 +407,73 @@ export function Admin() {
             >
               Estadísticas
             </button>
+            <button 
+              onClick={() => setActiveTab('configuracion')}
+              style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'configuracion' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'configuracion' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
+            >
+              Configuración
+            </button>
           </div>
 
-          {activeTab === 'estadisticas' ? (
+          {activeTab === 'configuracion' ? (
+            <div style={{ maxWidth: 560 }}>
+              <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '16px 20px', marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <span style={{ fontSize: 20 }}>⚙️</span>
+                <p style={{ color: '#3730A3', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+                  Configura el correo electrónico al cual llegarán las notificaciones de los interesados en eventos.
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>
+                  ✉️ Correo de Notificaciones
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <input
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    placeholder="ejemplo@correo.com"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: 8,
+                      border: '1.5px solid #D1D5DB',
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: '#1A2E6C',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      outline: 'none',
+                    }}
+                  />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <button
+                      onClick={saveAdminEmail}
+                      disabled={emailSaving}
+                      style={{
+                        padding: '12px 28px',
+                        backgroundColor: emailSaving ? '#CBD5E1' : '#1A2E6C',
+                        color: 'white',
+                        borderRadius: 8,
+                        fontWeight: 700,
+                        fontSize: 14,
+                        border: 'none',
+                        cursor: emailSaving ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {emailSaving ? 'Guardando...' : 'Guardar correo'}
+                    </button>
+                    {emailSaved && (
+                      <span style={{ color: '#16A34A', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        ✅ ¡Guardado correctamente!
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : activeTab === 'estadisticas' ? (
             <div style={{ maxWidth: 560 }}>
               <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '16px 20px', marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>ℹ️</span>
