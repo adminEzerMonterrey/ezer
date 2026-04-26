@@ -143,6 +143,8 @@ export function Admin() {
   };
 
   const saveAdminEmail = async () => {
+    if (!window.confirm('¿Estás seguro de que quieres hacer el cambio de correo?')) return;
+
     setEmailSaving(true);
     try {
       const { error } = await supabase.from('hero_stats').upsert({ key: 'admin_email', value: adminEmail }, { onConflict: 'key' });
