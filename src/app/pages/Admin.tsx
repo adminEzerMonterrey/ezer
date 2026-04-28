@@ -36,9 +36,11 @@ export function Admin() {
 
   // Hero stats state
   const [heroStats, setHeroStats] = useState({
-    eventos_realizados: '120+',
-    empresas_aliadas: '18',
-    voluntarios_activos: '3,200+',
+    impact_years: '27',
+    impact_institutions: '155',
+    impact_municipalities: '14',
+    impact_volunteers_historical: '9,184',
+    impact_volunteers_annual: '150',
   });
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsSaving, setStatsSaving] = useState(false);
@@ -115,9 +117,11 @@ export function Admin() {
     setStatsSaving(true);
     try {
       const rows = [
-        { key: 'eventos_realizados',  value: heroStats.eventos_realizados },
-        { key: 'empresas_aliadas',    value: heroStats.empresas_aliadas },
-        { key: 'voluntarios_activos', value: heroStats.voluntarios_activos },
+        { key: 'impact_years', value: heroStats.impact_years },
+        { key: 'impact_institutions', value: heroStats.impact_institutions },
+        { key: 'impact_municipalities', value: heroStats.impact_municipalities },
+        { key: 'impact_volunteers_historical', value: heroStats.impact_volunteers_historical },
+        { key: 'impact_volunteers_annual', value: heroStats.impact_volunteers_annual },
       ];
       const { error } = await supabase.from('hero_stats').upsert(rows, { onConflict: 'key' });
       if (error) throw error;
@@ -480,7 +484,7 @@ export function Admin() {
               <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '16px 20px', marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>ℹ️</span>
                 <p style={{ color: '#3730A3', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-                  Estos valores se muestran en la sección principal (Hero) de la página de inicio.
+                  Estos valores se muestran en la seccion "Nuestro Impacto" de la pagina de inicio.
                   Los cambios se reflejan en tiempo real para todos los visitantes.
                 </p>
               </div>
@@ -490,9 +494,11 @@ export function Admin() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   {[
-                    { key: 'eventos_realizados',  label: '🎯 Eventos realizados',   placeholder: 'Ej: 120+' },
-                    { key: 'empresas_aliadas',    label: '🏢 Empresas aliadas',     placeholder: 'Ej: 18' },
-                    { key: 'voluntarios_activos', label: '🙌 Voluntarios activos',  placeholder: 'Ej: 3,200+' },
+                    { key: 'impact_years', label: 'Años de trayectoria', placeholder: 'Ej: 27' },
+                    { key: 'impact_institutions', label: 'Instituciones apoyadas', placeholder: 'Ej: 155' },
+                    { key: 'impact_municipalities', label: 'Municipios apoyados', placeholder: 'Ej: 14' },
+                    { key: 'impact_volunteers_historical', label: 'Voluntarios (historico)', placeholder: 'Ej: 9,184' },
+                    { key: 'impact_volunteers_annual', label: 'Voluntarios activos anualmente', placeholder: 'Ej: 150' },
                   ].map(({ key, label, placeholder }) => (
                     <div key={key} style={{ backgroundColor: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
                       <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>

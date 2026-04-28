@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Building2, Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
 import { supabase } from "../../supabaseClient";
+import { EVENT_CATEGORY_FILTERS } from "../eventCategories";
 import { formatSpotsRange } from "../eventSpots";
 
 interface Event {
@@ -43,8 +44,7 @@ export function EventCatalog() {
   const [category, setCategory] = useState("Todos");
   const [dateFilter, setDateFilter] = useState("Todos");
 
-  const predefinedCategories = ["Todos", "Niños", "Mujeres", "Adultos Mayores", "Educación", "Salud", "Discapacidad", "Medio Ambiente"];
-  const [categories, setCategories] = useState<string[]>(predefinedCategories);
+  const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
   const [dates] = useState<string[]>(["Todos"]);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
 
@@ -86,7 +86,7 @@ export function EventCatalog() {
         setEvents(formattedEvents);
 
         const dbCats = Array.from(new Set(formattedEvents.map(e => e.category)));
-        const allCats = Array.from(new Set([...predefinedCategories, ...dbCats]));
+        const allCats = Array.from(new Set([...EVENT_CATEGORY_FILTERS, ...dbCats]));
         setCategories(allCats);
       } catch (fetchError) {
         console.error('Cant load events', fetchError);

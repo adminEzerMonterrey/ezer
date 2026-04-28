@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
+import { ImpactStats } from "./components/ImpactStats";
 import { Partners } from "./components/Partners";
 import { EventCatalog } from "./components/EventCatalog";
 import { HowItWorks } from "./components/HowItWorks";
@@ -36,6 +37,7 @@ function HomePage() {
   return (
     <AppShell>
       <Hero />
+      <ImpactStats />
       <Partners />
     </AppShell>
   );

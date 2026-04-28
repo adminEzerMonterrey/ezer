@@ -1,34 +1,15 @@
 import { ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../../supabaseClient";
 
 const HERO_IMAGE = "/hero-landing.jpg";
-
-const DEFAULT_STATS = [
-  { key: "eventos_realizados", value: "120+", label: "Eventos realizados" },
-  { key: "empresas_aliadas", value: "18", label: "Empresas aliadas" },
-  { key: "voluntarios_activos", value: "3,200+", label: "Voluntarios activos" },
+const HERO_PHRASES = [
+  "Que nadie se prive, de lo que es destino y vocacion de todos: SERVIR.",
+  "Experimenta la felicidad de compartir.",
+  "Poner el yo a la disposicion del tu, para la plenitud de nosotros: AMAR.",
+  "BELLEZA, VERDAD y BONDAD",
 ];
 
 export function Hero() {
-  const [stats, setStats] = useState(DEFAULT_STATS);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const { data, error } = await supabase.from("hero_stats").select("*");
-      if (!error && data && data.length > 0) {
-        setStats(
-          DEFAULT_STATS.map((def) => {
-            const row = data.find((r: any) => r.key === def.key);
-            return row ? { ...def, value: row.value } : def;
-          })
-        );
-      }
-    };
-    fetchStats();
-  }, []);
-
   return (
     <section
       id="inicio"
@@ -51,9 +32,9 @@ export function Hero() {
 
             <p
               style={{ color: "#4B5563", fontSize: "clamp(1rem, 2vw, 1.2rem)", lineHeight: 1.7 }}
-              className="mb-8 max-w-xl mx-auto lg:mx-0"
+              className="mb-8 max-w-2xl mx-auto lg:mx-0"
             >
-              EZER conecta empresas comprometidas con ONGs que transforman comunidades. Participa en eventos de voluntariado que generan impacto real.
+              Nuestra mision es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una vision sistemica y comunitaria.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -70,17 +51,23 @@ export function Hero() {
                 style={{ color: "#1A2E6C", border: "2px solid rgba(26,46,108,0.35)", borderRadius: 8, backgroundColor: "rgba(26,46,108,0.04)" }}
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:bg-[rgba(26,46,108,0.08)] active:scale-95 transition-all duration-200 text-center"
               >
-                ¿Eres una Asociación y quieres colaborar?
+                ¿Eres una Asociacion y quieres colaborar?
               </Link>
             </div>
 
-            <div className="mt-10 flex flex-wrap gap-8 justify-center lg:justify-start">
-              {stats.map((stat) => (
-                <div key={stat.key} className="text-center lg:text-left">
-                  <div style={{ color: "#E8401C", fontWeight: 800, fontSize: "1.75rem", lineHeight: 1 }}>{stat.value}</div>
-                  <div style={{ color: "#6B7280", fontSize: "0.8rem" }} className="mt-1">
-                    {stat.label}
-                  </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:hidden">
+              {HERO_PHRASES.map((phrase) => (
+                <div
+                  key={phrase}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid rgba(26,46,108,0.12)",
+                    borderRadius: 12,
+                    boxShadow: "0 10px 24px rgba(26,46,108,0.08)",
+                  }}
+                  className="px-4 py-4 text-left"
+                >
+                  <p style={{ color: "#1A2E6C", fontSize: 13, fontWeight: 700, lineHeight: 1.6 }}>{phrase}</p>
                 </div>
               ))}
             </div>
@@ -96,30 +83,31 @@ export function Hero() {
             </div>
 
             <div
-              style={{ backgroundColor: "#FFFFFF", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", border: "1px solid #E5E7EB" }}
-              className="absolute -left-8 top-10 px-4 py-3 hidden xl:flex items-center gap-3"
+              style={{ backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid rgba(229,231,235,0.9)" }}
+              className="absolute -left-4 top-6 max-w-[180px] px-3 py-3 hidden xl:block"
             >
-              <div
-                style={{ width: 44, height: 44, backgroundColor: "#FEF3C7", borderRadius: 10 }}
-                className="flex items-center justify-center text-2xl flex-shrink-0"
-              >
-                🤝
-              </div>
-              <div>
-                <div style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14 }}>Nuevo evento</div>
-                <div style={{ color: "#6B7280", fontSize: 12 }}>Disponible esta semana</div>
-              </div>
+              <p style={{ color: "#1A2E6C", fontSize: 12, fontWeight: 700, lineHeight: 1.5 }}>{HERO_PHRASES[0]}</p>
             </div>
 
             <div
-              style={{ backgroundColor: "#1A2E6C", borderRadius: 12, border: "1px solid rgba(245,194,0,0.4)", boxShadow: "0 8px 32px rgba(26,46,108,0.3)" }}
-              className="absolute -right-4 bottom-12 px-4 py-3 hidden xl:flex items-center gap-3"
+              style={{ backgroundColor: "rgba(26,46,108,0.92)", borderRadius: 12, border: "1px solid rgba(245,194,0,0.3)", boxShadow: "0 8px 24px rgba(26,46,108,0.22)" }}
+              className="absolute -right-3 top-16 max-w-[180px] px-3 py-3 hidden xl:block"
             >
-              <div style={{ color: "#F5C200", fontSize: 24 }}>⭐</div>
-              <div>
-                <div style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 14 }}>Impacto verificado</div>
-                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>Por ONGs aliadas</div>
-              </div>
+              <p style={{ color: "#FFFFFF", fontSize: 12, fontWeight: 700, lineHeight: 1.5 }}>{HERO_PHRASES[1]}</p>
+            </div>
+
+            <div
+              style={{ backgroundColor: "rgba(255,255,255,0.9)", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid rgba(229,231,235,0.9)" }}
+              className="absolute -left-2 bottom-6 max-w-[200px] px-3 py-3 hidden xl:block"
+            >
+              <p style={{ color: "#1A2E6C", fontSize: 12, fontWeight: 700, lineHeight: 1.5 }}>{HERO_PHRASES[2]}</p>
+            </div>
+
+            <div
+              style={{ backgroundColor: "rgba(245,194,0,0.94)", borderRadius: 12, border: "1px solid rgba(26,46,108,0.1)", boxShadow: "0 8px 24px rgba(245,194,0,0.24)" }}
+              className="absolute right-5 -bottom-3 max-w-[165px] px-3 py-3 hidden xl:block"
+            >
+              <p style={{ color: "#1A2E6C", fontSize: 12, fontWeight: 800, lineHeight: 1.45 }}>{HERO_PHRASES[3]}</p>
             </div>
           </div>
         </div>

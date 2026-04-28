@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../../supabaseClient';
+import { EVENT_CATEGORIES } from '../eventCategories';
 
 export function EditEventForm({
   initialData,
@@ -130,13 +131,9 @@ export function EditEventForm({
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Categoría</label>
           <select required defaultValue={initialData.objective} name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
-            <option value="Niños">Niños</option>
-            <option value="Mujeres">Mujeres</option>
-            <option value="Adultos Mayores">Adultos Mayores</option>
-            <option value="Educación">Educación</option>
-            <option value="Salud">Salud</option>
-            <option value="Discapacidad">Discapacidad</option>
-            <option value="Medio Ambiente">Medio Ambiente</option>
+            {EVENT_CATEGORIES.map((category) => (
+              <option key={category} value={category}>{category}</option>
+            ))}
           </select>
         </div>
 

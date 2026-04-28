@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Landmark, Mail, MapPin, Phone } from "lucide-react";
 
 export function ContactSection() {
   return (
@@ -49,6 +49,72 @@ export function ContactSection() {
               Francisco Zarco 911, Piso 3<br />
               Centro, 64000 Monterrey, N.L.
             </p>
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 32,
+            backgroundColor: "#FAFAFA",
+            borderRadius: 16,
+            padding: "32px 24px",
+            border: "1px solid #E5E7EB",
+            transition: "transform 0.2s",
+          }}
+          className="hover:-translate-y-1"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+            <div className="lg:max-w-sm">
+              <div
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: "50%",
+                  backgroundColor: "#EEF2FF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 24,
+                }}
+              >
+                <Landmark size={36} style={{ color: "#1A2E6C" }} />
+              </div>
+              <h3 style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 26, marginBottom: 12 }}>
+                ¿Te gustaría apoyar con un donativo?
+              </h3>
+              <p style={{ color: "#6B7280", fontSize: 15, lineHeight: 1.7, margin: 0 }}>
+                Si deseas sumarte a nuestra labor, puedes realizar una transferencia bancaria a la siguiente cuenta de EZER.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+              <div style={{ backgroundColor: "#FFFFFF", borderRadius: 12, border: "1px solid #E5E7EB", padding: "18px 20px" }}>
+                <p style={{ color: "#6B7280", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>
+                  Titular
+                </p>
+                <p style={{ color: "#1A2E6C", fontSize: 22, fontWeight: 800, lineHeight: 1.25, margin: 0 }}>
+                  EZER ABP
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: "#FFFFFF", borderRadius: 12, border: "1px solid #E5E7EB", padding: "18px 20px" }}>
+                <p style={{ color: "#6B7280", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>
+                  Cuenta
+                </p>
+                <p style={{ color: "#1A2E6C", fontSize: 22, fontWeight: 800, lineHeight: 1.25, margin: 0 }}>
+                  0198974066
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: "#FFFFFF", borderRadius: 12, border: "1px solid #E5E7EB", padding: "18px 20px" }}>
+                <p style={{ color: "#6B7280", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>
+                  CLABE
+                </p>
+                <p style={{ color: "#1A2E6C", fontSize: 20, fontWeight: 800, lineHeight: 1.35, margin: 0, wordBreak: "break-word" }}>
+                  072 580 00198974066 6
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
