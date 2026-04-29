@@ -59,7 +59,14 @@ export function Admin() {
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session) setIsAuth(true);
+        if (session) {
+          setIsAuth(true);
+          if (window.location.hash.includes('type=recovery')) {
+            setActiveTab('configuracion');
+            alert('Has iniciado sesión mediante el enlace de recuperación. Por favor, actualiza tu contraseña en esta sección.');
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }
       } catch (error) {
         console.error('Error fetching session:', error);
       } finally {
@@ -67,6 +74,11 @@ export function Admin() {
       }
     };
     checkSession();
+
+    // Cerrar sesión cuando se sale de la página (unmount)
+    return () => {
+      supabase.auth.signOut();
+    };
   }, []);
 
   const loadEvents = async () => {
@@ -190,6 +202,26 @@ export function Admin() {
       setIsAuth(true);
     } catch (error: any) {
       setLoginError(error.message || 'Error al iniciar sesión');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setLoginError('Por favor ingresa tu correo electrónico en el campo superior para recuperar tu contraseña.');
+      return;
+    }
+    setLoginLoading(true);
+    setLoginError('');
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/admin',
+      });
+      if (error) throw error;
+      alert('Se ha enviado un enlace a tu correo para restablecer tu contraseña.');
+    } catch (error: any) {
+      setLoginError(error.message || 'Error al enviar correo de recuperación');
     } finally {
       setLoginLoading(false);
     }
@@ -344,6 +376,25 @@ export function Admin() {
               >
                 {loginLoading ? 'Ingresando...' : 'Iniciar Sesión'}
               </button>
+              
+              <div style={{ textAlign: 'center', marginTop: '4px' }}>
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={loginLoading}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#3B82F6',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: loginLoading ? 'not-allowed' : 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -475,6 +526,63 @@ export function Admin() {
                         ✅ ¡Guardado correctamente!
                       </span>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px', marginTop: 24 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>
+                  🔒 Cambiar Contraseña
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <input
+                    type="password"
+                    id="new-password"
+                    placeholder="Nueva contraseña"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: 8,
+                      border: '1.5px solid #D1D5DB',
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: '#1A2E6C',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      outline: 'none',
+                    }}
+                  />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <button
+                      onClick={async () => {
+                        const input = document.getElementById('new-password') as HTMLInputElement;
+                        const newPwd = input?.value;
+                        if (!newPwd || newPwd.length < 6) {
+                          alert('La contraseña debe tener al menos 6 caracteres.');
+                          return;
+                        }
+                        try {
+                          const { error } = await supabase.auth.updateUser({ password: newPwd });
+                          if (error) throw error;
+                          alert('Contraseña actualizada correctamente.');
+                          input.value = '';
+                        } catch (e: any) {
+                          alert('Error al actualizar contraseña: ' + e.message);
+                        }
+                      }}
+                      style={{
+                        padding: '12px 28px',
+                        backgroundColor: '#1A2E6C',
+                        color: 'white',
+                        borderRadius: 8,
+                        fontWeight: 700,
+                        fontSize: 14,
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Actualizar contraseña
+                    </button>
                   </div>
                 </div>
               </div>

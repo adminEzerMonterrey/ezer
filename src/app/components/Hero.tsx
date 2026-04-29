@@ -1,7 +1,10 @@
 import { ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
 
 const HERO_IMAGE = "/hero-landing.jpg";
+
 const HERO_PHRASES = [
   "Que nadie se prive, de lo que es destino y vocación de todos: SERVIR.",
   "Experimenta la felicidad de compartir.",
@@ -9,7 +12,90 @@ const HERO_PHRASES = [
   "BELLEZA, VERDAD y BONDAD",
 ];
 
+function parseStatValue(value: string): { number: number; suffix: string; prefix: string } {
+  const prefix = value.match(/^[^0-9]*/)?.[0] ?? "";
+  const suffix = value.match(/[^0-9,]+$/)?.[0] ?? "";
+  const numberStr = value.replace(prefix, "").replace(suffix, "").replace(/,/g, "");
+  return { number: parseInt(numberStr, 10) || 0, suffix, prefix };
+}
+
+function useCountUp(target: number, duration = 1800, triggered: boolean) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!triggered) return;
+    let start: number | null = null;
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration, triggered]);
+
+  return count;
+}
+
+function AnimatedStat({ value, label }: { value: string; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [triggered, setTriggered] = useState(false);
+  const { number, suffix, prefix } = parseStatValue(value);
+  const count = useCountUp(number, 1800, triggered);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setTriggered(true); observer.disconnect(); } },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const formatted = count >= 1000 ? count.toLocaleString("en-US") : String(count);
+
+  return (
+    <div ref={ref} className="text-center lg:text-left">
+      <div style={{ color: "#E8401C", fontWeight: 800, fontSize: "1.75rem", lineHeight: 1 }}>
+        {prefix}{formatted}{suffix}
+      </div>
+      <div style={{ color: "#6B7280", fontSize: "0.8rem" }} className="mt-1">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+const DEFAULT_STATS = [
+  { key: "eventos_realizados", value: "120+", label: "Eventos realizados" },
+  { key: "empresas_aliadas", value: "18", label: "Empresas aliadas" },
+  { key: "voluntarios_activos", value: "3,200+", label: "Voluntarios activos" },
+];
+
 export function Hero() {
+  const [stats, setStats] = useState(DEFAULT_STATS);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data, error } = await supabase.from('hero_stats').select('*');
+        if (!error && data && data.length > 0) {
+          const map: Record<string, string> = {};
+          data.forEach((row: any) => { map[row.key] = row.value; });
+          
+          setStats(prev => prev.map(s => ({
+            ...s,
+            value: map[s.key] || s.value
+          })));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <section
       id="inicio"
@@ -69,6 +155,12 @@ export function Hero() {
                 >
                   <p style={{ color: "#1A2E6C", fontSize: 13, fontWeight: 700, lineHeight: 1.6 }}>{phrase}</p>
                 </div>
+              ))}
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-8 justify-center lg:justify-start">
+              {stats.map((stat) => (
+                <AnimatedStat key={stat.key} value={stat.value} label={stat.label} />
               ))}
             </div>
           </div>
