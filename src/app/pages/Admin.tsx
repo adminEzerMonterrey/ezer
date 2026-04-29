@@ -219,10 +219,11 @@ export function Admin() {
       // 1. Obtener el correo base para notificaciones
       const { data, error: dbError } = await supabase.from('hero_stats').select('value').eq('key', 'admin_email').single();
       
-      let targetEmail = data?.value;
-      if (dbError || !targetEmail) {
-        targetEmail = 'ethan.rivera@udem.edu'; // Fallback por defecto si no se encuentra
+      if (dbError || !data?.value) {
+        throw new Error('No se ha configurado un correo base. Por favor comunícate con soporte.');
       }
+
+      const targetEmail = data.value.trim();
 
       // 2. Enviar el enlace de recuperación a ese correo
       const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
