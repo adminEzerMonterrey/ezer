@@ -60,6 +60,7 @@ export function EditEventForm({
       description: formData.get('description'),
       cost: formData.get('cost'),
       coordinador: formData.get('coordinador'),
+      is_annual: formData.get('is_annual') === 'on',
       spots_min: spotsMin,
       spots_max: spotsMax,
     };
@@ -175,6 +176,13 @@ export function EditEventForm({
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Coordinador (Solo visible para administrador)</label>
           <input required defaultValue={initialData.coordinador} name="coordinador" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Nombre del coordinador" />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#4B5563', cursor: 'pointer' }}>
+            <input name="is_annual" type="checkbox" defaultChecked={!!initialData.is_annual} style={{ width: '16px', height: '16px', accentColor: '#E8401C' }} />
+            Este es un evento anual (Se repite cada año, ej: Día del niño)
+          </label>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

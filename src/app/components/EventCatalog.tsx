@@ -18,6 +18,7 @@ interface Event {
   spotsMin: number;
   spotsMax: number;
   cost: string | number;
+  isAnnual: boolean;
 }
 
 const DATE_FILTERS = ["Todos", "Próximos 3 meses", "Próximos 6 meses", "Permanente"];
@@ -81,6 +82,7 @@ export function EventCatalog() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("Todos");
   const [dateFilter, setDateFilter] = useState("Todos");
+  const [onlyAnnual, setOnlyAnnual] = useState(false);
 
   const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
   const [dates] = useState<string[]>(DATE_FILTERS);
@@ -117,7 +119,8 @@ export function EventCatalog() {
             image: e.image_url,
             spotsMin,
             spotsMax,
-            cost: e.cost || "Gratuito"
+            cost: e.cost || "Gratuito",
+            isAnnual: !!e.is_annual
           };
         });
 
@@ -145,7 +148,9 @@ export function EventCatalog() {
       (dateFilter === "Próximos 6 meses" && isEventInNextMonths(e, 6)) ||
       (dateFilter === "Permanente" && isPermanentEvent(e));
 
-    return catOk && dateOk;
+    const annualOk = !onlyAnnual || e.isAnnual;
+
+    return catOk && dateOk && annualOk;
   });
 
   return (
@@ -177,10 +182,27 @@ export function EventCatalog() {
             </div>
             <FilterSelect label="Categoría" value={category} options={categories} onChange={setCategory} />
             <FilterSelect label="Cierre de convocatoria" value={dateFilter} options={dates} onChange={setDateFilter} />
-            {(category !== "Todos" || dateFilter !== "Todos") && (
+            
+            <label
+              style={{
+                display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
+                padding: "8px 16px", backgroundColor: "#FFFFFF", borderRadius: 8, border: "1.5px solid #E5E7EB",
+                alignSelf: "flex-end", height: "42px"
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={onlyAnnual}
+                onChange={(e) => setOnlyAnnual(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: "#E8401C", cursor: "pointer" }}
+              />
+              <span style={{ fontSize: 14, fontWeight: 600, color: "#4B5563" }}>Eventos Anuales</span>
+            </label>
+
+            {(category !== "Todos" || dateFilter !== "Todos" || onlyAnnual) && (
               <button
-                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); }}
-                style={{ color: "#E8401C", fontWeight: 600, fontSize: 13 }}
+                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); setOnlyAnnual(false); }}
+                style={{ color: "#E8401C", fontWeight: 600, fontSize: 13, alignSelf: "flex-end", marginBottom: "12px" }}
                 className="ml-auto hover:underline cursor-pointer"
               >
                 Limpiar filtros ✕
@@ -269,6 +291,11 @@ export function EventCatalog() {
 
                     <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 16, lineHeight: 1.3, marginBottom: 6 }}>
                       {event.title}
+                      {event.isAnnual && (
+                        <span style={{ marginLeft: 8, backgroundColor: "#FEF3C7", color: "#D97706", fontSize: 11, padding: "2px 6px", borderRadius: 12, verticalAlign: "middle", display: "inline-block" }}>
+                          ⭐ Anual
+                        </span>
+                      )}
                     </h3>
 
                     <div className="flex items-center justify-between gap-2 mb-3">
