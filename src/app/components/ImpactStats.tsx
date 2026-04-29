@@ -1,5 +1,53 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../supabaseClient";
+
+function parseValue(value: string) {
+  const suffix = value.match(/[^0-9,]+$/)?.[0] ?? "";
+  const prefix = value.match(/^[^0-9]*/)?.[0] ?? "";
+  const num = parseInt(value.replace(/[^0-9]/g, ""), 10) || 0;
+  return { num, suffix, prefix };
+}
+
+function useCountUp(target: number, duration: number, triggered: boolean) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!triggered) return;
+    let start: number | null = null;
+    const tick = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration, triggered]);
+  return count;
+}
+
+function AnimatedNumber({ value, color }: { value: string; color: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [triggered, setTriggered] = useState(false);
+  const { num, suffix, prefix } = parseValue(value);
+  const count = useCountUp(num, 2000, triggered);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setTriggered(true); observer.disconnect(); } },
+      { threshold: 0.4 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const formatted = count >= 1000 ? count.toLocaleString("en-US") : String(count);
+
+  return (
+    <div ref={ref} style={{ color, fontSize: "clamp(4rem, 10vw, 7.5rem)", fontWeight: 800, lineHeight: 0.95 }}>
+      {prefix}{formatted}{suffix}
+    </div>
+  );
+}
 
 const IMPACT_STATS = [
   { key: "impact_years", value: "27", label: "Años de trayectoria", unit: "años", featured: true },
@@ -115,9 +163,7 @@ export function ImpactStats() {
                 </div>
 
                 <div style={{ marginTop: 18 }}>
-                  <div style={{ color: style.numberColor, fontSize: "clamp(4rem, 10vw, 7.5rem)", fontWeight: 800, lineHeight: 0.95 }}>
-                    {stat.value}
-                  </div>
+                  <AnimatedNumber value={stat.value} color={style.numberColor} />
                   <p style={{ color: "#6B7280", fontSize: "clamp(1rem, 1.8vw, 1.35rem)", fontWeight: 800 }} className="mt-4">
                     {stat.unit}
                   </p>

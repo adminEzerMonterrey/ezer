@@ -59,6 +59,7 @@ export function EditEventForm({
       target_audience: formData.get('audience'),
       description: formData.get('description'),
       cost: formData.get('cost'),
+      coordinador: formData.get('coordinador'),
       spots_min: spotsMin,
       spots_max: spotsMax,
     };
@@ -169,6 +170,11 @@ export function EditEventForm({
           <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
             Si el evento maneja una cantidad fija, usa el mismo valor como mínimo y máximo.
           </p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Coordinador (Solo visible para administrador)</label>
+          <input required defaultValue={initialData.coordinador} name="coordinador" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Nombre del coordinador" />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

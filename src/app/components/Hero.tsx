@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 
@@ -11,61 +11,6 @@ const HERO_PHRASES = [
   "Poner el yo a la disposición del tú, para la plenitud de nosotros: AMAR.",
   "BELLEZA, VERDAD y BONDAD",
 ];
-
-function parseStatValue(value: string): { number: number; suffix: string; prefix: string } {
-  const prefix = value.match(/^[^0-9]*/)?.[0] ?? "";
-  const suffix = value.match(/[^0-9,]+$/)?.[0] ?? "";
-  const numberStr = value.replace(prefix, "").replace(suffix, "").replace(/,/g, "");
-  return { number: parseInt(numberStr, 10) || 0, suffix, prefix };
-}
-
-function useCountUp(target: number, duration = 1800, triggered: boolean) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!triggered) return;
-    let start: number | null = null;
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [target, duration, triggered]);
-
-  return count;
-}
-
-function AnimatedStat({ value, label }: { value: string; label: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [triggered, setTriggered] = useState(false);
-  const { number, suffix, prefix } = parseStatValue(value);
-  const count = useCountUp(number, 1800, triggered);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setTriggered(true); observer.disconnect(); } },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  const formatted = count >= 1000 ? count.toLocaleString("en-US") : String(count);
-
-  return (
-    <div ref={ref} className="text-center lg:text-left">
-      <div style={{ color: "#E8401C", fontWeight: 800, fontSize: "1.75rem", lineHeight: 1 }}>
-        {prefix}{formatted}{suffix}
-      </div>
-      <div style={{ color: "#6B7280", fontSize: "0.8rem" }} className="mt-1">
-        {label}
-      </div>
-    </div>
-  );
-}
 
 const DEFAULT_STATS = [
   { key: "eventos_realizados", value: "120+", label: "Eventos realizados" },
@@ -160,7 +105,12 @@ export function Hero() {
 
             <div className="mt-10 flex flex-wrap gap-8 justify-center lg:justify-start">
               {stats.map((stat) => (
-                <AnimatedStat key={stat.key} value={stat.value} label={stat.label} />
+                <div key={stat.key} className="text-center lg:text-left">
+                  <div style={{ color: "#E8401C", fontWeight: 800, fontSize: "1.75rem", lineHeight: 1 }}>{stat.value}</div>
+                  <div style={{ color: "#6B7280", fontSize: "0.8rem" }} className="mt-1">
+                    {stat.label}
+                  </div>
+                </div>
               ))}
             </div>
           </div>

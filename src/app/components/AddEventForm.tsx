@@ -20,6 +20,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
     const cost = formData.get('cost') as string;
+    const coordinador = formData.get('coordinador') as string;
     const spotsMin = parseInt(formData.get('spots_min') as string, 10);
     const spotsMax = parseInt(formData.get('spots_max') as string, 10);
 
@@ -78,6 +79,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             description,
             objective,
             cost,
+            coordinador,
             spots_min: spotsMin,
             spots_max: spotsMax,
             image_url: imageUrl,
@@ -164,6 +166,11 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
           <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
             Captura un rango sencillo. Si el evento tiene una cantidad fija, escribe el mismo número en ambos campos.
           </p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Coordinador (Solo visible para administrador)</label>
+          <input required name="coordinador" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Nombre del coordinador" />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

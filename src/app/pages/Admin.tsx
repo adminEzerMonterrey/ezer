@@ -4,7 +4,7 @@ import { EditEventForm } from '../components/EditEventForm';
 import { AddPartnerForm } from '../components/AddPartnerForm';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { Trash2, LogOut, Pencil, Download } from 'lucide-react';
+import { Trash2, LogOut, Pencil, Download, Eye, EyeOff } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { supabase } from '../../supabaseClient';
 import { formatSpotsRange } from '../eventSpots';
@@ -18,6 +18,7 @@ export function Admin() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Events state
   const [events, setEvents] = useState<any[]>([]);
@@ -36,11 +37,9 @@ export function Admin() {
 
   // Hero stats state
   const [heroStats, setHeroStats] = useState({
-    impact_years: '27',
-    impact_institutions: '155',
-    impact_municipalities: '14',
-    impact_volunteers_historical: '9,184',
-    impact_volunteers_annual: '150',
+    eventos_realizados: '120+',
+    empresas_aliadas: '18',
+    voluntarios_activos: '3,200+',
   });
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsSaving, setStatsSaving] = useState(false);
@@ -50,6 +49,12 @@ export function Admin() {
   const [adminEmail, setAdminEmail] = useState('ethan.rivera@udem.edu');
   const [emailSaving, setEmailSaving] = useState(false);
   const [emailSaved, setEmailSaved] = useState(false);
+  
+  // Change Password state
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Edit Modal State
   const [editingEvent, setEditingEvent] = useState<any>(null);
@@ -191,7 +196,7 @@ export function Admin() {
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password
       });
 
@@ -208,14 +213,15 @@ export function Admin() {
   };
 
   const handleForgotPassword = async () => {
-    if (!email) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       setLoginError('Por favor ingresa tu correo electrónico en el campo superior para recuperar tu contraseña.');
       return;
     }
     setLoginLoading(true);
     setLoginError('');
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
         redirectTo: window.location.origin + '/admin',
       });
       if (error) throw error;
@@ -350,13 +356,22 @@ export function Admin() {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '6px' }}>Contraseña</label>
-                <input 
-                  type="password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB' }} 
-                  required 
-                />
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showPassword ? 'text' : 'password'}
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB' }} 
+                    required 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', display: 'flex' }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <button 
                 type="submit" 
@@ -535,36 +550,82 @@ export function Admin() {
                   🔒 Cambiar Contraseña
                 </label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <input
-                    type="password"
-                    id="new-password"
-                    placeholder="Nueva contraseña"
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: 8,
-                      border: '1.5px solid #D1D5DB',
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: '#1A2E6C',
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      outline: 'none',
-                    }}
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Nueva contraseña"
+                      style={{
+                        width: '100%',
+                        padding: '10px 40px 10px 14px',
+                        borderRadius: 8,
+                        border: '1.5px solid #D1D5DB',
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: '#1A2E6C',
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        outline: 'none',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', display: 'flex' }}
+                    >
+                      {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirmar nueva contraseña"
+                      style={{
+                        width: '100%',
+                        padding: '10px 40px 10px 14px',
+                        borderRadius: 8,
+                        border: '1.5px solid #D1D5DB',
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: '#1A2E6C',
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        outline: 'none',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', display: 'flex' }}
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <button
                       onClick={async () => {
-                        const input = document.getElementById('new-password') as HTMLInputElement;
-                        const newPwd = input?.value;
-                        if (!newPwd || newPwd.length < 6) {
+                        if (!newPassword || newPassword.length < 6) {
                           alert('La contraseña debe tener al menos 6 caracteres.');
                           return;
                         }
+                        if (newPassword !== confirmPassword) {
+                          alert('Las contraseñas no coinciden. Por favor, verifica e inténtalo de nuevo.');
+                          return;
+                        }
+                        
+                        if (!window.confirm('¿Estás seguro que deseas actualizar la contraseña?')) {
+                          return;
+                        }
+
                         try {
-                          const { error } = await supabase.auth.updateUser({ password: newPwd });
+                          const { error } = await supabase.auth.updateUser({ password: newPassword });
                           if (error) throw error;
                           alert('Contraseña actualizada correctamente.');
-                          input.value = '';
+                          setNewPassword('');
+                          setConfirmPassword('');
                         } catch (e: any) {
                           alert('Error al actualizar contraseña: ' + e.message);
                         }
@@ -680,6 +741,7 @@ export function Admin() {
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Título</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Fecha</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Empresa</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Coordinador</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Espacios</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Imagen</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
@@ -691,6 +753,7 @@ export function Admin() {
                           <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.name || event.title}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date || event.event_date}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.company}</td>
+                          <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px', fontWeight: 600 }}>{event.coordinador || <span style={{ color: '#9CA3AF', fontWeight: 'normal' }}>No asignado</span>}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>
                             {formatSpotsRange(event.spots_min ?? event.spots ?? 0, event.spots_max ?? event.spots ?? 0)}
                           </td>
@@ -730,7 +793,7 @@ export function Admin() {
                       ))}
                       {events.length === 0 && (
                         <tr>
-                          <td colSpan={6} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
+                          <td colSpan={7} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
                             No hay eventos registrados en la base de datos.
                           </td>
                         </tr>
