@@ -102,8 +102,10 @@ export function EditEventForm({
         throw new Error(updateError.message || 'No se pudo actualizar el evento');
       }
 
+      alert('¡Evento actualizado exitosamente!');
       onEventUpdated();
     } catch (err: any) {
+      alert(`No se pudo actualizar el evento:\n${err.message}`);
       setError(err.message);
     } finally {
       setLoading(false);
