@@ -20,6 +20,44 @@ interface Event {
   cost: string | number;
 }
 
+const DATE_FILTERS = ["Todos", "Próximos 3 meses", "Próximos 6 meses", "Permanente"];
+
+const parseLocalDate = (dateValue: string | null | undefined) => {
+  if (!dateValue) return null;
+
+  const match = dateValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const [, year, month, day] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+
+  const parsedDate = new Date(dateValue);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+};
+
+const getCurrentMonthRange = (monthsAhead: number) => {
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth() + monthsAhead, 1);
+
+  return { start, end };
+};
+
+const isPermanentEvent = (event: Event) => {
+  const normalizedDate = event.date?.toString().trim().toLowerCase();
+  return !normalizedDate || normalizedDate.includes("permanente");
+};
+
+const isEventInNextMonths = (event: Event, monthsAhead: number) => {
+  const eventDate = parseLocalDate(event.date);
+  if (!eventDate) return false;
+
+  const eventMonth = new Date(eventDate.getFullYear(), eventDate.getMonth(), 1);
+  const { start, end } = getCurrentMonthRange(monthsAhead);
+
+  return eventMonth >= start && eventMonth < end;
+};
+
 const formatCost = (costValue: string | number | null | undefined) => {
   if (costValue == null || costValue === '') return "Gratuito";
   const strCost = costValue.toString();
@@ -45,7 +83,7 @@ export function EventCatalog() {
   const [dateFilter, setDateFilter] = useState("Todos");
 
   const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
-  const [dates] = useState<string[]>(["Todos"]);
+  const [dates] = useState<string[]>(DATE_FILTERS);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -101,17 +139,11 @@ export function EventCatalog() {
   const filtered = events.filter((e) => {
     const catOk = category === "Todos" || e.category === category;
 
-    const isAbril = e.month === "ABR" || e.month === "ABR.";
-    const isMayo = e.month === "MAY" || e.month === "MAY.";
-    const isJunio = e.month === "JUN" || e.month === "JUN.";
-    const isJulio = e.month === "JUL" || e.month === "JUL.";
-
     const dateOk =
       dateFilter === "Todos" ||
-      (dateFilter.includes("Abril") && isAbril) ||
-      (dateFilter.includes("Mayo") && isMayo) ||
-      (dateFilter.includes("Junio") && isJunio) ||
-      (dateFilter.includes("Julio") && isJulio);
+      (dateFilter === "Próximos 3 meses" && isEventInNextMonths(e, 3)) ||
+      (dateFilter === "Próximos 6 meses" && isEventInNextMonths(e, 6)) ||
+      (dateFilter === "Permanente" && isPermanentEvent(e));
 
     return catOk && dateOk;
   });
@@ -128,7 +160,7 @@ export function EventCatalog() {
             <h2
               style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2 }}
             >
-              ¿Eres empresa y quieres colaborar?
+              ¿Eres empresa/grupo y quieres hacer voluntariado corporativo/grupal?
             </h2>
             <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 520 }} className="mx-auto text-base">
               Explora las oportunidades de voluntariado y elige el que más impacte en tu comunidad.
@@ -331,6 +363,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
       company: formData.get('company'),
       email: formData.get('email'),
       description: formData.get('description'),
+      wantsTraining: formData.get('wants_training') === 'on',
       eventName
     };
 
@@ -344,6 +377,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
           email: data.email,
           event_name: data.eventName,
           description: data.description,
+          wants_training: data.wantsTraining,
         }]);
 
       if (dbError) {
@@ -395,7 +429,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
             <div style={{ fontSize: '40px', marginBottom: '16px' }}>✨</div>
             <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>¡Correo Enviado!</h3>
             <p style={{ color: '#4B5563', fontSize: '14px', marginBottom: '24px' }}>
-              Nos podremos en contacto contigo pronto. ¡Gracias por tu interés en Ezer!
+              Nos pondremos en contacto contigo pronto. ¡Gracias por tu interés en Ezer!
             </p>
             <button
               onClick={onClose}
@@ -441,6 +475,29 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Descripción / Comentarios *</label>
                 <textarea required name="description" rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical' }} placeholder="Cuenta por qué te interesa participar..."></textarea>
               </div>
+
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '12px 14px',
+                  borderRadius: '8px',
+                  border: '1px solid #D1D5DB',
+                  backgroundColor: '#F9FAFB',
+                  color: '#1A2E6C',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                <input
+                  name="wants_training"
+                  type="checkbox"
+                  style={{ width: '16px', height: '16px', accentColor: '#E8401C', cursor: 'pointer' }}
+                />
+                ¿Quieres capacitación?
+              </label>
 
               {status === 'error' && <p style={{ color: '#E8401C', fontSize: '13px' }}>Hubo un error al enviar tu interés. Por favor intenta de nuevo.</p>}
 

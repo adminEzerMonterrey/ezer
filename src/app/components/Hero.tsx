@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 
 const HERO_IMAGE = "/hero-landing.jpg";
 const HERO_PHRASES = [
-  "Que nadie se prive, de lo que es destino y vocacion de todos: SERVIR.",
+  "Que nadie se prive, de lo que es destino y vocación de todos: SERVIR.",
   "Experimenta la felicidad de compartir.",
-  "Poner el yo a la disposicion del tu, para la plenitud de nosotros: AMAR.",
+  "Poner el yo a la disposición del tú, para la plenitud de nosotros: AMAR.",
   "BELLEZA, VERDAD y BONDAD",
 ];
 
@@ -27,14 +27,14 @@ export function Hero() {
               style={{ color: "#1A2E6C", fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.02em" }}
               className="mb-5"
             >
-              Conectando empresas con <span style={{ color: "#E8401C" }}>causas que importan</span>
+              Conectando empresas / grupos con <span style={{ color: "#E8401C" }}>causas que importan</span>
             </h1>
 
             <p
               style={{ color: "#4B5563", fontSize: "clamp(1rem, 2vw, 1.2rem)", lineHeight: 1.7 }}
               className="mb-8 max-w-2xl mx-auto lg:mx-0"
             >
-              Nuestra mision es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una vision sistemica y comunitaria.
+              Nuestra misión es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una visión sistémica y comunitaria.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -51,7 +51,7 @@ export function Hero() {
                 style={{ color: "#1A2E6C", border: "2px solid rgba(26,46,108,0.35)", borderRadius: 8, backgroundColor: "rgba(26,46,108,0.04)" }}
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:bg-[rgba(26,46,108,0.08)] active:scale-95 transition-all duration-200 text-center"
               >
-                ¿Eres una Asociacion y quieres colaborar?
+                ¿Eres una Asociación y quieres colaborar?
               </Link>
             </div>
 

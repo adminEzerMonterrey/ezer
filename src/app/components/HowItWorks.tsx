@@ -13,7 +13,7 @@ export function HowItWorks() {
       number: "02",
       icon: "🤝",
       title: "EZER se pondrá en contacto",
-      description: "EZER te contactará vía mail o vía teléfono.",
+      description: "EZER te contactará por correo electrónico o por teléfono.",
       color: "#F5C200",
     },
     {

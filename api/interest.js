@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, phone, company, email, eventName, description } = req.body;
+  const { name, phone, company, email, eventName, description, wantsTraining } = req.body;
 
   if (!name || !phone || !email || !eventName) {
     return res.status(400).json({ message: 'Name, phone, email, and eventName are required' });
@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       console.log(`Company: ${company}`);
       console.log(`Phone: ${phone}`);
       console.log(`Email: ${email}`);
+      console.log(`Wants training: ${wantsTraining ? 'Sí' : 'No'}`);
       console.log(`Description: ${description}`);
       console.log('-------------------------');
       // Aún así respondemos ok para que la Demo funcione sin trabarse.
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
       to: adminEmail, 
       subject: `Nuevo Interesado en Evento: ${eventName}`,
-      text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\nDescripción y Motivo: ${description}`,
+      text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\n¿Quiere capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}`,
       html: `
         <h2>Nuevo Prospecto de Voluntariado</h2>
         <p><strong>Evento seleccionado:</strong> ${eventName}</p>
@@ -77,6 +78,7 @@ export default async function handler(req, res) {
           <li><strong>Teléfono:</strong> ${phone}</li>
           <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
           <li><strong>Correo Electrónico:</strong> <a href="mailto:${email}">${email}</a></li>
+          <li><strong>¿Quiere capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
         </ul>
         <p><strong>Comentarios adicionales:</strong></p>
         <p>${description}</p>
@@ -88,7 +90,7 @@ export default async function handler(req, res) {
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
       to: email, 
       subject: `Confirmación de solicitud para evento: ${eventName}`,
-      text: `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`,
+      text: `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\n¿Quieres capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`,
       html: `
         <h2>¡Gracias por tu interés, ${name}!</h2>
         <p>Hemos recibido correctamente tus datos para participar en el evento <strong>${eventName}</strong>.</p>
@@ -96,6 +98,7 @@ export default async function handler(req, res) {
         <ul>
           <li><strong>Teléfono:</strong> ${phone}</li>
           <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
+          <li><strong>¿Quieres capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
           <li><strong>Tus comentarios:</strong> ${description}</li>
         </ul>
         <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles.</p>

@@ -484,7 +484,7 @@ export function Admin() {
               <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '16px 20px', marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>ℹ️</span>
                 <p style={{ color: '#3730A3', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-                  Estos valores se muestran en la seccion "Nuestro Impacto" de la pagina de inicio.
+                  Estos valores se muestran en la sección "Nuestro Impacto" de la página de inicio.
                   Los cambios se reflejan en tiempo real para todos los visitantes.
                 </p>
               </div>
@@ -497,7 +497,7 @@ export function Admin() {
                     { key: 'impact_years', label: 'Años de trayectoria', placeholder: 'Ej: 27' },
                     { key: 'impact_institutions', label: 'Instituciones apoyadas', placeholder: 'Ej: 155' },
                     { key: 'impact_municipalities', label: 'Municipios apoyados', placeholder: 'Ej: 14' },
-                    { key: 'impact_volunteers_historical', label: 'Voluntarios (historico)', placeholder: 'Ej: 9,184' },
+                    { key: 'impact_volunteers_historical', label: 'Voluntarios (histórico)', placeholder: 'Ej: 9,184' },
                     { key: 'impact_volunteers_annual', label: 'Voluntarios activos anualmente', placeholder: 'Ej: 150' },
                   ].map(({ key, label, placeholder }) => (
                     <div key={key} style={{ backgroundColor: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>

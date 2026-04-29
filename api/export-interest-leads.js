@@ -6,6 +6,11 @@ const EXCEL_COLUMNS = [
   { key: 'company', header: 'Empresa / Organización' },
   { key: 'email', header: 'Correo electrónico' },
   { key: 'event_name', header: 'Nombre del evento' },
+  {
+    key: 'wants_training',
+    header: '¿Quiere capacitación?',
+    formatter: (value) => (value ? 'Sí' : 'No'),
+  },
   { key: 'description', header: 'Descripción' },
   {
     key: 'created_at',
