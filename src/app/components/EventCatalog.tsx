@@ -86,6 +86,7 @@ export function EventCatalog() {
   const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
   const [dates] = useState<string[]>(DATE_FILTERS);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
+  const [fullDescEvent, setFullDescEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -289,9 +290,20 @@ export function EventCatalog() {
                       </span>
                     </div>
 
-                    <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 12 }} className="line-clamp-2 flex-1">
-                      {event.description}
-                    </p>
+                    <div className="flex-1 mb-3">
+                      <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 4 }} className="line-clamp-2">
+                        {event.description}
+                      </p>
+                      {event.description && event.description.length > 100 && (
+                        <button
+                          onClick={() => setFullDescEvent(event)}
+                          style={{ color: "#E8401C", fontSize: 12, fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                          className="hover:underline"
+                        >
+                          Leer más
+                        </button>
+                      )}
+                    </div>
 
                     <div style={{ backgroundColor: "#F9FAFB", padding: "8px 12px", borderRadius: 8, marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 14 }}>📅</span>
@@ -353,7 +365,76 @@ export function EventCatalog() {
           onClose={() => setSelectedEventName(null)}
         />
       )}
+
+      {fullDescEvent && (
+        <DescriptionModal
+          event={fullDescEvent}
+          onClose={() => setFullDescEvent(null)}
+        />
+      )}
     </>
+  );
+}
+
+function DescriptionModal({ event, onClose }: { event: Event, onClose: () => void }) {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0, width: '100%', height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        borderRadius: '16px',
+        maxWidth: '500px',
+        width: '100%',
+        padding: '30px',
+        position: 'relative',
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}>
+        <button
+          onClick={onClose}
+          style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
+        >
+          <X size={20} />
+        </button>
+
+        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px', paddingRight: '24px', lineHeight: 1.3 }}>
+          {event.title}
+        </h3>
+        
+        <div style={{ backgroundColor: '#F9FAFB', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #E5E7EB' }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span style={{ color: '#6B7280', fontSize: '13px', fontWeight: 600 }}>Organiza:</span>
+            <span style={{ color: '#111827', fontSize: '13px', fontWeight: 700 }}>{event.company}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span style={{ color: '#6B7280', fontSize: '13px', fontWeight: 600 }}>Cierre:</span>
+            <span style={{ color: '#E8401C', fontSize: '13px', fontWeight: 800 }}>{event.day} {event.month}</span>
+          </div>
+        </div>
+
+        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>Descripción completa</h4>
+        <p style={{ color: '#4B5563', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+          {event.description}
+        </p>
+
+        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            onClick={onClose}
+            style={{ backgroundColor: '#F3F4F6', color: '#4B5563', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E5E7EB'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
