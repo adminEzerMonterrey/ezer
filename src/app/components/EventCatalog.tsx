@@ -82,7 +82,6 @@ export function EventCatalog() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("Todos");
   const [dateFilter, setDateFilter] = useState("Todos");
-  const [onlyAnnual, setOnlyAnnual] = useState(false);
 
   const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
   const [dates] = useState<string[]>(DATE_FILTERS);
@@ -146,11 +145,9 @@ export function EventCatalog() {
       dateFilter === "Todos" ||
       (dateFilter === "Próximos 3 meses" && isEventInNextMonths(e, 3)) ||
       (dateFilter === "Próximos 6 meses" && isEventInNextMonths(e, 6)) ||
-      (dateFilter === "Permanente" && isPermanentEvent(e));
+      (dateFilter === "Permanente" && (isPermanentEvent(e) || e.isAnnual));
 
-    const annualOk = !onlyAnnual || e.isAnnual;
-
-    return catOk && dateOk && annualOk;
+    return catOk && dateOk;
   });
 
   return (
@@ -183,25 +180,9 @@ export function EventCatalog() {
             <FilterSelect label="Categoría" value={category} options={categories} onChange={setCategory} />
             <FilterSelect label="Cierre de convocatoria" value={dateFilter} options={dates} onChange={setDateFilter} />
             
-            <label
-              style={{
-                display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
-                padding: "8px 16px", backgroundColor: "#FFFFFF", borderRadius: 8, border: "1.5px solid #E5E7EB",
-                alignSelf: "flex-end", height: "42px"
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={onlyAnnual}
-                onChange={(e) => setOnlyAnnual(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "#E8401C", cursor: "pointer" }}
-              />
-              <span style={{ fontSize: 14, fontWeight: 600, color: "#4B5563" }}>Eventos Anuales</span>
-            </label>
-
-            {(category !== "Todos" || dateFilter !== "Todos" || onlyAnnual) && (
+            {(category !== "Todos" || dateFilter !== "Todos") && (
               <button
-                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); setOnlyAnnual(false); }}
+                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); }}
                 style={{ color: "#E8401C", fontWeight: 600, fontSize: 13, alignSelf: "flex-end", marginBottom: "12px" }}
                 className="ml-auto hover:underline cursor-pointer"
               >
