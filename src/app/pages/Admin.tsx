@@ -213,19 +213,25 @@ export function Admin() {
   };
 
   const handleForgotPassword = async () => {
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setLoginError('Por favor ingresa tu correo electrónico en el campo superior para recuperar tu contraseña.');
-      return;
-    }
     setLoginLoading(true);
     setLoginError('');
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      // 1. Obtener el correo base para notificaciones
+      const { data, error: dbError } = await supabase.from('hero_stats').select('value').eq('key', 'admin_email').single();
+      
+      let targetEmail = data?.value;
+      if (dbError || !targetEmail) {
+        targetEmail = 'ethan.rivera@udem.edu'; // Fallback por defecto si no se encuentra
+      }
+
+      // 2. Enviar el enlace de recuperación a ese correo
+      const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
         redirectTo: window.location.origin + '/admin',
       });
+      
       if (error) throw error;
-      alert('Se ha enviado un enlace a tu correo para restablecer tu contraseña.');
+      
+      alert('Se envió un mail con pasos a seguir al correo registrado.');
     } catch (error: any) {
       setLoginError(error.message || 'Error al enviar correo de recuperación');
     } finally {
