@@ -1,7 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../../supabaseClient";
 
 const HERO_IMAGE = "/hero-landing.jpg";
 
@@ -12,34 +10,7 @@ const HERO_PHRASES = [
   "BELLEZA, VERDAD y BONDAD",
 ];
 
-const DEFAULT_STATS = [
-  { key: "eventos_realizados", value: "120+", label: "Eventos realizados" },
-  { key: "empresas_aliadas", value: "18", label: "Empresas aliadas" },
-  { key: "voluntarios_activos", value: "3,200+", label: "Voluntarios activos" },
-];
-
 export function Hero() {
-  const [stats, setStats] = useState(DEFAULT_STATS);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data, error } = await supabase.from('hero_stats').select('*');
-        if (!error && data && data.length > 0) {
-          const map: Record<string, string> = {};
-          data.forEach((row: any) => { map[row.key] = row.value; });
-          
-          setStats(prev => prev.map(s => ({
-            ...s,
-            value: map[s.key] || s.value
-          })));
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    fetchStats();
-  }, []);
 
   return (
     <section
@@ -99,17 +70,6 @@ export function Hero() {
                   className="px-4 py-4 text-left"
                 >
                   <p style={{ color: "#1A2E6C", fontSize: 13, fontWeight: 700, lineHeight: 1.6 }}>{phrase}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-8 justify-center lg:justify-start">
-              {stats.map((stat) => (
-                <div key={stat.key} className="text-center lg:text-left">
-                  <div style={{ color: "#E8401C", fontWeight: 800, fontSize: "1.75rem", lineHeight: 1 }}>{stat.value}</div>
-                  <div style={{ color: "#6B7280", fontSize: "0.8rem" }} className="mt-1">
-                    {stat.label}
-                  </div>
                 </div>
               ))}
             </div>
