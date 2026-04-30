@@ -103,8 +103,8 @@ export function EventCatalog() {
 
         const formattedEvents = data.map((e: any) => {
           const dateObj = new Date(e.date);
-          const spotsMin = e.spots_min ?? e.spots ?? 0;
-          const spotsMax = e.spots_max ?? e.spots ?? 0;
+          const spotsMin = e.spots_min ?? 0;
+          const spotsMax = e.spots_max ?? 0;
 
           return {
             id: e.id,
