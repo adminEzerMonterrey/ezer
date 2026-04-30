@@ -1,4 +1,4 @@
-import { Landmark, Mail, MapPin, Phone } from "lucide-react";
+import { Clock3, Landmark, Mail, MapPin, Phone } from "lucide-react";
 
 export function ContactSection() {
   return (
@@ -13,8 +13,25 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Phone Card */}
+        <div className="text-center mt-14 mb-8">
+          <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.7rem, 4vw, 2.4rem)", lineHeight: 1.2, marginTop: 8 }}>
+            Informacion
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+          <div style={{ backgroundColor: "#FAFAFA", borderRadius: 16, padding: "40px 24px", border: "1px solid #E5E7EB", textAlign: "center", transition: "transform 0.2s" }} className="hover:-translate-y-2">
+            <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+              <Clock3 size={36} style={{ color: "#1A2E6C" }} />
+            </div>
+            <h3 style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 22, marginBottom: 12 }}>Horario</h3>
+            <p style={{ color: "#6B7280", fontSize: 15, marginBottom: 16 }}>Nuestro equipo está disponible para atenderte dentro de este horario.</p>
+            <p style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 20, lineHeight: 1.4, margin: 0 }}>
+              9 a.m. a 1 p.m.<br />
+              Lunes a viernes
+            </p>
+          </div>
+
           <div style={{ backgroundColor: "#FAFAFA", borderRadius: 16, padding: "40px 24px", border: "1px solid #E5E7EB", textAlign: "center", transition: "transform 0.2s" }} className="hover:-translate-y-2">
             <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#FFF7ED", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
               <Phone size={36} style={{ color: "#E8401C" }} />
@@ -26,7 +43,6 @@ export function ContactSection() {
             </a>
           </div>
 
-          {/* Email Card */}
           <div style={{ backgroundColor: "#FAFAFA", borderRadius: 16, padding: "40px 24px", border: "1px solid #E5E7EB", textAlign: "center", transition: "transform 0.2s" }} className="hover:-translate-y-2">
             <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
               <Mail size={36} style={{ color: "#1A2E6C" }} />
@@ -38,8 +54,7 @@ export function ContactSection() {
             </a>
           </div>
 
-          {/* Location Card */}
-          <div style={{ backgroundColor: "#FAFAFA", borderRadius: 16, padding: "40px 24px", border: "1px solid #E5E7EB", textAlign: "center", transition: "transform 0.2s" }} className="hover:-translate-y-2 lg:col-span-1 md:col-span-2">
+          <div style={{ backgroundColor: "#FAFAFA", borderRadius: 16, padding: "40px 24px", border: "1px solid #E5E7EB", textAlign: "center", transition: "transform 0.2s" }} className="hover:-translate-y-2">
             <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#FEFCE8", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
               <MapPin size={36} style={{ color: "#F5C200" }} />
             </div>
@@ -116,6 +131,25 @@ export function ContactSection() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="text-center mt-14 mb-8">
+          <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.7rem, 4vw, 2.4rem)", lineHeight: 1.2, marginTop: 8 }}>
+            Voluntarios
+          </h3>
+          <p style={{ color: "#6B7280", marginTop: 14, maxWidth: 620, fontSize: "1.05rem" }} className="mx-auto">
+            Si quieres participar en nuestras iniciativas de voluntariado corporativo, este es el canal directo para ponerte en contacto.
+          </p>
+        </div>
+
+        <div className="text-center mb-8">
+          <a
+            href="mailto:voluntariadocorporativo@ezer.org.mx"
+            style={{ color: "#E8401C", fontWeight: 800, fontSize: 24, textDecoration: "none", overflowWrap: "anywhere" }}
+            className="hover:underline"
+          >
+            voluntariadocorporativo@ezer.org.mx
+          </a>
         </div>
       </div>
     </section>
