@@ -262,8 +262,8 @@ export function CollaborationForm() {
                     </div>
                   </div>
                   <a
-                    href="/ezer_formato_registro.docx"
-                    download="ezer_formato_registro.docx"
+                    href="/ezer_formato_registro.pdf"
+                    download="ezer_formato_registro.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
