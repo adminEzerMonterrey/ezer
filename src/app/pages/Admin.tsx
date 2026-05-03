@@ -12,6 +12,7 @@ import { formatSpotsRange } from '../eventSpots';
 export function Admin() {
   const [isAuthenticated, setIsAuth] = useState(false);
   const [tokenLoading, setTokenLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   
   // Login states
   const [email, setEmail] = useState('');
@@ -61,6 +62,10 @@ export function Admin() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -83,6 +88,7 @@ export function Admin() {
     // Cerrar sesión cuando se sale de la página (unmount)
     return () => {
       supabase.auth.signOut();
+      window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
@@ -334,6 +340,24 @@ export function Admin() {
   };
 
   if (tokenLoading) return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }}></div>;
+
+  if (isMobile) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <Navbar />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F3F4F6', padding: '20px' }}>
+          <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📱🚫</div>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px' }}>Acceso Restringido</h2>
+            <p style={{ color: '#4B5563', fontSize: '15px', lineHeight: '1.5' }}>
+              Por motivos de seguridad y para asegurar una correcta visualización de la interfaz, el acceso al panel de administrador solo está disponible desde una tableta o computadora.
+            </p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
