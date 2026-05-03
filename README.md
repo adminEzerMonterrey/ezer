@@ -86,3 +86,6 @@ El proyecto está preparado para ser desplegado fácilmente en [Vercel](https://
 - `/api/`: Serverless Functions de Vercel. Aquí vive la lógica de backend (ej. `interest.js` para los correos de voluntarios).
 - `supabaseClient.ts`: Archivo de configuración que inicializa la conexión con la base de datos Supabase para el Frontend.
 
+<!-- Deployment Trigger 2026-05-03 -->
+
+
