@@ -97,8 +97,8 @@ export function Footer() {
                 </div>
                 <div>
                   <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginBottom: 2 }}>Email</p>
-                  <a href="mailto:info@ezer.org.mx" style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>
-                    info@ezer.org.mx
+                  <a href="mailto:voluntariadocorporativo@ezer.org.mx" style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, overflowWrap: "anywhere" }}>
+                    voluntariadocorporativo@ezer.org.mx
                   </a>
                 </div>
               </li>
