@@ -95,6 +95,11 @@ export function EditEventForm({
       }
 
       const finalDataToUpdate = { ...updatePayload, image_url: imageUrl };
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        throw new Error('Tu sesión de administrador expiró. Cierra sesión, vuelve a iniciar sesión e intenta guardar otra vez.');
+      }
 
       const { error: updateError } = await supabase
         .from('events')

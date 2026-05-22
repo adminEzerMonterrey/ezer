@@ -86,9 +86,7 @@ export function Admin() {
     };
     checkSession();
 
-    // Cerrar sesión cuando se sale de la página (unmount)
     return () => {
-      supabase.auth.signOut();
       window.removeEventListener('resize', checkMobile);
     };
   }, []);
