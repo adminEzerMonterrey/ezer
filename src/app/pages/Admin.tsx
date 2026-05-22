@@ -24,6 +24,7 @@ export function Admin() {
   // Events state
   const [events, setEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsError, setEventsError] = useState('');
   
   // Partners state
   const [partners, setPartners] = useState<any[]>([]);
@@ -94,14 +95,47 @@ export function Admin() {
 
   const loadEvents = async () => {
     setEventsLoading(true);
+    setEventsError('');
     try {
-      const { data, error } = await supabase.from('events').select('*');
-      if (error) throw error;
-      if (data) {
-        setEvents(data);
+      const eventColumns = [
+        'id',
+        'created_at',
+        'name',
+        'company',
+        'date',
+        'target_audience',
+        'description',
+        'objective',
+        'user_id',
+        'image_url',
+        'cost',
+        'spots_min',
+        'spots_max',
+        'is_annual',
+        'coordinador',
+      ].join(',');
+
+      let { data, error } = await supabase
+        .from('events')
+        .select(`${eventColumns},municipio`)
+        .order('date', { ascending: true });
+
+      if (error && error.message?.toLowerCase().includes('municipio')) {
+        const fallback = await supabase
+          .from('events')
+          .select(eventColumns)
+          .order('date', { ascending: true });
+
+        data = fallback.data?.map((event) => ({ ...event, municipio: 'Monterrey' })) ?? null;
+        error = fallback.error;
       }
+
+      if (error) throw error;
+      setEvents(data ?? []);
     } catch (e) {
       console.error(e);
+      setEvents([]);
+      setEventsError(e instanceof Error ? e.message : 'No se pudieron cargar los eventos.');
     } finally {
       setEventsLoading(false);
     }
@@ -761,6 +795,11 @@ export function Admin() {
               <AddEventForm onEventAdded={loadEvents} />
 
               <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '16px' }}>Eventos Actuales</h3>
+              {eventsError && (
+                <div style={{ padding: '12px 16px', marginBottom: '16px', borderRadius: '8px', border: '1px solid #FCA5A5', backgroundColor: '#FEF2F2', color: '#B91C1C', fontSize: '14px' }}>
+                  {eventsError}
+                </div>
+              )}
               
               {eventsLoading ? (
                 <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando eventos...</div>
