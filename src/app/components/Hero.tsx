@@ -48,8 +48,8 @@ export function Hero() {
               </Link>
               <Link
                 to="/registro"
-                style={{ color: "#1A2E6C", border: "2px solid rgba(26,46,108,0.35)", borderRadius: 8, backgroundColor: "rgba(26,46,108,0.04)" }}
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:bg-[rgba(26,46,108,0.08)] active:scale-95 transition-all duration-200 text-center"
+                style={{ color: "#FFFFFF", border: "2px solid #1A2E6C", borderRadius: 8, backgroundColor: "#1A2E6C" }}
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:brightness-110 active:scale-95 transition-all duration-200 text-center"
               >
                 ¿Eres una asociación? Comparte tu proyecto
               </Link>
