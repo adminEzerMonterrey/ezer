@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const HERO_IMAGE = "/hero-landing.jpg";
@@ -46,14 +45,13 @@ export function Hero() {
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:brightness-105 active:scale-95 transition-all duration-200 shadow-lg shadow-yellow-400/40 text-center"
               >
                 ¿Eres empresa y quieres colaborar?
-                <ArrowRight size={18} className="flex-shrink-0" />
               </Link>
               <Link
                 to="/registro"
                 style={{ color: "#1A2E6C", border: "2px solid rgba(26,46,108,0.35)", borderRadius: 8, backgroundColor: "rgba(26,46,108,0.04)" }}
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:bg-[rgba(26,46,108,0.08)] active:scale-95 transition-all duration-200 text-center"
               >
-                ¿Eres una Asociación y quieres colaborar?
+                ¿Eres una asociación? Comparte tu proyecto
               </Link>
             </div>
 

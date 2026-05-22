@@ -16,20 +16,6 @@ export function HowItWorks() {
       description: "EZER te contactará por correo electrónico o por teléfono.",
       color: "#F5C200",
     },
-    {
-      number: "03",
-      icon: "📅",
-      title: "Se agenda el evento",
-      description: "Se coordina fecha, logística, número de voluntarios y la cuota de recuperación para el evento de impacto social.",
-      color: "#E8401C",
-    },
-    {
-      number: "04",
-      icon: "🌟",
-      title: "Impacto medido",
-      description: "Tras el evento, EZER entrega un reporte de impacto verificado por la ONG aliada.",
-      color: "#F5C200",
-    },
   ];
 
   return (
@@ -50,15 +36,12 @@ export function HowItWorks() {
           >
             ¿Cómo funciona?
           </h2>
-          <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 480 }} className="mx-auto text-base">
-            En cuatro pasos sencillos, tu asociación puede generar un impacto real en la comunidad.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-4 relative max-w-3xl mx-auto">
           <div
             className="hidden lg:block absolute top-14 left-0 right-0"
-            style={{ height: 2, background: "linear-gradient(to right, #E8401C, #F5C200, #E8401C, #F5C200)", zIndex: 0, opacity: 0.3, margin: "0 12%" }}
+            style={{ height: 2, background: "linear-gradient(to right, #E8401C, #F5C200)", zIndex: 0, opacity: 0.3, margin: "0 20%" }}
           />
 
           {steps.map((step) => (
