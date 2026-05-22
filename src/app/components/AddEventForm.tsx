@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { EVENT_CATEGORIES } from '../eventCategories';
+import { NUEVO_LEON_MUNICIPALITIES } from '../municipalities';
 
 export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const date = formData.get('event_date') as string;
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
+    const municipio = formData.get('municipio') as string;
     const cost = formData.get('cost') as string;
     const coordinador = formData.get('coordinador') as string;
     const isAnnual = formData.get('is_annual') === 'on';
@@ -77,6 +79,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             target_audience: 'Público General',
             description,
             objective,
+            municipio,
             cost,
             coordinador,
             is_annual: isAnnual,
@@ -125,6 +128,15 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
           <select required name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             {EVENT_CATEGORIES.map((category) => (
               <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Municipio</label>
+          <select required name="municipio" defaultValue="Monterrey" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+            {NUEVO_LEON_MUNICIPALITIES.map((municipality) => (
+              <option key={municipality} value={municipality}>{municipality}</option>
             ))}
           </select>
         </div>

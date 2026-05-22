@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { EVENT_CATEGORIES } from '../eventCategories';
+import { NUEVO_LEON_MUNICIPALITIES } from '../municipalities';
 
 export function EditEventForm({
   initialData,
@@ -56,6 +57,7 @@ export function EditEventForm({
       company: 'EZER',
       date: formData.get('event_date'),
       objective: formData.get('category'),
+      municipio: formData.get('municipio'),
       target_audience: initialData.target_audience || 'Público General',
       description: formData.get('description'),
       cost: formData.get('cost'),
@@ -132,6 +134,15 @@ export function EditEventForm({
           <select required defaultValue={initialData.objective} name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             {EVENT_CATEGORIES.map((category) => (
               <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Municipio</label>
+          <select required defaultValue={initialData.municipio || 'Monterrey'} name="municipio" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+            {NUEVO_LEON_MUNICIPALITIES.map((municipality) => (
+              <option key={municipality} value={municipality}>{municipality}</option>
             ))}
           </select>
         </div>

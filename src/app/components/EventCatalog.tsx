@@ -3,6 +3,7 @@ import { Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 import { EVENT_CATEGORY_FILTERS } from "../eventCategories";
 import { formatSpotsRange } from "../eventSpots";
+import { NUEVO_LEON_MUNICIPALITIES } from "../municipalities";
 
 interface Event {
   id: number;
@@ -13,6 +14,7 @@ interface Event {
   day: string;
   category: string;
   audience: string;
+  municipio: string;
   description: string;
   image: string;
   spotsMin: number;
@@ -82,9 +84,11 @@ export function EventCatalog() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("Todos");
   const [dateFilter, setDateFilter] = useState("Todos");
+  const [municipality, setMunicipality] = useState("Todos");
 
   const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
   const [dates] = useState<string[]>(DATE_FILTERS);
+  const [municipalities] = useState<string[]>(["Todos", ...NUEVO_LEON_MUNICIPALITIES]);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
   const [fullDescEvent, setFullDescEvent] = useState<Event | null>(null);
 
@@ -115,6 +119,7 @@ export function EventCatalog() {
             day: dateObj.getDate().toString(),
             category: e.objective,
             audience: e.target_audience,
+            municipio: e.municipio || "Monterrey",
             description: e.description,
             image: e.image_url,
             spotsMin,
@@ -141,6 +146,7 @@ export function EventCatalog() {
 
   const filtered = events.filter((e) => {
     const catOk = category === "Todos" || e.category === category;
+    const municipalityOk = municipality === "Todos" || e.municipio === municipality;
 
     const dateOk =
       dateFilter === "Todos" ||
@@ -148,7 +154,7 @@ export function EventCatalog() {
       (dateFilter === "Próximos 6 meses" && isEventInNextMonths(e, 6)) ||
       (dateFilter === "Permanente" && (isPermanentEvent(e) || e.isAnnual));
 
-    return catOk && dateOk;
+    return catOk && municipalityOk && dateOk;
   });
 
   return (
@@ -179,11 +185,12 @@ export function EventCatalog() {
               <span style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14 }}>Filtrar:</span>
             </div>
             <FilterSelect label="Sector beneficiado" value={category} options={categories} onChange={setCategory} />
+            <FilterSelect label="Municipio" value={municipality} options={municipalities} onChange={setMunicipality} />
             <FilterSelect label="Cierre de convocatoria" value={dateFilter} options={dates} onChange={setDateFilter} />
             
-            {(category !== "Todos" || dateFilter !== "Todos") && (
+            {(category !== "Todos" || municipality !== "Todos" || dateFilter !== "Todos") && (
               <button
-                onClick={() => { setCategory("Todos"); setDateFilter("Todos"); }}
+                onClick={() => { setCategory("Todos"); setMunicipality("Todos"); setDateFilter("Todos"); }}
                 style={{ color: "#E8401C", fontWeight: 600, fontSize: 13, alignSelf: "flex-end", marginBottom: "12px" }}
                 className="ml-auto hover:underline cursor-pointer"
               >
@@ -255,6 +262,18 @@ export function EventCatalog() {
                         }}
                       >
                         {event.category}
+                      </span>
+                      <span
+                        style={{
+                          backgroundColor: "#EEF2FF",
+                          color: "#1A2E6C",
+                          borderRadius: 20,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: "3px 10px",
+                        }}
+                      >
+                        {event.municipio}
                       </span>
                     </div>
 
