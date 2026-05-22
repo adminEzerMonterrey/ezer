@@ -15,7 +15,7 @@ export function ContactSection() {
 
         <div className="text-center mt-14 mb-8">
           <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.7rem, 4vw, 2.4rem)", lineHeight: 1.2, marginTop: 8 }}>
-            Informacion
+            Información
           </h3>
         </div>
 
