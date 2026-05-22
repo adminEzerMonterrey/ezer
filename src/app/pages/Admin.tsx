@@ -895,7 +895,13 @@ export function Admin() {
       </div>
       
       {/* Edit Event Modal */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) setEditingEvent(null);
+        }}
+      >
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle style={{ color: '#1A2E6C', fontSize: '20px', fontWeight: 800 }}>Actualizar Evento</DialogTitle>
@@ -906,12 +912,17 @@ export function Admin() {
           
           {editingEvent && (
             <EditEventForm 
+              key={editingEvent.id}
               initialData={editingEvent} 
               onEventUpdated={() => {
                 setIsEditDialogOpen(false);
+                setEditingEvent(null);
                 loadEvents();
               }}
-              onCancel={() => setIsEditDialogOpen(false)}
+              onCancel={() => {
+                setIsEditDialogOpen(false);
+                setEditingEvent(null);
+              }}
             />
           )}
         </DialogContent>

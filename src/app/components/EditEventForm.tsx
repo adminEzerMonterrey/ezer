@@ -32,6 +32,7 @@ export function EditEventForm({
 
     const formData = new FormData(e.currentTarget);
     const titleVal = formData.get('title_input');
+    const selectedMunicipio = String(formData.get('municipio') || 'Monterrey');
     const spotsMin = parseInt(formData.get('spots_min') as string, 10);
     const spotsMax = parseInt(formData.get('spots_max') as string, 10);
 
@@ -57,7 +58,7 @@ export function EditEventForm({
       company: 'EZER',
       date: formData.get('event_date'),
       objective: formData.get('category'),
-      municipio: formData.get('municipio'),
+      municipio: selectedMunicipio,
       target_audience: initialData.target_audience || 'Público General',
       description: formData.get('description'),
       cost: formData.get('cost'),
@@ -95,13 +96,19 @@ export function EditEventForm({
 
       const finalDataToUpdate = { ...updatePayload, image_url: imageUrl };
 
-      const { error: updateError } = await supabase
+      const { data: updatedEvent, error: updateError } = await supabase
         .from('events')
         .update(finalDataToUpdate)
-        .eq('id', initialData.id);
+        .eq('id', initialData.id)
+        .select('id, municipio')
+        .single();
 
       if (updateError) {
         throw new Error(updateError.message || 'No se pudo actualizar el evento');
+      }
+
+      if (updatedEvent?.municipio !== selectedMunicipio) {
+        throw new Error('Supabase no confirmó el cambio de municipio. Revisa que la columna municipio exista y que las políticas permitan actualizarla.');
       }
 
       alert('¡Evento actualizado exitosamente!');
