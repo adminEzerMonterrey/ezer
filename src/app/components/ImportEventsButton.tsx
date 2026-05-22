@@ -12,6 +12,22 @@ type ImportError = {
   value: string;
 };
 
+type EventImportDraft = {
+  sourceRow: number;
+  name: string;
+  company: string;
+  date: string;
+  target_audience: string;
+  description: string;
+  objective: string;
+  municipio: string;
+  cost: string;
+  coordinador: string;
+  is_annual: boolean;
+  spots_min: number;
+  spots_max: number;
+};
+
 const TEMPLATE_COLUMNS = [
   'Titulo',
   'Fecha de cierre',
@@ -23,7 +39,6 @@ const TEMPLATE_COLUMNS = [
   'Coordinador',
   'Evento anual',
   'Descripcion',
-  'URL de imagen',
 ];
 
 const EXAMPLE_ROW = [
@@ -37,7 +52,6 @@ const EXAMPLE_ROW = [
   'Nombre del coordinador',
   'No',
   'Describe el evento con claridad.',
-  'https://ejemplo.com/imagen.jpg',
 ];
 
 const normalizeText = (value: unknown) => String(value ?? '').trim();
@@ -94,21 +108,13 @@ const parseNonNegativeInteger = (value: unknown) => {
   return numeric;
 };
 
-const isValidUrl = (value: unknown) => {
-  const raw = normalizeText(value);
-  try {
-    const url = new URL(raw);
-    return ['http:', 'https:'].includes(url.protocol) ? raw : '';
-  } catch {
-    return '';
-  }
-};
-
 export function ImportEventsButton({ onEventsImported }: { onEventsImported: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ImportError[]>([]);
   const [summary, setSummary] = useState('');
+  const [pendingEvents, setPendingEvents] = useState<EventImportDraft[]>([]);
+  const [imageFiles, setImageFiles] = useState<Record<number, File | null>>({});
 
   const downloadTemplate = () => {
     const workbook = XLSX.utils.book_new();
@@ -142,7 +148,6 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         const coordinador = normalizeText(row['Coordinador']);
         const isAnnual = parseBoolean(row['Evento anual']);
         const description = normalizeText(row['Descripcion']);
-        const imageUrl = isValidUrl(row['URL de imagen']);
 
         if (!title) validationErrors.push({ row: excelRow, column: 'Titulo', expected: 'texto requerido', value: normalizeText(row['Titulo']) });
         if (!date) validationErrors.push({ row: excelRow, column: 'Fecha de cierre', expected: 'fecha en formato YYYY-MM-DD o DD/MM/YYYY', value: normalizeText(row['Fecha de cierre']) });
@@ -156,9 +161,9 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         if (!coordinador) validationErrors.push({ row: excelRow, column: 'Coordinador', expected: 'texto requerido', value: normalizeText(row['Coordinador']) });
         if (isAnnual == null) validationErrors.push({ row: excelRow, column: 'Evento anual', expected: 'Si o No', value: normalizeText(row['Evento anual']) });
         if (!description) validationErrors.push({ row: excelRow, column: 'Descripcion', expected: 'texto requerido', value: normalizeText(row['Descripcion']) });
-        if (!imageUrl) validationErrors.push({ row: excelRow, column: 'URL de imagen', expected: 'URL http o https válida', value: normalizeText(row['URL de imagen']) });
 
         return {
+          sourceRow: excelRow,
           name: title,
           company: 'EZER',
           date,
@@ -171,7 +176,6 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           is_annual: isAnnual === true,
           spots_min: spotsMin ?? 0,
           spots_max: spotsMax ?? 0,
-          image_url: imageUrl,
         };
       });
 
@@ -182,6 +186,8 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
     setLoading(true);
     setErrors([]);
     setSummary('');
+    setPendingEvents([]);
+    setImageFiles({});
 
     try {
       const workbook = XLSX.read(await file.arrayBuffer(), { cellDates: true });
@@ -199,10 +205,68 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         return;
       }
 
+      setPendingEvents(events);
+    } catch (error: any) {
+      setErrors([{ row: 0, column: 'Archivo', expected: 'Excel válido .xlsx o .xls', value: error.message || 'No se pudo leer el archivo' }]);
+    } finally {
+      setLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const importPendingEvents = async () => {
+    setLoading(true);
+    setErrors([]);
+    setSummary('');
+
+    try {
+      const missingImages = pendingEvents
+        .filter((_, index) => !imageFiles[index])
+        .map((event) => ({
+          row: event.sourceRow,
+          column: 'Imagen',
+          expected: 'archivo de imagen cargado desde el dispositivo',
+          value: 'vacío',
+        }));
+
+      if (missingImages.length > 0) {
+        setErrors(missingImages);
+        return;
+      }
+
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) {
         setErrors([{ row: 0, column: 'Sesión', expected: 'sesión de administrador activa', value: 'sesión expirada' }]);
         return;
+      }
+
+      const events = [];
+
+      for (let index = 0; index < pendingEvents.length; index += 1) {
+        const file = imageFiles[index];
+        if (!file) continue;
+
+        const fileName = `events/${crypto.randomUUID()}-${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('event-images')
+          .upload(fileName, file);
+
+        if (uploadError) {
+          setErrors([{
+            row: pendingEvents[index].sourceRow,
+            column: 'Imagen',
+            expected: 'imagen válida para subir a Supabase Storage',
+            value: uploadError.message,
+          }]);
+          return;
+        }
+
+        const { data } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(fileName);
+
+        const { sourceRow, ...event } = pendingEvents[index];
+        events.push({ ...event, image_url: data.publicUrl });
       }
 
       const response = await fetch('/api/admin-events', {
@@ -221,12 +285,13 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
       }
 
       setSummary(`Se importaron ${events.length} eventos correctamente.`);
+      setPendingEvents([]);
+      setImageFiles({});
       onEventsImported();
     } catch (error: any) {
-      setErrors([{ row: 0, column: 'Archivo', expected: 'Excel válido .xlsx o .xls', value: error.message || 'No se pudo leer el archivo' }]);
+      setErrors([{ row: 0, column: 'Importación', expected: 'importación completada', value: error.message || 'No se pudo importar' }]);
     } finally {
       setLoading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -262,6 +327,68 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           }}
         />
       </div>
+
+      {pendingEvents.length > 0 && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9998, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ backgroundColor: '#FFFFFF', width: '100%', maxWidth: 780, maxHeight: '84vh', overflowY: 'auto', borderRadius: 14, padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.25)', position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setPendingEvents([]);
+                setImageFiles({});
+              }}
+              style={{ position: 'absolute', top: 16, right: 16, border: 'none', background: 'transparent', color: '#6B7280', cursor: 'pointer' }}
+              aria-label="Cerrar"
+            >
+              <X size={20} />
+            </button>
+            <h3 style={{ color: '#1A2E6C', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Selecciona imágenes para los eventos</h3>
+            <p style={{ color: '#4B5563', fontSize: 14, marginBottom: 18 }}>
+              El Excel ya fue validado. Elige una imagen local para cada evento antes de importar.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {pendingEvents.map((event, index) => (
+                <div key={`${event.sourceRow}-${event.name}`} style={{ border: '1px solid #E5E7EB', borderRadius: 10, padding: 14, display: 'grid', gap: 10 }}>
+                  <div>
+                    <p style={{ color: '#1A2E6C', fontSize: 14, fontWeight: 800, margin: 0 }}>{event.name}</p>
+                    <p style={{ color: '#6B7280', fontSize: 12, margin: '4px 0 0' }}>Línea {event.sourceRow} · {event.municipio} · {event.objective}</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(inputEvent) => {
+                      const file = inputEvent.target.files?.[0] ?? null;
+                      setImageFiles((current) => ({ ...current, [index]: file }));
+                    }}
+                    style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #D1D5DB' }}
+                  />
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingEvents([]);
+                  setImageFiles({});
+                }}
+                disabled={loading}
+                style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#4B5563', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={importPendingEvents}
+                disabled={loading}
+                style={{ padding: '10px 16px', borderRadius: 8, border: 'none', backgroundColor: loading ? '#CBD5E1' : '#1A2E6C', color: '#FFFFFF', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}
+              >
+                {loading ? 'Importando...' : 'Importar con imágenes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {errors.length > 0 && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
