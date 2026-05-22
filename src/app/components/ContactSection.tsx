@@ -49,7 +49,7 @@ export function ContactSection() {
             </div>
             <h3 style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 22, marginBottom: 12 }}>Correo Electrónico</h3>
             <p style={{ color: "#6B7280", fontSize: 15, marginBottom: 16 }}>Escríbenos y te responderemos a la brevedad con toda la información necesaria.</p>
-            <a href="mailto:voluntariadocorporativo@ezer.org.mx" style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 24, textDecoration: "none", overflowWrap: "anywhere" }} className="hover:underline">
+            <a href="mailto:voluntariadocorporativo@ezer.org.mx" style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 18, lineHeight: 1.35, textDecoration: "none", overflowWrap: "anywhere" }} className="hover:underline">
               voluntariadocorporativo@ezer.org.mx
             </a>
           </div>

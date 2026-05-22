@@ -10,8 +10,8 @@ export function Navbar() {
   return (
     <nav style={{ backgroundColor: "#1A2E6C", fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="sticky top-0 z-50 w-full shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center h-16 md:h-20">
+          <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center" style={{ textDecoration: "none" }}>
               <img
                 src="/logo-ezer-sin-fondo.png"
@@ -21,7 +21,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center justify-center gap-8">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -42,7 +42,7 @@ export function Navbar() {
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors justify-self-end"
             aria-label="Toggle menu"
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
