@@ -101,13 +101,27 @@ export function EditEventForm({
         throw new Error('Tu sesión de administrador expiró. Cierra sesión, vuelve a iniciar sesión e intenta guardar otra vez.');
       }
 
-      const { error: updateError } = await supabase
-        .from('events')
-        .update(finalDataToUpdate)
-        .eq('id', initialData.id);
+      const response = await fetch('/api/admin-events', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          id: initialData.id,
+          event: finalDataToUpdate,
+        }),
+      });
 
-      if (updateError) {
-        throw new Error(updateError.message || 'No se pudo actualizar el evento');
+      let responseData: any = {};
+      try {
+        responseData = await response.json();
+      } catch {
+        // La API deberia responder JSON, pero evitamos ocultar el status real.
+      }
+
+      if (!response.ok) {
+        throw new Error(responseData.message || `No se pudo actualizar el evento. Status ${response.status}`);
       }
 
       alert('¡Evento actualizado exitosamente!');
