@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { navItems, registrationCta } from "../navigation";
+import { navItems } from "../navigation";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -40,16 +40,6 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="hidden md:block">
-            <Link
-              to={registrationCta.path}
-              style={{ backgroundColor: "#F5C200", color: "#1A2E6C", borderRadius: 8 }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 font-bold text-sm hover:brightness-105 active:scale-95 transition-all duration-200 shadow-md"
-            >
-              Registrar colaboración
-            </Link>
-          </div>
-
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
@@ -76,14 +66,6 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              to={registrationCta.path}
-              onClick={() => setMenuOpen(false)}
-              style={{ backgroundColor: "#F5C200", color: "#1A2E6C", borderRadius: 8 }}
-              className="mt-2 text-center font-bold py-3 px-4 text-sm"
-            >
-              Registrar colaboración
-            </Link>
           </div>
         </div>
       )}

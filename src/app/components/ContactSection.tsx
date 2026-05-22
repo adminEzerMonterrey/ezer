@@ -49,8 +49,8 @@ export function ContactSection() {
             </div>
             <h3 style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 22, marginBottom: 12 }}>Correo Electrónico</h3>
             <p style={{ color: "#6B7280", fontSize: 15, marginBottom: 16 }}>Escríbenos y te responderemos a la brevedad con toda la información necesaria.</p>
-            <a href="mailto:info@ezer.org.mx" style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 24, textDecoration: "none" }} className="hover:underline">
-              info@ezer.org.mx
+            <a href="mailto:voluntariadocorporativo@ezer.org.mx" style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 24, textDecoration: "none", overflowWrap: "anywhere" }} className="hover:underline">
+              voluntariadocorporativo@ezer.org.mx
             </a>
           </div>
 
@@ -133,24 +133,6 @@ export function ContactSection() {
           </div>
         </div>
 
-        <div className="text-center mt-14 mb-8">
-          <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.7rem, 4vw, 2.4rem)", lineHeight: 1.2, marginTop: 8 }}>
-            Voluntarios
-          </h3>
-          <p style={{ color: "#6B7280", marginTop: 14, maxWidth: 620, fontSize: "1.05rem" }} className="mx-auto">
-            Si quieres participar en nuestras iniciativas de voluntariado corporativo, este es el canal directo para ponerte en contacto.
-          </p>
-        </div>
-
-        <div className="text-center mb-8">
-          <a
-            href="mailto:voluntariadocorporativo@ezer.org.mx"
-            style={{ color: "#E8401C", fontWeight: 800, fontSize: 24, textDecoration: "none", overflowWrap: "anywhere" }}
-            className="hover:underline"
-          >
-            voluntariadocorporativo@ezer.org.mx
-          </a>
-        </div>
       </div>
     </section>
   );
