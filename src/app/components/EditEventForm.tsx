@@ -15,6 +15,7 @@ export function EditEventForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [image, setImage] = useState<File | null>(null);
+  const [municipio, setMunicipio] = useState(initialData.municipio || 'Monterrey');
 
   const formattedDate = initialData.event_date
     ? new Date(initialData.event_date).toISOString().split('T')[0]
@@ -32,7 +33,6 @@ export function EditEventForm({
 
     const formData = new FormData(e.currentTarget);
     const titleVal = formData.get('title_input');
-    const selectedMunicipio = String(formData.get('municipio') || 'Monterrey');
     const spotsMin = parseInt(formData.get('spots_min') as string, 10);
     const spotsMax = parseInt(formData.get('spots_max') as string, 10);
 
@@ -58,7 +58,7 @@ export function EditEventForm({
       company: 'EZER',
       date: formData.get('event_date'),
       objective: formData.get('category'),
-      municipio: selectedMunicipio,
+      municipio,
       target_audience: initialData.target_audience || 'Público General',
       description: formData.get('description'),
       cost: formData.get('cost'),
@@ -141,7 +141,13 @@ export function EditEventForm({
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Municipio</label>
-          <select required defaultValue={initialData.municipio || 'Monterrey'} name="municipio" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+          <select
+            required
+            name="municipio"
+            value={municipio}
+            onChange={(e) => setMunicipio(e.target.value)}
+            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}
+          >
             {NUEVO_LEON_MUNICIPALITIES.map((municipality) => (
               <option key={municipality} value={municipality}>{municipality}</option>
             ))}

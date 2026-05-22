@@ -97,38 +97,10 @@ export function Admin() {
     setEventsLoading(true);
     setEventsError('');
     try {
-      const eventColumns = [
-        'id',
-        'created_at',
-        'name',
-        'company',
-        'date',
-        'target_audience',
-        'description',
-        'objective',
-        'user_id',
-        'image_url',
-        'cost',
-        'spots_min',
-        'spots_max',
-        'is_annual',
-        'coordinador',
-      ].join(',');
-
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from('events')
-        .select(`${eventColumns},municipio`)
+        .select('*')
         .order('date', { ascending: true });
-
-      if (error && error.message?.toLowerCase().includes('municipio')) {
-        const fallback = await supabase
-          .from('events')
-          .select(eventColumns)
-          .order('date', { ascending: true });
-
-        data = fallback.data?.map((event) => ({ ...event, municipio: 'Monterrey' })) ?? null;
-        error = fallback.error;
-      }
 
       if (error) throw error;
       setEvents(data ?? []);
