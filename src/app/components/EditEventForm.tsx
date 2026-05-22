@@ -96,19 +96,13 @@ export function EditEventForm({
 
       const finalDataToUpdate = { ...updatePayload, image_url: imageUrl };
 
-      const { data: updatedEvent, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('events')
         .update(finalDataToUpdate)
-        .eq('id', initialData.id)
-        .select('id, municipio')
-        .single();
+        .eq('id', initialData.id);
 
       if (updateError) {
         throw new Error(updateError.message || 'No se pudo actualizar el evento');
-      }
-
-      if (updatedEvent?.municipio !== selectedMunicipio) {
-        throw new Error('Supabase no confirmó el cambio de municipio. Revisa que la columna municipio exista y que las políticas permitan actualizarla.');
       }
 
       alert('¡Evento actualizado exitosamente!');
