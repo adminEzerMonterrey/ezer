@@ -53,10 +53,10 @@ export function EditEventForm({
     }
 
     const updatePayload: any = {
-      company: formData.get('company'),
+      company: 'EZER',
       date: formData.get('event_date'),
       objective: formData.get('category'),
-      target_audience: formData.get('audience'),
+      target_audience: initialData.target_audience || 'Público General',
       description: formData.get('description'),
       cost: formData.get('cost'),
       coordinador: formData.get('coordinador'),
@@ -123,33 +123,16 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa/Organizador</label>
-          <input required name="company" type="text" value="EZER" readOnly style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: '#F3F4F6', color: '#6B7280' }} />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha de cierre de convocatoria</label>
           <input required defaultValue={formattedDate} name="event_date" type="date" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Categoría</label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Sector beneficiado</label>
           <select required defaultValue={initialData.objective} name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             {EVENT_CATEGORIES.map((category) => (
               <option key={category} value={category}>{category}</option>
             ))}
-          </select>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Audiencia</label>
-          <select required defaultValue={initialData.target_audience} name="audience" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
-            <option value="Público General">Público General</option>
-            <option value="Estudiantes">Estudiantes</option>
-            <option value="Profesionistas">Profesionistas</option>
-            <option value="Familias">Familias</option>
-            <option value="Voluntarios Corporativos">Voluntarios Corporativos</option>
-            <option value="Otro">Otro</option>
           </select>
         </div>
 

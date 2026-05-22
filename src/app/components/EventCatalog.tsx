@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Building2, Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
+import { Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 import { EVENT_CATEGORY_FILTERS } from "../eventCategories";
 import { formatSpotsRange } from "../eventSpots";
@@ -178,7 +178,7 @@ export function EventCatalog() {
               <Filter size={16} style={{ color: "#1A2E6C" }} />
               <span style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14 }}>Filtrar:</span>
             </div>
-            <FilterSelect label="Categoría" value={category} options={categories} onChange={setCategory} />
+            <FilterSelect label="Sector beneficiado" value={category} options={categories} onChange={setCategory} />
             <FilterSelect label="Cierre de convocatoria" value={dateFilter} options={dates} onChange={setDateFilter} />
             
             {(category !== "Todos" || dateFilter !== "Todos") && (
@@ -246,19 +246,6 @@ export function EventCatalog() {
                     <div className="flex items-center gap-2 mb-3">
                       <span
                         style={{
-                          backgroundColor: "#EEF2FF",
-                          color: "#1A2E6C",
-                          borderRadius: 20,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: "3px 10px",
-                          letterSpacing: "0.04em",
-                        }}
-                      >
-                        {event.audience}
-                      </span>
-                      <span
-                        style={{
                           backgroundColor: "#FFF7ED",
                           color: "#E8401C",
                           borderRadius: 20,
@@ -280,11 +267,7 @@ export function EventCatalog() {
                       )}
                     </h3>
 
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-1.5">
-                        <Building2 size={13} style={{ color: "#9CA3AF", flexShrink: 0 }} />
-                        <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>{event.company}</span>
-                      </div>
+                    <div className="mb-3">
                       <span style={{ color: "#16A34A", fontSize: 12, fontWeight: 700, backgroundColor: "#DCFCE7", padding: "2px 8px", borderRadius: "12px" }}>
                         Cuota de recuperación: {formatCost(event.cost)}
                       </span>
@@ -408,10 +391,6 @@ function DescriptionModal({ event, onClose }: { event: Event, onClose: () => voi
         </h3>
         
         <div style={{ backgroundColor: '#F9FAFB', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #E5E7EB' }}>
-          <div className="flex items-center gap-2 mb-2">
-            <span style={{ color: '#6B7280', fontSize: '13px', fontWeight: 600 }}>Organiza:</span>
-            <span style={{ color: '#111827', fontSize: '13px', fontWeight: 700 }}>{event.company}</span>
-          </div>
           <div className="flex items-center gap-2">
             <span style={{ color: '#6B7280', fontSize: '13px', fontWeight: 600 }}>Cierre:</span>
             <span style={{ color: '#E8401C', fontSize: '13px', fontWeight: 800 }}>{event.day} {event.month}</span>
@@ -449,7 +428,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
     const data = {
       name: formData.get('name'),
       phone: formData.get('phone'),
-      company: formData.get('company'),
+      company: '',
       email: formData.get('email'),
       description: formData.get('description'),
       wantsTraining: formData.get('wants_training') === 'on',
@@ -548,11 +527,6 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Teléfono *</label>
                 <input required name="phone" type="tel" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu teléfono o celular" />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa / Organización (Opcional)</label>
-                <input name="company" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Representas a alguien?" />
               </div>
 
               <div>

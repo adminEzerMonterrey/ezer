@@ -14,9 +14,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
     const formData = new FormData(e.currentTarget);
     const name = formData.get('title') as string;
-    const company = formData.get('company') as string;
     const date = formData.get('event_date') as string;
-    const targetAudience = formData.get('audience') as string;
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
     const cost = formData.get('cost') as string;
@@ -74,9 +72,9 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         .insert([
           {
             name,
-            company,
+            company: 'EZER',
             date,
-            target_audience: targetAudience,
+            target_audience: 'Público General',
             description,
             objective,
             cost,
@@ -118,33 +116,16 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa/Organizador</label>
-          <input required name="company" type="text" value="EZER" readOnly style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: '#F3F4F6', color: '#6B7280' }} />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha de cierre de convocatoria</label>
           <input required name="event_date" type="date" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Categoría</label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Sector beneficiado</label>
           <select required name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             {EVENT_CATEGORIES.map((category) => (
               <option key={category} value={category}>{category}</option>
             ))}
-          </select>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Audiencia</label>
-          <select required name="audience" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
-            <option value="Público General">Público General</option>
-            <option value="Estudiantes">Estudiantes</option>
-            <option value="Profesionistas">Profesionistas</option>
-            <option value="Familias">Familias</option>
-            <option value="Voluntarios Corporativos">Voluntarios Corporativos</option>
-            <option value="Otro">Otro</option>
           </select>
         </div>
 
