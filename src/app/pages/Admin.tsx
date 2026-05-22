@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AddEventForm } from '../components/AddEventForm';
 import { EditEventForm } from '../components/EditEventForm';
 import { AddPartnerForm } from '../components/AddPartnerForm';
+import { ImportEventsButton } from '../components/ImportEventsButton';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { Trash2, LogOut, Pencil, Download, Eye, EyeOff } from 'lucide-react';
@@ -764,7 +765,10 @@ export function Admin() {
             <>
               <AddEventForm onEventAdded={loadEvents} />
 
-              <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '16px' }}>Eventos Actuales</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', margin: 0 }}>Eventos Actuales</h3>
+                <ImportEventsButton onEventsImported={loadEvents} />
+              </div>
               {eventsError && (
                 <div style={{ padding: '12px 16px', marginBottom: '16px', borderRadius: '8px', border: '1px solid #FCA5A5', backgroundColor: '#FEF2F2', color: '#B91C1C', fontSize: '14px' }}>
                   {eventsError}
