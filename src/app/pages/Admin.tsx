@@ -14,7 +14,7 @@ export function Admin() {
   const [isAuthenticated, setIsAuth] = useState(false);
   const [tokenLoading, setTokenLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // Login states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +26,7 @@ export function Admin() {
   const [events, setEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventsError, setEventsError] = useState('');
-  
+
   // Partners state
   const [partners, setPartners] = useState<any[]>([]);
   const [partnersLoading, setPartnersLoading] = useState(false);
@@ -52,7 +52,7 @@ export function Admin() {
   const [adminEmail, setAdminEmail] = useState('ethan.rivera@udem.edu');
   const [emailSaving, setEmailSaving] = useState(false);
   const [emailSaved, setEmailSaved] = useState(false);
-  
+
   // Change Password state
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -229,7 +229,7 @@ export function Admin() {
     try {
       // 1. Obtener el correo base para notificaciones
       const { data, error: dbError } = await supabase.from('hero_stats').select('value').eq('key', 'admin_email').single();
-      
+
       if (dbError || !data?.value) {
         throw new Error('No se ha configurado un correo base. Por favor comunícate con soporte.');
       }
@@ -240,9 +240,9 @@ export function Admin() {
       const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
         redirectTo: window.location.origin + '/admin',
       });
-      
+
       if (error) throw error;
-      
+
       alert('Se envió un mail con pasos a seguir al correo registrado.');
     } catch (error: any) {
       setLoginError(error.message || 'Error al enviar correo de recuperación');
@@ -372,7 +372,7 @@ export function Admin() {
           <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', maxWidth: '400px', width: '100%' }}>
             <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1A2E6C', textAlign: 'center', marginBottom: '8px' }}>Admin Login</h2>
             <p style={{ color: '#6B7280', textAlign: 'center', fontSize: '14px', marginBottom: '24px' }}>Acceso exclusivo para administradores de Ezer</p>
-            
+
             {loginError && (
               <div style={{ backgroundColor: '#FEF2F2', color: '#991B1B', padding: '12px', borderRadius: '8px', fontSize: '13px', marginBottom: '20px' }}>
                 {loginError}
@@ -382,23 +382,23 @@ export function Admin() {
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '6px' }}>Correo Electrónico</label>
-                <input 
-                  type="email" 
-                  value={email} 
+                <input
+                  type="email"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB' }} 
-                  required 
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB' }}
+                  required
                 />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '6px' }}>Contraseña</label>
                 <div style={{ position: 'relative' }}>
-                  <input 
+                  <input
                     type={showPassword ? 'text' : 'password'}
-                    value={password} 
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB' }} 
-                    required 
+                    style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB' }}
+                    required
                   />
                   <button
                     type="button"
@@ -409,17 +409,17 @@ export function Admin() {
                   </button>
                 </div>
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loginLoading}
-                style={{ 
+                style={{
                   marginTop: '8px',
-                  backgroundColor: '#1A2E6C', 
-                  color: 'white', 
-                  padding: '12px', 
-                  borderRadius: '8px', 
-                  fontWeight: 700, 
-                  border: 'none', 
+                  backgroundColor: '#1A2E6C',
+                  color: 'white',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  border: 'none',
                   cursor: loginLoading ? 'not-allowed' : 'pointer',
                   opacity: loginLoading ? 0.7 : 1,
                   width: '100%'
@@ -427,7 +427,7 @@ export function Admin() {
               >
                 {loginLoading ? 'Ingresando...' : 'Iniciar Sesión'}
               </button>
-              
+
               <div style={{ textAlign: 'center', marginTop: '4px' }}>
                 <button
                   type="button"
@@ -457,7 +457,7 @@ export function Admin() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <Navbar />
-      
+
       <div style={{ flex: 1, backgroundColor: '#FFFFFF' }} className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
@@ -481,7 +481,7 @@ export function Admin() {
               >
                 <Download size={16} /> {exportLoading ? 'Exportando...' : 'Exportar Interesados'}
               </button>
-              <button 
+              <button
                 onClick={handleLogout}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', backgroundColor: '#FEE2E2', color: '#991B1B', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
               >
@@ -497,25 +497,25 @@ export function Admin() {
           )}
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
-            <button 
+            <button
               onClick={() => setActiveTab('eventos')}
               style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'eventos' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'eventos' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
             >
               Eventos
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('aliados')}
               style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'aliados' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'aliados' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
             >
               Empresas Aliadas
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('estadisticas')}
               style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'estadisticas' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'estadisticas' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
             >
               Estadísticas
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('configuracion')}
               style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', backgroundColor: activeTab === 'configuracion' ? '#1A2E6C' : '#E5E7EB', color: activeTab === 'configuracion' ? 'white' : '#4B5563', transition: 'all 0.2s' }}
             >
@@ -651,7 +651,7 @@ export function Admin() {
                           alert('Las contraseñas no coinciden. Por favor, verifica e inténtalo de nuevo.');
                           return;
                         }
-                        
+
                         if (!window.confirm('¿Estás seguro que deseas actualizar la contraseña?')) {
                           return;
                         }
@@ -774,7 +774,7 @@ export function Admin() {
                   {eventsError}
                 </div>
               )}
-              
+
               {eventsLoading ? (
                 <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando eventos...</div>
               ) : (
@@ -803,8 +803,8 @@ export function Admin() {
                           </td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
                             {event.image_url ? (
-                              <img 
-                                src={event.image_url} 
+                              <img
+                                src={event.image_url}
                                 alt={event.title || event.name}
                                 style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
                               />
@@ -815,7 +815,7 @@ export function Admin() {
                             )}
                           </td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
-                            <button 
+                            <button
                               onClick={() => {
                                 setEditingEvent(event);
                                 setIsEditDialogOpen(true);
@@ -825,7 +825,7 @@ export function Admin() {
                             >
                               <Pencil size={18} />
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleDelete(event.id)}
                               style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
                               title="Eliminar evento"
@@ -852,7 +852,7 @@ export function Admin() {
               <AddPartnerForm onPartnerAdded={loadPartners} />
 
               <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '16px' }}>Empresas Aliadas Actuales</h3>
-              
+
               {partnersLoading ? (
                 <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>Cargando aliados...</div>
               ) : (
@@ -871,8 +871,8 @@ export function Admin() {
                           <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{partner.name}</td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
                             {partner.logo_url ? (
-                              <img 
-                                src={partner.logo_url} 
+                              <img
+                                src={partner.logo_url}
                                 alt={partner.name}
                                 style={{ width: '80px', height: '40px', objectFit: 'contain', borderRadius: '4px' }}
                               />
@@ -881,7 +881,7 @@ export function Admin() {
                             )}
                           </td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
-                            <button 
+                            <button
                               onClick={() => handleDeletePartner(partner.id)}
                               style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
                               title="Eliminar aliado"
@@ -906,7 +906,7 @@ export function Admin() {
           )}
         </div>
       </div>
-      
+
       {/* Edit Event Modal */}
       <Dialog
         open={isEditDialogOpen}
@@ -922,11 +922,17 @@ export function Admin() {
               Modifica la información del evento seleccionado y guarda los cambios.
             </DialogDescription>
           </DialogHeader>
-          
+
           {editingEvent && (
+<<<<<<< Updated upstream
             <EditEventForm 
               key={editingEvent.id}
               initialData={editingEvent} 
+=======
+            <EditEventForm
+              key={editingEvent.id}
+              initialData={editingEvent}
+>>>>>>> Stashed changes
               onEventUpdated={() => {
                 setIsEditDialogOpen(false);
                 setEditingEvent(null);
@@ -940,7 +946,7 @@ export function Admin() {
           )}
         </DialogContent>
       </Dialog>
-      
+
       <Footer />
     </div>
   );

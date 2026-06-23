@@ -187,7 +187,6 @@ export function EventCatalog() {
             <FilterSelect label="Sector beneficiado" value={category} options={categories} onChange={setCategory} />
             <FilterSelect label="Municipio" value={municipality} options={municipalities} onChange={setMunicipality} />
             <FilterSelect label="Cierre de convocatoria" value={dateFilter} options={dates} onChange={setDateFilter} />
-            
             {(category !== "Todos" || municipality !== "Todos" || dateFilter !== "Todos") && (
               <button
                 onClick={() => { setCategory("Todos"); setMunicipality("Todos"); setDateFilter("Todos"); }}
@@ -408,7 +407,7 @@ function DescriptionModal({ event, onClose }: { event: Event, onClose: () => voi
         <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px', paddingRight: '24px', lineHeight: 1.3 }}>
           {event.title}
         </h3>
-        
+
         <div style={{ backgroundColor: '#F9FAFB', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #E5E7EB' }}>
           <div className="flex items-center gap-2">
             <span style={{ color: '#6B7280', fontSize: '13px', fontWeight: 600 }}>Cierre:</span>
