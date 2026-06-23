@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { Download, FileSpreadsheet, X } from 'lucide-react';
+import { Download, FileSpreadsheet, X, ImagePlus, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import { EVENT_CATEGORIES } from '../eventCategories';
 import { NUEVO_LEON_MUNICIPALITIES } from '../municipalities';
@@ -8,9 +8,16 @@ import { NUEVO_LEON_MUNICIPALITIES } from '../municipalities';
 type ImportError = {
   row: number;
   column: string;
-  expected: string;
-  value: string;
+  message: string;
+  steps: string[];
 };
+
+const buildError = (row: number, column: string, message: string, steps: string[]): ImportError => ({
+  row,
+  column,
+  message,
+  steps,
+});
 
 type EventImportDraft = {
   sourceRow: number;
@@ -67,6 +74,56 @@ const findOption = (value: unknown, options: string[]) => {
   return options.find((option) => normalizeComparable(option) === normalized) || '';
 };
 
+// Alias comunes / abreviaciones de municipios de Nuevo León que los administradores
+// suelen escribir en el Excel, mapeados al nombre oficial usado en NUEVO_LEON_MUNICIPALITIES.
+const MUNICIPALITY_ALIASES: Record<string, string> = {
+  mty: 'Monterrey',
+  monterey: 'Monterrey',
+  gpe: 'Guadalupe',
+  apo: 'Apodaca',
+  spgg: 'San Pedro Garza García',
+  escobedo: 'General Escobedo',
+  zuazua: 'General Zuazua',
+  bravo: 'General Bravo',
+  teran: 'General Terán',
+  trevino: 'General Treviño',
+  zaragoza: 'General Zaragoza',
+  'dr arroyo': 'Doctor Arroyo',
+  'dr. arroyo': 'Doctor Arroyo',
+  'doctor arroyo': 'Doctor Arroyo',
+  'dr coss': 'Doctor Coss',
+  'dr. coss': 'Doctor Coss',
+  'doctor coss': 'Doctor Coss',
+  'dr gonzalez': 'Doctor González',
+  'dr. gonzalez': 'Doctor González',
+  'doctor gonzalez': 'Doctor González',
+  aldamas: 'Los Aldamas',
+  herreras: 'Los Herreras',
+  ramones: 'Los Ramones',
+  carmen: 'El Carmen',
+  'san nicolas': 'San Nicolás de los Garza',
+  'san pedro': 'San Pedro Garza García',
+  cadereyta: 'Cadereyta Jiménez',
+  santa: 'Santa Catarina',
+  sabinas: 'Sabinas Hidalgo',
+  salinas: 'Salinas Victoria',
+  cienega: 'Ciénega de Flores',
+  lampazos: 'Lampazos de Naranjo',
+};
+
+const NORMALIZED_MUNICIPALITY_ALIASES = Object.fromEntries(
+  Object.entries(MUNICIPALITY_ALIASES).map(([alias, official]) => [normalizeComparable(alias), official]),
+);
+
+const resolveMunicipio = (value: unknown) => {
+  const normalized = normalizeComparable(value);
+  if (!normalized) return '';
+  if (NORMALIZED_MUNICIPALITY_ALIASES[normalized]) {
+    return NORMALIZED_MUNICIPALITY_ALIASES[normalized];
+  }
+  return findOption(value, NUEVO_LEON_MUNICIPALITIES);
+};
+
 const parseBoolean = (value: unknown) => {
   const normalized = normalizeComparable(value);
   if (['si', 'sí', 'true', 'verdadero', '1', 'x'].includes(normalized)) return true;
@@ -110,6 +167,7 @@ const parseNonNegativeInteger = (value: unknown) => {
 
 export function ImportEventsButton({ onEventsImported }: { onEventsImported: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ImportError[]>([]);
   const [summary, setSummary] = useState('');
@@ -141,7 +199,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         const title = normalizeText(row['Titulo']);
         const date = parseDate(row['Fecha de cierre']);
         const objective = findOption(row['Sector beneficiado'], EVENT_CATEGORIES);
-        const municipio = findOption(row['Municipio'], NUEVO_LEON_MUNICIPALITIES);
+        const municipio = resolveMunicipio(row['Municipio']);
         const spotsMin = parseNonNegativeInteger(row['Espacios minimos']);
         const spotsMax = parseNonNegativeInteger(row['Espacios maximos']);
         const cost = normalizeText(row['Cuota de recuperacion']) || 'Gratuito';
@@ -149,18 +207,146 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         const isAnnual = parseBoolean(row['Evento anual']);
         const description = normalizeText(row['Descripcion']);
 
-        if (!title) validationErrors.push({ row: excelRow, column: 'Titulo', expected: 'texto requerido', value: normalizeText(row['Titulo']) });
-        if (!date) validationErrors.push({ row: excelRow, column: 'Fecha de cierre', expected: 'fecha en formato YYYY-MM-DD o DD/MM/YYYY', value: normalizeText(row['Fecha de cierre']) });
-        if (!objective) validationErrors.push({ row: excelRow, column: 'Sector beneficiado', expected: `una opción válida: ${EVENT_CATEGORIES.join(', ')}`, value: normalizeText(row['Sector beneficiado']) });
-        if (!municipio) validationErrors.push({ row: excelRow, column: 'Municipio', expected: 'un municipio válido de Nuevo León', value: normalizeText(row['Municipio']) });
-        if (spotsMin == null) validationErrors.push({ row: excelRow, column: 'Espacios minimos', expected: 'número entero mayor o igual a 0', value: normalizeText(row['Espacios minimos']) });
-        if (spotsMax == null) validationErrors.push({ row: excelRow, column: 'Espacios maximos', expected: 'número entero mayor o igual a 0', value: normalizeText(row['Espacios maximos']) });
-        if (spotsMin != null && spotsMax != null && spotsMin > spotsMax) {
-          validationErrors.push({ row: excelRow, column: 'Espacios maximos', expected: 'número mayor o igual a Espacios minimos', value: normalizeText(row['Espacios maximos']) });
+        if (!title) {
+          validationErrors.push(buildError(
+            excelRow,
+            'Titulo',
+            'La celda está vacía. Cada evento debe tener un título.',
+            [
+              `Ve a la fila ${excelRow}, columna "Titulo".`,
+              'Escribe el nombre del evento (ejemplo: "Limpieza de parque").',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
         }
-        if (!coordinador) validationErrors.push({ row: excelRow, column: 'Coordinador', expected: 'texto requerido', value: normalizeText(row['Coordinador']) });
-        if (isAnnual == null) validationErrors.push({ row: excelRow, column: 'Evento anual', expected: 'Si o No', value: normalizeText(row['Evento anual']) });
-        if (!description) validationErrors.push({ row: excelRow, column: 'Descripcion', expected: 'texto requerido', value: normalizeText(row['Descripcion']) });
+
+        if (!date) {
+          const raw = normalizeText(row['Fecha de cierre']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Fecha de cierre',
+            raw ? `"${raw}" no es una fecha válida.` : 'La celda está vacía.',
+            [
+              `Ve a la fila ${excelRow}, columna "Fecha de cierre".`,
+              'Escribe la fecha en formato AAAA-MM-DD (ejemplo: 2026-08-15) o DD/MM/AAAA (ejemplo: 15/08/2026).',
+              'No uses texto como "próximamente", solo el mes, o dejes la celda vacía.',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (!objective) {
+          const raw = normalizeText(row['Sector beneficiado']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Sector beneficiado',
+            raw ? `"${raw}" no es un sector reconocido.` : 'La celda está vacía.',
+            [
+              'Abre la hoja "Opciones" dentro de este mismo archivo Excel: ahí están los sectores válidos.',
+              `Copia y pega exactamente uno de esos valores en la columna "Sector beneficiado" (ejemplo: "${EVENT_CATEGORIES[0] ?? ''}").`,
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (!municipio) {
+          const raw = normalizeText(row['Municipio']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Municipio',
+            raw ? `"${raw}" no se reconoce como un municipio de Nuevo León.` : 'La celda está vacía.',
+            [
+              'Revisa que el municipio exista en Nuevo León (ejemplo: Monterrey, Guadalupe, San Pedro Garza García, General Escobedo).',
+              'También se aceptan abreviaciones comunes como "MTY", "GPE", "Escobedo", "San Pedro" o "San Nicolás": el sistema las reconoce automáticamente.',
+              'Verifica que no haya errores de escritura ni espacios extra.',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (spotsMin == null) {
+          const raw = normalizeText(row['Espacios minimos']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Espacios minimos',
+            raw ? `"${raw}" no es un número entero válido (0 o mayor).` : 'La celda está vacía.',
+            [
+              `Ve a la fila ${excelRow}, columna "Espacios minimos".`,
+              'Escribe solo un número entero, sin letras ni símbolos (ejemplo: 10).',
+              'El número no puede ser negativo.',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (spotsMax == null) {
+          const raw = normalizeText(row['Espacios maximos']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Espacios maximos',
+            raw ? `"${raw}" no es un número entero válido (0 o mayor).` : 'La celda está vacía.',
+            [
+              `Ve a la fila ${excelRow}, columna "Espacios maximos".`,
+              'Escribe solo un número entero, sin letras ni símbolos (ejemplo: 25).',
+              'El número no puede ser negativo.',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (spotsMin != null && spotsMax != null && spotsMin > spotsMax) {
+          validationErrors.push(buildError(
+            excelRow,
+            'Espacios maximos',
+            `"Espacios maximos" (${spotsMax}) es menor que "Espacios minimos" (${spotsMin}). El máximo no puede ser menor que el mínimo.`,
+            [
+              `Revisa las columnas "Espacios minimos" y "Espacios maximos" en la fila ${excelRow}.`,
+              '"Espacios maximos" debe ser igual o mayor que "Espacios minimos".',
+              'Si el evento tiene un cupo fijo, usa el mismo número en ambas columnas.',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (!coordinador) {
+          validationErrors.push(buildError(
+            excelRow,
+            'Coordinador',
+            'La celda está vacía. Cada evento debe tener un coordinador asignado.',
+            [
+              `Ve a la fila ${excelRow}, columna "Coordinador".`,
+              'Escribe el nombre completo de la persona responsable del evento.',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (isAnnual == null) {
+          const raw = normalizeText(row['Evento anual']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Evento anual',
+            raw ? `"${raw}" no es un valor reconocido.` : 'La celda está vacía.',
+            [
+              `Ve a la fila ${excelRow}, columna "Evento anual".`,
+              'Escribe únicamente "Si" o "No" (sin acentos también funciona).',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
+        if (!description) {
+          validationErrors.push(buildError(
+            excelRow,
+            'Descripcion',
+            'La celda está vacía. Cada evento debe tener una descripción.',
+            [
+              `Ve a la fila ${excelRow}, columna "Descripcion".`,
+              'Escribe una breve descripción del evento.',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
 
         return {
           sourceRow: excelRow,
@@ -195,7 +381,16 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: '' });
 
       if (rows.length === 0) {
-        setErrors([{ row: 1, column: 'Archivo', expected: 'al menos una fila de eventos', value: 'archivo vacío' }]);
+        setErrors([buildError(
+          0,
+          'Archivo',
+          'El archivo no contiene ninguna fila de eventos.',
+          [
+            'Abre la plantilla y llena al menos una fila debajo de los encabezados, en la hoja "Eventos".',
+            'No borres ni renombres la primera fila (los nombres de columna).',
+            'Guarda el archivo y vuelve a importarlo.',
+          ],
+        )]);
         return;
       }
 
@@ -207,7 +402,16 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
 
       setPendingEvents(events);
     } catch (error: any) {
-      setErrors([{ row: 0, column: 'Archivo', expected: 'Excel válido .xlsx o .xls', value: error.message || 'No se pudo leer el archivo' }]);
+      setErrors([buildError(
+        0,
+        'Archivo',
+        `No se pudo leer el archivo. ${error?.message ? `Detalle: ${error.message}` : ''}`.trim(),
+        [
+          'Verifica que el archivo sea un Excel válido con extensión .xlsx o .xls.',
+          'No cambies los nombres de las columnas de la plantilla original.',
+          'Si el problema persiste, descarga una plantilla nueva con el botón "Descargar plantilla" y copia tus datos ahí.',
+        ],
+      )]);
     } finally {
       setLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -222,12 +426,17 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
     try {
       const missingImages = pendingEvents
         .filter((_, index) => !imageFiles[index])
-        .map((event) => ({
-          row: event.sourceRow,
-          column: 'Imagen',
-          expected: 'archivo de imagen cargado desde el dispositivo',
-          value: 'vacío',
-        }));
+        .map((event) => buildError(
+          event.sourceRow,
+          'Imagen',
+          `No se eligió ninguna imagen para el evento "${event.name}".`,
+          [
+            `Busca el evento "${event.name}" en la lista de abajo.`,
+            'Haz clic en el botón "Elegir imagen" junto a ese evento.',
+            'Selecciona una foto desde tu computadora (JPG, PNG o similar).',
+            'Vuelve a hacer clic en "Importar con imágenes".',
+          ],
+        ));
 
       if (missingImages.length > 0) {
         setErrors(missingImages);
@@ -236,7 +445,15 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
 
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) {
-        setErrors([{ row: 0, column: 'Sesión', expected: 'sesión de administrador activa', value: 'sesión expirada' }]);
+        setErrors([buildError(
+          0,
+          'Sesión',
+          'Tu sesión de administrador ya no está activa.',
+          [
+            'Cierra sesión y vuelve a iniciar sesión como administrador.',
+            'Repite la importación del archivo desde el inicio.',
+          ],
+        )]);
         return;
       }
 
@@ -252,12 +469,16 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           .upload(fileName, file);
 
         if (uploadError) {
-          setErrors([{
-            row: pendingEvents[index].sourceRow,
-            column: 'Imagen',
-            expected: 'imagen válida para subir a Supabase Storage',
-            value: uploadError.message,
-          }]);
+          setErrors([buildError(
+            pendingEvents[index].sourceRow,
+            'Imagen',
+            `No se pudo subir la imagen de "${pendingEvents[index].name}". Detalle: ${uploadError.message}`,
+            [
+              'Verifica tu conexión a internet.',
+              'Intenta con una imagen más pequeña (idealmente menos de 5 MB) en formato JPG o PNG.',
+              'Vuelve a hacer clic en "Importar con imágenes".',
+            ],
+          )]);
           return;
         }
 
@@ -280,7 +501,16 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
 
       const responseData = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setErrors([{ row: 0, column: 'Importación', expected: 'respuesta exitosa del servidor', value: responseData.message || `Status ${response.status}` }]);
+        setErrors([buildError(
+          0,
+          'Importación',
+          responseData.message || `El servidor respondió con un error (código ${response.status}).`,
+          [
+            'Verifica tu conexión a internet y que tu sesión no haya expirado.',
+            'Vuelve a intentar la importación.',
+            'Si el problema continúa, contacta a soporte técnico.',
+          ],
+        )]);
         return;
       }
 
@@ -289,7 +519,16 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
       setImageFiles({});
       onEventsImported();
     } catch (error: any) {
-      setErrors([{ row: 0, column: 'Importación', expected: 'importación completada', value: error.message || 'No se pudo importar' }]);
+      setErrors([buildError(
+        0,
+        'Importación',
+        error?.message || 'Ocurrió un error inesperado al importar los eventos.',
+        [
+          'Verifica tu conexión a internet.',
+          'Vuelve a intentar la importación.',
+          'Si el problema continúa, contacta a soporte técnico.',
+        ],
+      )]);
     } finally {
       setLoading(false);
     }
@@ -353,15 +592,34 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                     <p style={{ color: '#1A2E6C', fontSize: 14, fontWeight: 800, margin: 0 }}>{event.name}</p>
                     <p style={{ color: '#6B7280', fontSize: 12, margin: '4px 0 0' }}>Línea {event.sourceRow} · {event.municipio} · {event.objective}</p>
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(inputEvent) => {
-                      const file = inputEvent.target.files?.[0] ?? null;
-                      setImageFiles((current) => ({ ...current, [index]: file }));
-                    }}
-                    style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #D1D5DB' }}
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <input
+                      ref={(el) => { imageInputRefs.current[index] = el; }}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(inputEvent) => {
+                        const file = inputEvent.target.files?.[0] ?? null;
+                        setImageFiles((current) => ({ ...current, [index]: file }));
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => imageInputRefs.current[index]?.click()}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 6, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#1A2E6C', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+                    >
+                      <ImagePlus size={14} />
+                      {imageFiles[index] ? 'Cambiar imagen' : 'Elegir imagen'}
+                    </button>
+                    {imageFiles[index] ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#16A34A', fontWeight: 700 }}>
+                        <CheckCircle2 size={14} />
+                        {imageFiles[index]!.name}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 12, color: '#9CA3AF' }}>Ningún archivo seleccionado</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -403,15 +661,25 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
             </button>
             <h3 style={{ color: '#B91C1C', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>No se pudo importar el archivo</h3>
             <p style={{ color: '#4B5563', fontSize: 14, marginBottom: 18 }}>Corrige estos errores en la plantilla y vuelve a importar.</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {errors.map((error, index) => (
-                <div key={`${error.row}-${error.column}-${index}`} style={{ border: '1px solid #FCA5A5', backgroundColor: '#FEF2F2', borderRadius: 8, padding: '10px 12px' }}>
-                  <p style={{ color: '#7F1D1D', fontSize: 13, fontWeight: 700, margin: 0 }}>
-                    Línea {error.row || '-'}: error en columna "{error.column}".
+                <div key={`${error.row}-${error.column}-${index}`} style={{ border: '1px solid #FCA5A5', backgroundColor: '#FEF2F2', borderRadius: 8, padding: '12px 14px' }}>
+                  <p style={{ color: '#7F1D1D', fontSize: 13, fontWeight: 800, margin: 0 }}>
+                    {error.row > 0 ? `Línea ${error.row} · ` : ''}Columna "{error.column}"
                   </p>
-                  <p style={{ color: '#991B1B', fontSize: 13, margin: '4px 0 0' }}>
-                    Se espera {error.expected}. Valor recibido: {error.value || 'vacío'}.
+                  <p style={{ color: '#991B1B', fontSize: 13, margin: '4px 0 8px' }}>
+                    {error.message}
                   </p>
+                  {error.steps.length > 0 && (
+                    <>
+                      <p style={{ color: '#7F1D1D', fontSize: 12, fontWeight: 700, margin: '0 0 4px' }}>Cómo corregirlo:</p>
+                      <ol style={{ margin: 0, paddingLeft: 18, color: '#991B1B', fontSize: 12, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {error.steps.map((step, stepIndex) => (
+                          <li key={stepIndex}>{step}</li>
+                        ))}
+                      </ol>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

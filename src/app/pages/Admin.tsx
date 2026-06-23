@@ -6,7 +6,7 @@ import { ImportEventsButton } from '../components/ImportEventsButton';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { Trash2, LogOut, Pencil, Download, Eye, EyeOff } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../components/ui/dialog';
 import { supabase } from '../../supabaseClient';
 import { formatSpotsRange } from '../eventSpots';
 
@@ -62,6 +62,10 @@ export function Admin() {
   // Edit Modal State
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  // Delete Confirmation Modal State
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'event' | 'partner'; id: number; label: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -256,35 +260,38 @@ export function Admin() {
     setIsAuth(false);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('¿Seguro que deseas eliminar este evento?')) return;
-    try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        alert('Error al eliminar evento: ' + error.message);
-      } else {
-        loadEvents();
-      }
-    } catch (e) {
-      console.error(e);
-    }
+  const requestDeleteEvent = (event: any) => {
+    setDeleteTarget({ type: 'event', id: event.id, label: event.name || event.title || 'este evento' });
   };
 
-  const handleDeletePartner = async (id: number) => {
-    if (!confirm('¿Seguro que deseas eliminar esta empresa aliada?')) return;
+  const requestDeletePartner = (partner: any) => {
+    setDeleteTarget({ type: 'partner', id: partner.id, label: partner.name || 'esta empresa aliada' });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      const { error } = await supabase.from('partners').delete().eq('id', id);
-      if (error) {
-        alert('Error al eliminar empresa: ' + error.message);
+      if (deleteTarget.type === 'event') {
+        const { error } = await supabase.from('events').delete().eq('id', deleteTarget.id);
+        if (error) {
+          alert('Error al eliminar evento: ' + error.message);
+        } else {
+          loadEvents();
+        }
       } else {
-        loadPartners();
+        const { error } = await supabase.from('partners').delete().eq('id', deleteTarget.id);
+        if (error) {
+          alert('Error al eliminar empresa: ' + error.message);
+        } else {
+          loadPartners();
+        }
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -826,7 +833,7 @@ export function Admin() {
                               <Pencil size={18} />
                             </button>
                             <button
-                              onClick={() => handleDelete(event.id)}
+                              onClick={() => requestDeleteEvent(event)}
                               style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
                               title="Eliminar evento"
                             >
@@ -882,7 +889,7 @@ export function Admin() {
                           </td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
                             <button
-                              onClick={() => handleDeletePartner(partner.id)}
+                              onClick={() => requestDeletePartner(partner)}
                               style={{ backgroundColor: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
                               title="Eliminar aliado"
                             >
@@ -924,15 +931,9 @@ export function Admin() {
           </DialogHeader>
 
           {editingEvent && (
-<<<<<<< Updated upstream
-            <EditEventForm 
-              key={editingEvent.id}
-              initialData={editingEvent} 
-=======
             <EditEventForm
               key={editingEvent.id}
               initialData={editingEvent}
->>>>>>> Stashed changes
               onEventUpdated={() => {
                 setIsEditDialogOpen(false);
                 setEditingEvent(null);
@@ -944,6 +945,61 @@ export function Admin() {
               }}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle style={{ color: '#B91C1C', fontSize: '18px', fontWeight: 800 }}>
+              {deleteTarget?.type === 'partner' ? '¿Seguro que deseas eliminar esta empresa aliada?' : '¿Seguro que deseas eliminar este evento?'}
+            </DialogTitle>
+            <DialogDescription>
+              Esta acción no se puede deshacer. Se eliminará permanentemente{' '}
+              <strong style={{ color: '#374151' }}>{deleteTarget?.label}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <button
+                type="button"
+                disabled={isDeleting}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: 8,
+                  border: '1px solid #D1D5DB',
+                  backgroundColor: '#FFFFFF',
+                  color: '#374151',
+                  fontWeight: 600,
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Cancelar
+              </button>
+            </DialogClose>
+            <button
+              type="button"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              style={{
+                padding: '10px 18px',
+                borderRadius: 8,
+                border: 'none',
+                backgroundColor: isDeleting ? '#FCA5A5' : '#EF4444',
+                color: '#FFFFFF',
+                fontWeight: 700,
+                cursor: isDeleting ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {isDeleting ? 'Eliminando...' : 'Sí, eliminar'}
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
