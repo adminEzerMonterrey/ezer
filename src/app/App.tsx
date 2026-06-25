@@ -10,6 +10,7 @@ import { CollaborationForm } from "./components/CollaborationForm";
 import { ContactSection } from "./components/ContactSection";
 import { Footer } from "./components/Footer";
 import { Admin } from "./pages/Admin";
+import { CompanyRegistration } from "./components/CompanyRegistration";
 
 function ScrollToTop() {
   useEffect(() => {
@@ -52,6 +53,14 @@ function RegistrationPage() {
   );
 }
 
+function CompanyPage() {
+  return (
+    <AppShell>
+      <CompanyRegistration />
+    </AppShell>
+  );
+}
+
 function EventCatalogPage() {
   return (
     <AppShell>
@@ -74,6 +83,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/registro" element={<RegistrationPage />} />
+        <Route path="/empresas" element={<CompanyPage />} />
         <Route path="/catalogo-eventos" element={<EventCatalogPage />} />
         <Route path="/contactanos" element={<ContactPage />} />
         <Route path="/admin" element={<Admin />} />

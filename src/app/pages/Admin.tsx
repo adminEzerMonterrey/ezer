@@ -49,7 +49,7 @@ export function Admin() {
   const [statsSaved, setStatsSaved] = useState(false);
 
   // Config state
-  const [adminEmail, setAdminEmail] = useState('ethan.rivera@udem.edu');
+  const [adminEmail, setAdminEmail] = useState('voluntariadocorporativo@ezer.org.mx');
   const [emailSaving, setEmailSaving] = useState(false);
   const [emailSaved, setEmailSaved] = useState(false);
 
