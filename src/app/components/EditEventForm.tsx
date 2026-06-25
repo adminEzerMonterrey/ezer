@@ -15,7 +15,9 @@ export function EditEventForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [image, setImage] = useState<File | null>(null);
-  const [municipio, setMunicipio] = useState(initialData.municipio || 'Monterrey');
+  const [municipios, setMunicipios] = useState<string[]>(
+    initialData.municipio ? initialData.municipio.split(',').map((s: string) => s.trim()) : ['Monterrey']
+  );
   const [hasFlyer, setHasFlyer] = useState(!!initialData.flyer_url);
   const [flyer, setFlyer] = useState<File | null>(null);
   const [removeFlyer, setRemoveFlyer] = useState(false);
@@ -60,11 +62,17 @@ export function EditEventForm({
       return;
     }
 
+    if (municipios.length === 0) {
+      setError('Debes seleccionar al menos un municipio.');
+      setLoading(false);
+      return;
+    }
+
     const updatePayload: any = {
       company: 'EZER',
       date: formData.get('event_date'),
       objective: formData.get('category'),
-      municipio,
+      municipio: municipios.join(', '),
       target_audience: initialData.target_audience || 'Público General',
       description: formData.get('description'),
       cost: formData.get('cost'),
@@ -202,19 +210,37 @@ export function EditEventForm({
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Municipio</label>
-          <select
-            required
-            name="municipio"
-            value={municipio}
-            onChange={(e) => setMunicipio(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}
-          >
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '8px' }}>Municipios</label>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
+            gap: '8px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            padding: '12px',
+            borderRadius: '6px', 
+            border: '1px solid #D1D5DB', 
+            backgroundColor: 'white' 
+          }}>
             {NUEVO_LEON_MUNICIPALITIES.map((municipality) => (
-              <option key={municipality} value={municipality}>{municipality}</option>
+              <label key={municipality} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                <input 
+                  type="checkbox" 
+                  checked={municipios.includes(municipality)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setMunicipios([...municipios, municipality]);
+                    } else {
+                      setMunicipios(municipios.filter(m => m !== municipality));
+                    }
+                  }}
+                  style={{ accentColor: '#E8401C' }} 
+                />
+                {municipality}
+              </label>
             ))}
-          </select>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

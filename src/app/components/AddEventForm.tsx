@@ -22,7 +22,15 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const date = formData.get('event_date') as string;
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
-    const municipio = formData.get('municipio') as string;
+    const municipios = formData.getAll('municipios') as string[];
+    
+    if (municipios.length === 0) {
+      setError('Debes seleccionar al menos un municipio.');
+      setLoading(false);
+      return;
+    }
+    
+    const municipio = municipios.join(', ');
     const cost = formData.get('cost') as string;
     const coordinador = formData.get('coordinador') as string;
     const isAnnual = formData.get('is_annual') === 'on';
@@ -180,13 +188,32 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Municipio</label>
-          <select required name="municipio" defaultValue="Monterrey" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '8px' }}>Municipios</label>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
+            gap: '8px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            padding: '12px',
+            borderRadius: '6px', 
+            border: '1px solid #D1D5DB', 
+            backgroundColor: 'white' 
+          }}>
             {NUEVO_LEON_MUNICIPALITIES.map((municipality) => (
-              <option key={municipality} value={municipality}>{municipality}</option>
+              <label key={municipality} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                <input 
+                  type="checkbox" 
+                  name="municipios" 
+                  value={municipality} 
+                  defaultChecked={municipality === 'Monterrey'}
+                  style={{ accentColor: '#E8401C' }} 
+                />
+                {municipality}
+              </label>
             ))}
-          </select>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

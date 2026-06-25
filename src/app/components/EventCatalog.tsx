@@ -149,7 +149,8 @@ export function EventCatalog() {
 
   const filtered = events.filter((e) => {
     const catOk = category === "Todos" || e.category === category;
-    const municipalityOk = municipality === "Todos" || e.municipio === municipality;
+    const eventMunicipios = e.municipio ? e.municipio.split(',').map(m => m.trim()) : [];
+    const municipalityOk = municipality === "Todos" || eventMunicipios.includes(municipality);
 
     const dateOk =
       dateFilter === "Todos" ||

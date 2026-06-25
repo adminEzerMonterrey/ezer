@@ -121,13 +121,27 @@ const NORMALIZED_MUNICIPALITY_ALIASES = Object.fromEntries(
   Object.entries(MUNICIPALITY_ALIASES).map(([alias, official]) => [normalizeComparable(alias), official]),
 );
 
-const resolveMunicipio = (value: unknown) => {
+const resolveSingleMunicipio = (value: unknown) => {
   const normalized = normalizeComparable(value);
   if (!normalized) return '';
   if (NORMALIZED_MUNICIPALITY_ALIASES[normalized]) {
     return NORMALIZED_MUNICIPALITY_ALIASES[normalized];
   }
   return findOption(value, NUEVO_LEON_MUNICIPALITIES);
+};
+
+const resolveMunicipio = (value: unknown) => {
+  if (typeof value !== 'string') {
+    if (!value) return '';
+    return resolveSingleMunicipio(String(value));
+  }
+  const parts = value.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length === 0) return '';
+  const resolvedParts = parts.map(resolveSingleMunicipio);
+  // If any part fails to resolve, return empty to trigger the existing validation error
+  if (resolvedParts.some(r => !r)) return '';
+  // Join uniquely
+  return Array.from(new Set(resolvedParts)).join(', ');
 };
 
 const parseBoolean = (value: unknown) => {
