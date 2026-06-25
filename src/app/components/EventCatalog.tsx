@@ -331,33 +331,31 @@ export function EventCatalog() {
                               href={event.flyer_url}
                               target="_blank"
                               rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-1.5"
                               style={{
-                                color: "#4B5563",
-                                border: "1.5px solid #E5E7EB",
+                                color: "#1A2E6C",
+                                border: "1px solid #1A2E6C",
                                 borderRadius: 8,
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: 700,
                                 padding: "8px 0",
-                                backgroundColor: "#F9FAFB",
+                                backgroundColor: "#FFFFFF",
                                 cursor: "pointer",
                                 transition: "all 0.2s",
                                 fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flex: 1,
                                 textDecoration: "none",
+                                boxShadow: "0 2px 4px rgba(26, 46, 108, 0.05)"
                               }}
                               onMouseEnter={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F3F4F6";
-                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#D1D5DB";
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F8FAFC";
+                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 6px rgba(26, 46, 108, 0.1)";
                               }}
                               onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F9FAFB";
-                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#E5E7EB";
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFFFFF";
+                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 2px 4px rgba(26, 46, 108, 0.05)";
                               }}
                             >
-                              Ver Flyer
+                              <span style={{ fontSize: 16 }}>🖼️</span> Flyer
                             </a>
                           )}
                           {event.ficha_tecnica_url && (
@@ -365,33 +363,31 @@ export function EventCatalog() {
                               href={event.ficha_tecnica_url}
                               target="_blank"
                               rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-1.5"
                               style={{
-                                color: "#4B5563",
-                                border: "1.5px solid #E5E7EB",
+                                color: "#1A2E6C",
+                                border: "1px solid #1A2E6C",
                                 borderRadius: 8,
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: 700,
                                 padding: "8px 0",
-                                backgroundColor: "#F9FAFB",
+                                backgroundColor: "#FFFFFF",
                                 cursor: "pointer",
                                 transition: "all 0.2s",
                                 fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flex: 1,
                                 textDecoration: "none",
+                                boxShadow: "0 2px 4px rgba(26, 46, 108, 0.05)"
                               }}
                               onMouseEnter={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F3F4F6";
-                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#D1D5DB";
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F8FAFC";
+                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 6px rgba(26, 46, 108, 0.1)";
                               }}
                               onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F9FAFB";
-                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#E5E7EB";
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFFFFF";
+                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 2px 4px rgba(26, 46, 108, 0.05)";
                               }}
                             >
-                              Ficha Técnica
+                              <span style={{ fontSize: 16 }}>📄</span> Ficha
                             </a>
                           )}
                         </div>
