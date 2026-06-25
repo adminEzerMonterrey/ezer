@@ -32,6 +32,7 @@ type EventImportDraft = {
   coordinador: string;
   is_annual: boolean;
   has_flyer: boolean;
+  has_ficha_tecnica: boolean;
   spots_min: number;
   spots_max: number;
 };
@@ -47,6 +48,7 @@ const TEMPLATE_COLUMNS = [
   'Coordinador',
   'Evento anual',
   'Tiene flyer',
+  'Tiene ficha tecnica',
   'Descripcion',
 ];
 
@@ -59,6 +61,7 @@ const EXAMPLE_ROW = [
   25,
   'Gratuito',
   'Nombre del coordinador',
+  'No',
   'No',
   'No',
   'Describe el evento con claridad.',
@@ -178,6 +181,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
   const [pendingEvents, setPendingEvents] = useState<EventImportDraft[]>([]);
   const [imageFiles, setImageFiles] = useState<Record<number, File | null>>({});
   const [flyerFiles, setFlyerFiles] = useState<Record<number, File | null>>({});
+  const [fichaFiles, setFichaFiles] = useState<Record<number, File | null>>({});
 
   const downloadTemplate = () => {
     const workbook = XLSX.utils.book_new();
@@ -211,6 +215,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         const coordinador = normalizeText(row['Coordinador']);
         const isAnnual = parseBoolean(row['Evento anual']);
         const hasFlyer = parseBoolean(row['Tiene flyer']);
+        const hasFichaTecnica = parseBoolean(row['Tiene ficha tecnica']);
         const description = normalizeText(row['Descripcion']);
 
         if (!title) {
@@ -355,6 +360,20 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           ));
         }
 
+        if (hasFichaTecnica == null) {
+          const raw = normalizeText(row['Tiene ficha tecnica']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Tiene ficha tecnica',
+            raw ? `"${raw}" no es un valor reconocido.` : 'La celda está vacía.',
+            [
+              `Ve a la fila ${excelRow}, columna "Tiene ficha tecnica".`,
+              'Escribe únicamente "Si" o "No" (sin acentos también funciona).',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
         if (!description) {
           validationErrors.push(buildError(
             excelRow,
@@ -381,6 +400,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           coordinador,
           is_annual: isAnnual === true,
           has_flyer: hasFlyer === true,
+          has_ficha_tecnica: hasFichaTecnica === true,
           spots_min: spotsMin ?? 0,
           spots_max: spotsMax ?? 0,
         };
@@ -396,6 +416,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
     setPendingEvents([]);
     setImageFiles({});
     setFlyerFiles({});
+    setFichaFiles({});
 
     try {
       const workbook = XLSX.read(await file.arrayBuffer(), { cellDates: true });
@@ -472,8 +493,20 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           ],
         ));
 
-      if (missingImages.length > 0 || missingFlyers.length > 0) {
-        setErrors([...missingImages, ...missingFlyers]);
+      const missingFichas = pendingEvents
+        .filter((event, index) => event.has_ficha_tecnica && !fichaFiles[index])
+        .map((event) => buildError(
+          event.sourceRow,
+          'Ficha Técnica',
+          `No se eligió ninguna ficha técnica para el evento "${event.name}".`,
+          [
+            `El evento "${event.name}" indicó "Si" en "Tiene ficha tecnica".`,
+            'Haz clic en "Elegir ficha técnica" y selecciona un PDF o imagen.',
+          ],
+        ));
+
+      if (missingImages.length > 0 || missingFlyers.length > 0 || missingFichas.length > 0) {
+        setErrors([...missingImages, ...missingFlyers, ...missingFichas]);
         return;
       }
 
@@ -540,8 +573,28 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           }
         }
 
-        const { sourceRow, has_flyer, ...event } = pendingEvents[index];
-        events.push({ ...event, image_url: data.publicUrl, flyer_url: flyerUrl });
+        let fichaUrl = null;
+        if (pendingEvents[index].has_ficha_tecnica) {
+          const fichaFile = fichaFiles[index];
+          if (fichaFile) {
+            const fichaName = `fichas/${crypto.randomUUID()}-${fichaFile.name}`;
+            const { error: fErr } = await supabase.storage.from('event-images').upload(fichaName, fichaFile);
+            if (fErr) {
+              setErrors([buildError(
+                pendingEvents[index].sourceRow,
+                'Ficha Técnica',
+                `Error subiendo ficha técnica de "${pendingEvents[index].name}": ${fErr.message}`,
+                []
+              )]);
+              return;
+            }
+            const { data: fData } = supabase.storage.from('event-images').getPublicUrl(fichaName);
+            fichaUrl = fData.publicUrl;
+          }
+        }
+
+        const { sourceRow, has_flyer, has_ficha_tecnica, ...event } = pendingEvents[index];
+        events.push({ ...event, image_url: data.publicUrl, flyer_url: flyerUrl, ficha_tecnica_url: fichaUrl });
       }
 
       const response = await fetch('/api/admin-events', {
@@ -572,6 +625,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
       setPendingEvents([]);
       setImageFiles({});
       setFlyerFiles({});
+      setFichaFiles({});
       onEventsImported();
     } catch (error: any) {
       setErrors([buildError(
@@ -631,6 +685,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                 setPendingEvents([]);
                 setImageFiles({});
                 setFlyerFiles({});
+                setFichaFiles({});
               }}
               style={{ position: 'absolute', top: 16, right: 16, border: 'none', background: 'transparent', color: '#6B7280', cursor: 'pointer' }}
               aria-label="Cerrar"
@@ -679,10 +734,10 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                     {event.has_flyer && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', borderLeft: '2px solid #E5E7EB', paddingLeft: 12, marginLeft: 4 }}>
                         <input
-                          ref={(el) => { flyerInputRefs.current[index] = el; }}
                           type="file"
                           accept="image/*,.pdf"
                           style={{ display: 'none' }}
+                          id={`flyer-input-${index}`}
                           onChange={(inputEvent) => {
                             const file = inputEvent.target.files?.[0] ?? null;
                             setFlyerFiles((current) => ({ ...current, [index]: file }));
@@ -690,7 +745,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                         />
                         <button
                           type="button"
-                          onClick={() => flyerInputRefs.current[index]?.click()}
+                          onClick={() => document.getElementById(`flyer-input-${index}`)?.click()}
                           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 6, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#1A2E6C', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
                         >
                           <FileSpreadsheet size={14} />
@@ -706,6 +761,37 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                         )}
                       </div>
                     )}
+                    
+                    {event.has_ficha_tecnica && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', borderLeft: '2px solid #E5E7EB', paddingLeft: 12, marginLeft: 4 }}>
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          style={{ display: 'none' }}
+                          id={`ficha-input-${index}`}
+                          onChange={(inputEvent) => {
+                            const file = inputEvent.target.files?.[0] ?? null;
+                            setFichaFiles((current) => ({ ...current, [index]: file }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById(`ficha-input-${index}`)?.click()}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 6, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#1A2E6C', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+                        >
+                          <FileSpreadsheet size={14} />
+                          {fichaFiles[index] ? 'Cambiar ficha' : 'Elegir ficha'}
+                        </button>
+                        {fichaFiles[index] ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#16A34A', fontWeight: 700 }}>
+                            <CheckCircle2 size={14} />
+                            {fichaFiles[index]!.name}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 12, color: '#E8401C' }}>Falta ficha técnica</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -717,6 +803,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                   setPendingEvents([]);
                   setImageFiles({});
                   setFlyerFiles({});
+                  setFichaFiles({});
                 }}
                 disabled={loading}
                 style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#4B5563', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}

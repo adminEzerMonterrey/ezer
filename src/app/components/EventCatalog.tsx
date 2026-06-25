@@ -21,6 +21,7 @@ interface Event {
   cost: string | number;
   isAnnual: boolean;
   flyer_url?: string;
+  ficha_tecnica_url?: string;
 }
 
 const DATE_FILTERS = ["Todos", "Próximos 3 meses", "Próximos 6 meses", "Permanente"];
@@ -127,6 +128,7 @@ export function EventCatalog() {
             cost: e.cost || "Gratuito",
             isAnnual: !!e.is_annual,
             flyer_url: e.flyer_url,
+            ficha_tecnica_url: e.ficha_tecnica_url,
           };
         });
 
@@ -314,75 +316,115 @@ export function EventCatalog() {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
-                      <div className="flex items-center gap-1.5">
-                        <Users size={13} style={{ color: "#9CA3AF" }} />
-                        <span style={{ color: "#6B7280", fontSize: 12 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
+                    <div className="flex flex-col gap-3 mt-auto pt-4" style={{ borderTop: "1px solid #F3F4F6" }}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Users size={13} style={{ color: "#9CA3AF" }} />
+                          <span style={{ color: "#6B7280", fontSize: 12, fontWeight: 600 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
-                        {event.flyer_url && (
-                          <a
-                            href={event.flyer_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              color: "#4B5563",
-                              border: "1.5px solid #D1D5DB",
-                              borderRadius: 8,
-                              fontSize: 12,
-                              fontWeight: 700,
-                              padding: "7px 14px",
-                              backgroundColor: "#F9FAFB",
-                              cursor: "pointer",
-                              transition: "all 0.2s",
-                              fontFamily: "'Plus Jakarta Sans', sans-serif",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 4,
-                              textDecoration: "none",
-                            }}
-                            onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F3F4F6";
-                              (e.currentTarget as HTMLAnchorElement).style.borderColor = "#9CA3AF";
-                            }}
-                            onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F9FAFB";
-                              (e.currentTarget as HTMLAnchorElement).style.borderColor = "#D1D5DB";
-                            }}
-                          >
-                            Ver Flyer
-                          </a>
-                        )}
-                        <button
-                          onClick={() => setSelectedEventName(event.title)}
-                          style={{
-                            color: "#E8401C",
-                            border: "1.5px solid #E8401C",
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            padding: "7px 14px",
-                            backgroundColor: "transparent",
-                            cursor: "pointer",
-                            transition: "all 0.2s",
-                            fontFamily: "'Plus Jakarta Sans', sans-serif",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E8401C";
-                            (e.currentTarget as HTMLButtonElement).style.color = "#FFFFFF";
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
-                            (e.currentTarget as HTMLButtonElement).style.color = "#E8401C";
-                          }}
-                        >
-                          Me interesa <ArrowRight size={13} />
-                        </button>
-                      </div>
+
+                      {(event.flyer_url || event.ficha_tecnica_url) && (
+                        <div className="flex gap-2">
+                          {event.flyer_url && (
+                            <a
+                              href={event.flyer_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "#4B5563",
+                                border: "1.5px solid #E5E7EB",
+                                borderRadius: 8,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                padding: "8px 0",
+                                backgroundColor: "#F9FAFB",
+                                cursor: "pointer",
+                                transition: "all 0.2s",
+                                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flex: 1,
+                                textDecoration: "none",
+                              }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F3F4F6";
+                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#D1D5DB";
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F9FAFB";
+                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#E5E7EB";
+                              }}
+                            >
+                              Ver Flyer
+                            </a>
+                          )}
+                          {event.ficha_tecnica_url && (
+                            <a
+                              href={event.ficha_tecnica_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "#4B5563",
+                                border: "1.5px solid #E5E7EB",
+                                borderRadius: 8,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                padding: "8px 0",
+                                backgroundColor: "#F9FAFB",
+                                cursor: "pointer",
+                                transition: "all 0.2s",
+                                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flex: 1,
+                                textDecoration: "none",
+                              }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F3F4F6";
+                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#D1D5DB";
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F9FAFB";
+                                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#E5E7EB";
+                              }}
+                            >
+                              Ficha Técnica
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => setSelectedEventName(event.title)}
+                        style={{
+                          color: "#FFFFFF",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 14,
+                          fontWeight: 700,
+                          padding: "10px",
+                          backgroundColor: "#E8401C",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                          width: "100%",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#C83214";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E8401C";
+                        }}
+                      >
+                        Me interesa <ArrowRight size={15} />
+                      </button>
                     </div>
                   </div>
                 </div>

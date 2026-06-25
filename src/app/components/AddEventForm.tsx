@@ -9,6 +9,8 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
   const [image, setImage] = useState<File | null>(null);
   const [hasFlyer, setHasFlyer] = useState(false);
   const [flyer, setFlyer] = useState<File | null>(null);
+  const [hasFicha, setHasFicha] = useState(false);
+  const [ficha, setFicha] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,6 +86,25 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         flyerUrl = flyerData.publicUrl;
       }
 
+      let fichaUrl = null;
+
+      if (hasFicha && ficha) {
+        const fichaFileName = `fichas/${crypto.randomUUID()}-${ficha.name}`;
+        const { error: fichaUploadError } = await supabase.storage
+          .from('event-images')
+          .upload(fichaFileName, ficha);
+
+        if (fichaUploadError) {
+          throw fichaUploadError;
+        }
+
+        const { data: fichaData } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(fichaFileName);
+          
+        fichaUrl = fichaData.publicUrl;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -108,6 +129,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             spots_max: spotsMax,
             image_url: imageUrl,
             flyer_url: flyerUrl,
+            ficha_tecnica_url: fichaUrl,
             user_id: user.id,
           }
         ]);
@@ -121,6 +143,8 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       setImage(null);
       setHasFlyer(false);
       setFlyer(null);
+      setHasFicha(false);
+      setFicha(null);
       onEventAdded();
     } catch (submitError: any) {
       console.error('ERROR:', submitError);
@@ -231,6 +255,31 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
               onChange={(e) => setFlyer(e.target.files ? e.target.files[0] : null)}
               style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
               required={hasFlyer}
+            />
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#4B5563', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={hasFicha}
+              onChange={(e) => setHasFicha(e.target.checked)}
+              style={{ width: '16px', height: '16px', accentColor: '#E8401C' }} 
+            />
+            ¿Este evento tiene una Ficha Técnica?
+          </label>
+        </div>
+
+        {hasFicha && (
+          <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Archivo de Ficha Técnica (PDF o Imagen) *</label>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => setFicha(e.target.files ? e.target.files[0] : null)}
+              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
+              required={hasFicha}
             />
           </div>
         )}

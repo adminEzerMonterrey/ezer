@@ -19,6 +19,9 @@ export function EditEventForm({
   const [hasFlyer, setHasFlyer] = useState(!!initialData.flyer_url);
   const [flyer, setFlyer] = useState<File | null>(null);
   const [removeFlyer, setRemoveFlyer] = useState(false);
+  const [hasFicha, setHasFicha] = useState(!!initialData.ficha_tecnica_url);
+  const [ficha, setFicha] = useState<File | null>(null);
+  const [removeFicha, setRemoveFicha] = useState(false);
 
   const formattedDate = initialData.event_date
     ? new Date(initialData.event_date).toISOString().split('T')[0]
@@ -116,7 +119,26 @@ export function EditEventForm({
         flyerUrl = flyerData.publicUrl;
       }
 
-      const finalDataToUpdate = { ...updatePayload, image_url: imageUrl, flyer_url: flyerUrl };
+      let fichaUrl = initialData.ficha_tecnica_url;
+
+      if (removeFicha && !ficha) {
+        fichaUrl = null;
+      } else if (ficha) {
+        const fichaFileName = `fichas/${crypto.randomUUID()}-${ficha.name}`;
+        const { error: fichaUploadError } = await supabase.storage
+          .from('event-images')
+          .upload(fichaFileName, ficha);
+
+        if (fichaUploadError) throw fichaUploadError;
+
+        const { data: fichaData } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(fichaFileName);
+          
+        fichaUrl = fichaData.publicUrl;
+      }
+
+      const finalDataToUpdate = { ...updatePayload, image_url: imageUrl, flyer_url: flyerUrl, ficha_tecnica_url: fichaUrl };
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session) {
@@ -276,6 +298,47 @@ export function EditEventForm({
               }}
               style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
               required={hasFlyer && (!initialData.flyer_url || removeFlyer)}
+            />
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#4B5563', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={hasFicha}
+              onChange={(e) => {
+                setHasFicha(e.target.checked);
+                if (!e.target.checked) setRemoveFicha(true);
+                else setRemoveFicha(false);
+              }}
+              style={{ width: '16px', height: '16px', accentColor: '#E8401C' }} 
+            />
+            ¿Este evento tiene una Ficha Técnica?
+          </label>
+        </div>
+
+        {hasFicha && (
+          <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>
+              Archivo de Ficha Técnica (PDF o Imagen) {initialData.ficha_tecnica_url && !removeFicha ? '(Dejar en blanco para mantener el actual)' : '*'}
+            </label>
+            {initialData.ficha_tecnica_url && !removeFicha && !ficha && (
+              <div style={{ marginBottom: '8px', fontSize: '13px' }}>
+                <a href={initialData.ficha_tecnica_url} target="_blank" rel="noopener noreferrer" style={{ color: '#3B82F6', textDecoration: 'underline' }}>
+                  Ver Ficha Técnica actual
+                </a>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => {
+                setFicha(e.target.files ? e.target.files[0] : null);
+                if (e.target.files && e.target.files[0]) setRemoveFicha(false);
+              }}
+              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
+              required={hasFicha && (!initialData.ficha_tecnica_url || removeFicha)}
             />
           </div>
         )}
