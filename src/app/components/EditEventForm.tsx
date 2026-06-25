@@ -16,6 +16,9 @@ export function EditEventForm({
   const [error, setError] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [municipio, setMunicipio] = useState(initialData.municipio || 'Monterrey');
+  const [hasFlyer, setHasFlyer] = useState(!!initialData.flyer_url);
+  const [flyer, setFlyer] = useState<File | null>(null);
+  const [removeFlyer, setRemoveFlyer] = useState(false);
 
   const formattedDate = initialData.event_date
     ? new Date(initialData.event_date).toISOString().split('T')[0]
@@ -94,7 +97,26 @@ export function EditEventForm({
         imageUrl = publicUrlData.publicUrl;
       }
 
-      const finalDataToUpdate = { ...updatePayload, image_url: imageUrl };
+      let flyerUrl = initialData.flyer_url;
+
+      if (removeFlyer && !flyer) {
+        flyerUrl = null;
+      } else if (flyer) {
+        const flyerFileName = `flyers/${crypto.randomUUID()}-${flyer.name}`;
+        const { error: flyerUploadError } = await supabase.storage
+          .from('event-images')
+          .upload(flyerFileName, flyer);
+
+        if (flyerUploadError) throw flyerUploadError;
+
+        const { data: flyerData } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(flyerFileName);
+          
+        flyerUrl = flyerData.publicUrl;
+      }
+
+      const finalDataToUpdate = { ...updatePayload, image_url: imageUrl, flyer_url: flyerUrl };
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session) {
@@ -208,7 +230,7 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen (Dejar en blanco para mantener la actual)</label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen del evento (Dejar en blanco para mantener la actual)</label>
           <input
             type="file"
             accept="image/*"
@@ -216,6 +238,47 @@ export function EditEventForm({
             style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
           />
         </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#4B5563', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={hasFlyer}
+              onChange={(e) => {
+                setHasFlyer(e.target.checked);
+                if (!e.target.checked) setRemoveFlyer(true);
+                else setRemoveFlyer(false);
+              }}
+              style={{ width: '16px', height: '16px', accentColor: '#E8401C' }} 
+            />
+            ¿Este evento tiene un flyer con más información?
+          </label>
+        </div>
+
+        {hasFlyer && (
+          <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>
+              Archivo de Flyer (PDF o Imagen) {initialData.flyer_url && !removeFlyer ? '(Dejar en blanco para mantener el actual)' : '*'}
+            </label>
+            {initialData.flyer_url && !removeFlyer && !flyer && (
+              <div style={{ marginBottom: '8px', fontSize: '13px' }}>
+                <a href={initialData.flyer_url} target="_blank" rel="noopener noreferrer" style={{ color: '#3B82F6', textDecoration: 'underline' }}>
+                  Ver Flyer actual
+                </a>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => {
+                setFlyer(e.target.files ? e.target.files[0] : null);
+                if (e.target.files && e.target.files[0]) setRemoveFlyer(false);
+              }}
+              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
+              required={hasFlyer && (!initialData.flyer_url || removeFlyer)}
+            />
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Descripción</label>

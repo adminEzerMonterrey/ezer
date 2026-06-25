@@ -18,9 +18,9 @@ interface Event {
   description: string;
   image: string;
   spotsMin: number;
-  spotsMax: number;
   cost: string | number;
   isAnnual: boolean;
+  flyer_url?: string;
 }
 
 const DATE_FILTERS = ["Todos", "Próximos 3 meses", "Próximos 6 meses", "Permanente"];
@@ -125,7 +125,8 @@ export function EventCatalog() {
             spotsMin,
             spotsMax,
             cost: e.cost || "Gratuito",
-            isAnnual: !!e.is_annual
+            isAnnual: !!e.is_annual,
+            flyer_url: e.flyer_url,
           };
         });
 
@@ -318,34 +319,70 @@ export function EventCatalog() {
                         <Users size={13} style={{ color: "#9CA3AF" }} />
                         <span style={{ color: "#6B7280", fontSize: 12 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
                       </div>
-                      <button
-                        onClick={() => setSelectedEventName(event.title)}
-                        style={{
-                          color: "#E8401C",
-                          border: "1.5px solid #E8401C",
-                          borderRadius: 8,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          padding: "7px 14px",
-                          backgroundColor: "transparent",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          fontFamily: "'Plus Jakarta Sans', sans-serif",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                        onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E8401C";
-                          (e.currentTarget as HTMLButtonElement).style.color = "#FFFFFF";
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
-                          (e.currentTarget as HTMLButtonElement).style.color = "#E8401C";
-                        }}
-                      >
-                        Me interesa <ArrowRight size={13} />
-                      </button>
+                      
+                      <div className="flex items-center gap-2">
+                        {event.flyer_url && (
+                          <a
+                            href={event.flyer_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#4B5563",
+                              border: "1.5px solid #D1D5DB",
+                              borderRadius: 8,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              padding: "7px 14px",
+                              backgroundColor: "#F9FAFB",
+                              cursor: "pointer",
+                              transition: "all 0.2s",
+                              fontFamily: "'Plus Jakarta Sans', sans-serif",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              textDecoration: "none",
+                            }}
+                            onMouseEnter={(e) => {
+                              (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F3F4F6";
+                              (e.currentTarget as HTMLAnchorElement).style.borderColor = "#9CA3AF";
+                            }}
+                            onMouseLeave={(e) => {
+                              (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F9FAFB";
+                              (e.currentTarget as HTMLAnchorElement).style.borderColor = "#D1D5DB";
+                            }}
+                          >
+                            Ver Flyer
+                          </a>
+                        )}
+                        <button
+                          onClick={() => setSelectedEventName(event.title)}
+                          style={{
+                            color: "#E8401C",
+                            border: "1.5px solid #E8401C",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            padding: "7px 14px",
+                            backgroundColor: "transparent",
+                            cursor: "pointer",
+                            transition: "all 0.2s",
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                          }}
+                          onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E8401C";
+                            (e.currentTarget as HTMLButtonElement).style.color = "#FFFFFF";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+                            (e.currentTarget as HTMLButtonElement).style.color = "#E8401C";
+                          }}
+                        >
+                          Me interesa <ArrowRight size={13} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

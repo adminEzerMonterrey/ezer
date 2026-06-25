@@ -31,6 +31,7 @@ type EventImportDraft = {
   cost: string;
   coordinador: string;
   is_annual: boolean;
+  has_flyer: boolean;
   spots_min: number;
   spots_max: number;
 };
@@ -45,6 +46,7 @@ const TEMPLATE_COLUMNS = [
   'Cuota de recuperacion',
   'Coordinador',
   'Evento anual',
+  'Tiene flyer',
   'Descripcion',
 ];
 
@@ -57,6 +59,7 @@ const EXAMPLE_ROW = [
   25,
   'Gratuito',
   'Nombre del coordinador',
+  'No',
   'No',
   'Describe el evento con claridad.',
 ];
@@ -168,11 +171,13 @@ const parseNonNegativeInteger = (value: unknown) => {
 export function ImportEventsButton({ onEventsImported }: { onEventsImported: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const flyerInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ImportError[]>([]);
   const [summary, setSummary] = useState('');
   const [pendingEvents, setPendingEvents] = useState<EventImportDraft[]>([]);
   const [imageFiles, setImageFiles] = useState<Record<number, File | null>>({});
+  const [flyerFiles, setFlyerFiles] = useState<Record<number, File | null>>({});
 
   const downloadTemplate = () => {
     const workbook = XLSX.utils.book_new();
@@ -205,6 +210,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         const cost = normalizeText(row['Cuota de recuperacion']) || 'Gratuito';
         const coordinador = normalizeText(row['Coordinador']);
         const isAnnual = parseBoolean(row['Evento anual']);
+        const hasFlyer = parseBoolean(row['Tiene flyer']);
         const description = normalizeText(row['Descripcion']);
 
         if (!title) {
@@ -335,6 +341,20 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           ));
         }
 
+        if (hasFlyer == null) {
+          const raw = normalizeText(row['Tiene flyer']);
+          validationErrors.push(buildError(
+            excelRow,
+            'Tiene flyer',
+            raw ? `"${raw}" no es un valor reconocido.` : 'La celda está vacía.',
+            [
+              `Ve a la fila ${excelRow}, columna "Tiene flyer".`,
+              'Escribe únicamente "Si" o "No" (sin acentos también funciona).',
+              'Guarda el archivo y vuelve a importarlo.',
+            ],
+          ));
+        }
+
         if (!description) {
           validationErrors.push(buildError(
             excelRow,
@@ -360,6 +380,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           cost,
           coordinador,
           is_annual: isAnnual === true,
+          has_flyer: hasFlyer === true,
           spots_min: spotsMin ?? 0,
           spots_max: spotsMax ?? 0,
         };
@@ -374,6 +395,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
     setSummary('');
     setPendingEvents([]);
     setImageFiles({});
+    setFlyerFiles({});
 
     try {
       const workbook = XLSX.read(await file.arrayBuffer(), { cellDates: true });
@@ -438,8 +460,20 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           ],
         ));
 
-      if (missingImages.length > 0) {
-        setErrors(missingImages);
+      const missingFlyers = pendingEvents
+        .filter((event, index) => event.has_flyer && !flyerFiles[index])
+        .map((event) => buildError(
+          event.sourceRow,
+          'Flyer',
+          `No se eligió ningún flyer para el evento "${event.name}".`,
+          [
+            `El evento "${event.name}" indicó "Si" en "Tiene flyer".`,
+            'Haz clic en "Elegir flyer" y selecciona un PDF o imagen.',
+          ],
+        ));
+
+      if (missingImages.length > 0 || missingFlyers.length > 0) {
+        setErrors([...missingImages, ...missingFlyers]);
         return;
       }
 
@@ -486,8 +520,28 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           .from('event-images')
           .getPublicUrl(fileName);
 
-        const { sourceRow, ...event } = pendingEvents[index];
-        events.push({ ...event, image_url: data.publicUrl });
+        let flyerUrl = null;
+        if (pendingEvents[index].has_flyer) {
+          const flyerFile = flyerFiles[index];
+          if (flyerFile) {
+            const flyerName = `flyers/${crypto.randomUUID()}-${flyerFile.name}`;
+            const { error: fErr } = await supabase.storage.from('event-images').upload(flyerName, flyerFile);
+            if (fErr) {
+              setErrors([buildError(
+                pendingEvents[index].sourceRow,
+                'Flyer',
+                `Error subiendo flyer de "${pendingEvents[index].name}": ${fErr.message}`,
+                []
+              )]);
+              return;
+            }
+            const { data: fData } = supabase.storage.from('event-images').getPublicUrl(flyerName);
+            flyerUrl = fData.publicUrl;
+          }
+        }
+
+        const { sourceRow, has_flyer, ...event } = pendingEvents[index];
+        events.push({ ...event, image_url: data.publicUrl, flyer_url: flyerUrl });
       }
 
       const response = await fetch('/api/admin-events', {
@@ -517,6 +571,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
       setSummary(`Se importaron ${events.length} eventos correctamente.`);
       setPendingEvents([]);
       setImageFiles({});
+      setFlyerFiles({});
       onEventsImported();
     } catch (error: any) {
       setErrors([buildError(
@@ -575,6 +630,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
               onClick={() => {
                 setPendingEvents([]);
                 setImageFiles({});
+                setFlyerFiles({});
               }}
               style={{ position: 'absolute', top: 16, right: 16, border: 'none', background: 'transparent', color: '#6B7280', cursor: 'pointer' }}
               aria-label="Cerrar"
@@ -619,6 +675,37 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                     ) : (
                       <span style={{ fontSize: 12, color: '#9CA3AF' }}>Ningún archivo seleccionado</span>
                     )}
+                    
+                    {event.has_flyer && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', borderLeft: '2px solid #E5E7EB', paddingLeft: 12, marginLeft: 4 }}>
+                        <input
+                          ref={(el) => { flyerInputRefs.current[index] = el; }}
+                          type="file"
+                          accept="image/*,.pdf"
+                          style={{ display: 'none' }}
+                          onChange={(inputEvent) => {
+                            const file = inputEvent.target.files?.[0] ?? null;
+                            setFlyerFiles((current) => ({ ...current, [index]: file }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => flyerInputRefs.current[index]?.click()}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 6, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#1A2E6C', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+                        >
+                          <FileSpreadsheet size={14} />
+                          {flyerFiles[index] ? 'Cambiar flyer' : 'Elegir flyer'}
+                        </button>
+                        {flyerFiles[index] ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#16A34A', fontWeight: 700 }}>
+                            <CheckCircle2 size={14} />
+                            {flyerFiles[index]!.name}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 12, color: '#E8401C' }}>Falta flyer</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -629,6 +716,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
                 onClick={() => {
                   setPendingEvents([]);
                   setImageFiles({});
+                  setFlyerFiles({});
                 }}
                 disabled={loading}
                 style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#4B5563', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}

@@ -7,6 +7,8 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [image, setImage] = useState<File | null>(null);
+  const [hasFlyer, setHasFlyer] = useState(false);
+  const [flyer, setFlyer] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,6 +65,25 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         .getPublicUrl(fileName);
 
       const imageUrl = data.publicUrl;
+      let flyerUrl = null;
+
+      if (hasFlyer && flyer) {
+        const flyerFileName = `flyers/${crypto.randomUUID()}-${flyer.name}`;
+        const { error: flyerUploadError } = await supabase.storage
+          .from('event-images')
+          .upload(flyerFileName, flyer);
+
+        if (flyerUploadError) {
+          throw flyerUploadError;
+        }
+
+        const { data: flyerData } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(flyerFileName);
+          
+        flyerUrl = flyerData.publicUrl;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -86,6 +107,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             spots_min: spotsMin,
             spots_max: spotsMax,
             image_url: imageUrl,
+            flyer_url: flyerUrl,
             user_id: user.id,
           }
         ]);
@@ -97,6 +119,8 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       alert('Evento creado correctamente.');
       (e.target as HTMLFormElement).reset();
       setImage(null);
+      setHasFlyer(false);
+      setFlyer(null);
       onEventAdded();
     } catch (submitError: any) {
       console.error('ERROR:', submitError);
@@ -176,7 +200,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen</label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen del evento *</label>
           <input
             type="file"
             accept="image/*"
@@ -185,6 +209,31 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
             required
           />
         </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#4B5563', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={hasFlyer}
+              onChange={(e) => setHasFlyer(e.target.checked)}
+              style={{ width: '16px', height: '16px', accentColor: '#E8401C' }} 
+            />
+            ¿Este evento tiene un flyer con más información?
+          </label>
+        </div>
+
+        {hasFlyer && (
+          <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Archivo de Flyer (PDF o Imagen) *</label>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => setFlyer(e.target.files ? e.target.files[0] : null)}
+              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
+              required={hasFlyer}
+            />
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Descripción</label>
