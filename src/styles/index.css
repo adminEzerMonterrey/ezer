@@ -1,3 +1,48 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+/* Custom Button Styles based on user request */
+.btn-slide {
+ padding: 10px 15px;
+ border: unset;
+ border-radius: 15px;
+ color: var(--btn-text, #212121);
+ z-index: 1;
+ background: var(--btn-bg, #e8e8e8);
+ position: relative;
+ font-weight: 800;
+ font-size: 14px;
+ -webkit-box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+ box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+ transition: all 250ms;
+ overflow: hidden;
+ text-decoration: none;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ cursor: pointer;
+}
+
+.btn-slide::before {
+ content: "";
+ position: absolute;
+ top: 0;
+ left: 0;
+ height: 100%;
+ width: 0;
+ border-radius: 15px;
+ background-color: var(--btn-hover-bg, #212121);
+ z-index: -1;
+ -webkit-box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+ box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+ transition: all 250ms;
+}
+
+.btn-slide:hover {
+ color: var(--btn-hover-text, #e8e8e8);
+}
+
+.btn-slide:hover::before {
+ width: 100%;
+}

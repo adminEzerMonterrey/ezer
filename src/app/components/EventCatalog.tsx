@@ -331,31 +331,15 @@ export function EventCatalog() {
                               href={event.flyer_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-1.5"
+                              className="btn-slide flex-1"
                               style={{
-                                color: "#1A2E6C",
-                                border: "1px solid #1A2E6C",
-                                borderRadius: 8,
-                                fontSize: 13,
-                                fontWeight: 700,
-                                padding: "8px 0",
-                                backgroundColor: "#FFFFFF",
-                                cursor: "pointer",
-                                transition: "all 0.2s",
-                                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                textDecoration: "none",
-                                boxShadow: "0 2px 4px rgba(26, 46, 108, 0.05)"
-                              }}
-                              onMouseEnter={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F8FAFC";
-                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 6px rgba(26, 46, 108, 0.1)";
-                              }}
-                              onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFFFFF";
-                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 2px 4px rgba(26, 46, 108, 0.05)";
-                              }}
+                                '--btn-bg': '#EBF5FF',
+                                '--btn-text': '#1E3A8A',
+                                '--btn-hover-bg': '#1E3A8A',
+                                '--btn-hover-text': '#FFFFFF',
+                              } as React.CSSProperties}
                             >
-                              <span style={{ fontSize: 16 }}>🖼️</span> Flyer
+                              Flyer
                             </a>
                           )}
                           {event.ficha_tecnica_url && (
@@ -363,31 +347,15 @@ export function EventCatalog() {
                               href={event.ficha_tecnica_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-1.5"
+                              className="btn-slide flex-1"
                               style={{
-                                color: "#1A2E6C",
-                                border: "1px solid #1A2E6C",
-                                borderRadius: 8,
-                                fontSize: 13,
-                                fontWeight: 700,
-                                padding: "8px 0",
-                                backgroundColor: "#FFFFFF",
-                                cursor: "pointer",
-                                transition: "all 0.2s",
-                                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                textDecoration: "none",
-                                boxShadow: "0 2px 4px rgba(26, 46, 108, 0.05)"
-                              }}
-                              onMouseEnter={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F8FAFC";
-                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 6px rgba(26, 46, 108, 0.1)";
-                              }}
-                              onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFFFFF";
-                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 2px 4px rgba(26, 46, 108, 0.05)";
-                              }}
+                                '--btn-bg': '#F3F4F6',
+                                '--btn-text': '#374151',
+                                '--btn-hover-bg': '#374151',
+                                '--btn-hover-text': '#FFFFFF',
+                              } as React.CSSProperties}
                             >
-                              <span style={{ fontSize: 16 }}>📄</span> Ficha
+                              Ficha Técnica
                             </a>
                           )}
                         </div>
@@ -395,31 +363,17 @@ export function EventCatalog() {
 
                       <button
                         onClick={() => setSelectedEventName(event.title)}
+                        className="btn-slide"
                         style={{
-                          color: "#FFFFFF",
-                          border: "none",
-                          borderRadius: 8,
-                          fontSize: 14,
-                          fontWeight: 700,
-                          padding: "10px",
-                          backgroundColor: "#E8401C",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          fontFamily: "'Plus Jakarta Sans', sans-serif",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 6,
                           width: "100%",
-                        }}
-                        onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#C83214";
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E8401C";
-                        }}
+                          marginTop: "8px",
+                          '--btn-bg': '#FEE2E2',
+                          '--btn-text': '#DC2626',
+                          '--btn-hover-bg': '#DC2626',
+                          '--btn-hover-text': '#FFFFFF',
+                        } as React.CSSProperties}
                       >
-                        Me interesa <ArrowRight size={15} />
+                        Me interesa
                       </button>
                     </div>
                   </div>
