@@ -169,10 +169,10 @@ export function EventCatalog() {
                   key={event.id}
                   style={{
                     backgroundColor: "#FFFFFF",
-                    borderRadius: 12,
+                    borderRadius: 16,
                     border: "1px solid #E5E7EB",
                     overflow: "hidden",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
                     transition: "transform 0.2s, box-shadow 0.2s",
                     display: "flex",
                     flexDirection: "column",
@@ -181,59 +181,90 @@ export function EventCatalog() {
                   className="group hover:-translate-y-1 hover:shadow-xl"
                   onClick={() => setDetailsEvent(event)}
                 >
-                  <div style={{ height: 4, backgroundColor: "#E8401C", flexShrink: 0 }} />
-
-                  <div
-                    style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0 }}
-                  >
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
-                      className="group-hover:scale-105"
-                    />
-                  </div>
-
-                  <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span
-                        style={{
-                          backgroundColor: "#FFF7ED",
-                          color: "#E8401C",
-                          borderRadius: 20,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: "3px 10px",
-                        }}
-                      >
+                  {/* Image with overlays */}
+                  <div style={{ position: "relative", height: 210, overflow: "hidden", flexShrink: 0 }}>
+                    {event.image ? (
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
+                        className="group-hover:scale-105"
+                      />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", backgroundColor: "#E5E7EB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ color: "#9CA3AF", fontSize: 40 }}>📸</span>
+                      </div>
+                    )}
+                    {/* Gradient overlay */}
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)" }} />
+                    {/* Number badge */}
+                    <div style={{ position: "absolute", top: 12, left: 12, width: 32, height: 32, borderRadius: "50%", backgroundColor: "#E8401C", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
+                      <span style={{ color: "#FFFFFF", fontWeight: 800, fontSize: 13 }}>{index + 1}</span>
+                    </div>
+                    {/* Annual badge */}
+                    {event.isAnnual && (
+                      <div style={{ position: "absolute", top: 12, right: 12, backgroundColor: "#FEF3C7", color: "#D97706", fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20 }}>
+                        ⭐ Anual
+                      </div>
+                    )}
+                    {/* Category badge on image bottom */}
+                    <div style={{ position: "absolute", bottom: 12, left: 12 }}>
+                      <span style={{ backgroundColor: "#E8401C", color: "#FFFFFF", borderRadius: 20, fontSize: 11, fontWeight: 700, padding: "4px 10px" }}>
                         {event.category}
                       </span>
                     </div>
+                  </div>
 
-                    <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 16, lineHeight: 1.3, marginBottom: 6 }}>
-                      {index + 1}. {event.title}
-                      {event.isAnnual && (
-                        <span style={{ marginLeft: 8, backgroundColor: "#FEF3C7", color: "#D97706", fontSize: 11, padding: "2px 6px", borderRadius: 12, verticalAlign: "middle", display: "inline-block" }}>
-                          ⭐ Anual
-                        </span>
-                      )}
+                  {/* Content */}
+                  <div style={{ padding: "18px 18px 0", display: "flex", flexDirection: "column", flex: 1 }}>
+                    <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 16, lineHeight: 1.35, marginBottom: 8 }}>
+                      {event.title}
                     </h3>
 
-                    <div className="flex-1 mb-3">
-                      <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, margin: 0 }} className="line-clamp-3">
-                        {event.description}
-                      </p>
-                    </div>
+                    <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6, margin: "0 0 12px" }} className="line-clamp-2">
+                      {event.description}
+                    </p>
 
-                    <div className="flex flex-col gap-3 mt-auto pt-4" style={{ borderTop: "1px solid #F3F4F6" }}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <Users size={13} style={{ color: "#9CA3AF" }} />
-                          <span style={{ color: "#6B7280", fontSize: 12, fontWeight: 600 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
-                        </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
+                      <Users size={13} style={{ color: "#9CA3AF", flexShrink: 0 }} />
+                      <span style={{ color: "#9CA3AF", fontSize: 12, fontWeight: 600 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div style={{ padding: "0 18px 18px", display: "flex", flexDirection: "column", gap: 8, marginTop: "auto" }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedEventName(event.title); setCourseInterest(false); }}
+                      style={{ width: "100%", padding: "11px", backgroundColor: "#E8401C", color: "#FFFFFF", borderRadius: 10, fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer", transition: "opacity 0.15s" }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                    >
+                      Me interesa
+                    </button>
+                    {(event.flyer_url || event.sensibilization_course_url) && (
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {event.flyer_url && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setFlyerEvent(event); }}
+                            style={{ flex: 1, padding: "9px 8px", backgroundColor: "#EBF5FF", color: "#1E3A8A", borderRadius: 10, fontWeight: 700, fontSize: 13, border: "1.5px solid #BFDBFE", cursor: "pointer", transition: "background 0.15s" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#DBEAFE")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#EBF5FF")}
+                          >
+                            Flyer
+                          </button>
+                        )}
+                        {event.sensibilization_course_url && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setCourseEvent(event); }}
+                            style={{ flex: 1, padding: "9px 8px", backgroundColor: "#F0FDF4", color: "#15803D", borderRadius: 10, fontWeight: 700, fontSize: 13, border: "1.5px solid #BBF7D0", cursor: "pointer", transition: "background 0.15s" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#DCFCE7")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#F0FDF4")}
+                          >
+                            Curso
+                          </button>
+                        )}
                       </div>
-
-                    </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -858,86 +889,86 @@ function FilterSelect({
 
 function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose: () => void, onAction: (type: string) => void }) {
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
-    }} onClick={onClose}>
-      <div style={{
-        backgroundColor: '#FFFFFF', borderRadius: '16px', maxWidth: '700px', width: '100%',
-        overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-      }} onClick={e => e.stopPropagation()}>
-        <div style={{ position: 'relative' }}>
-           <button 
-             onClick={onClose} 
-             style={{ 
-               position: 'absolute', top: 16, right: 16, zIndex: 10, 
-               background: 'rgba(255, 255, 255, 0.9)', border: 'none', borderRadius: '50%', 
-               padding: 8, cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-               display: 'flex', alignItems: 'center', justifyContent: 'center'
-             }}
-           >
-             <X size={20} style={{ color: '#4B5563' }} />
-           </button>
-           <img src={event.image} alt={event.title} style={{ width: '100%', height: '280px', objectFit: 'cover' }} />
+    <div
+      style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+      onClick={onClose}
+    >
+      <div
+        style={{ backgroundColor: '#FFFFFF', borderRadius: 20, maxWidth: 680, width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '92vh', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.4)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Image header */}
+        <div style={{ position: 'relative', height: 260, flexShrink: 0, overflow: 'hidden' }}>
+          {event.image ? (
+            <img src={event.image} alt={event.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', backgroundColor: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 56, color: '#9CA3AF' }}>📸</span>
+            </div>
+          )}
+          {/* Dark gradient */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 50%)' }} />
+          {/* Close */}
+          <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
+            <X size={18} style={{ color: '#FFFFFF' }} />
+          </button>
+          {/* Category + annual on image */}
+          <div style={{ position: 'absolute', bottom: 16, left: 20, display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ backgroundColor: '#E8401C', color: '#FFFFFF', borderRadius: 20, fontSize: 12, fontWeight: 700, padding: '4px 12px' }}>{event.category}</span>
+            {event.isAnnual && <span style={{ backgroundColor: '#FEF3C7', color: '#D97706', fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 20 }}>⭐ Anual</span>}
+          </div>
         </div>
-        
-        <div style={{ padding: '32px', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <span style={{ backgroundColor: "#FFF7ED", color: "#E8401C", borderRadius: 20, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>
-              {event.category}
-            </span>
-            {event.isAnnual && (
-              <span style={{ backgroundColor: "#FEF3C7", color: "#D97706", fontSize: 12, padding: "4px 12px", borderRadius: 20, fontWeight: 600 }}>
-                ⭐ Anual
-              </span>
-            )}
+
+        {/* Body */}
+        <div style={{ padding: '28px 28px 0', overflowY: 'auto', flex: 1 }}>
+          <h3 style={{ fontSize: 24, fontWeight: 800, color: '#1A2E6C', marginBottom: 8, lineHeight: 1.25 }}>{event.title}</h3>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 18 }}>
+            <Users size={14} style={{ color: '#9CA3AF' }} />
+            <span style={{ color: '#6B7280', fontSize: 13, fontWeight: 600 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
           </div>
 
-          <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px', lineHeight: 1.2 }}>
-            {event.title}
-          </h3>
-          
-          <p style={{ color: '#4B5563', fontSize: '15px', marginBottom: '24px', whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
-            {event.description}
-          </p>
-          
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '32px', borderTop: '1px solid #E5E7EB', paddingTop: '24px' }}>
-             <button 
-               onClick={() => onAction('interest')} 
-               style={{ flex: 1, padding: '14px', backgroundColor: '#E8401C', color: 'white', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', minWidth: '180px', transition: 'transform 0.1s' }}
-               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-             >
-               Me interesa
-             </button>
-             
-             {event.flyer_url && (
-               <button 
-                 onClick={() => onAction('flyer')} 
-                 style={{ flex: 1, padding: '14px', backgroundColor: '#EBF5FF', color: '#1E3A8A', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', minWidth: '180px', transition: 'transform 0.1s' }}
-                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-               >
-                 Ver Flyer
-               </button>
-             )}
-             
-             {event.sensibilization_course_url && (
-               <button 
-                 onClick={() => onAction('curso')} 
-                 style={{ flex: 1, padding: '14px', backgroundColor: '#FEFCE8', color: '#B45309', borderRadius: '12px', fontWeight: 700, border: '1px solid #FEF08A', cursor: 'pointer', minWidth: '220px', transition: 'transform 0.1s' }}
-                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-               >
-                 Curso de sensibilización
-               </button>
-             )}
-          </div>
+          <p style={{ color: '#4B5563', fontSize: 14, lineHeight: 1.75, margin: 0, whiteSpace: 'pre-wrap' }}>{event.description}</p>
+        </div>
+
+        {/* Actions */}
+        <div style={{ padding: '24px 28px 28px', display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
+          <button
+            onClick={() => onAction('interest')}
+            style={{ width: '100%', padding: '14px', backgroundColor: '#E8401C', color: '#FFFFFF', borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', transition: 'opacity 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            Me interesa
+          </button>
+
+          {(event.flyer_url || event.sensibilization_course_url) && (
+            <div style={{ display: 'flex', gap: 10 }}>
+              {event.flyer_url && (
+                <button
+                  onClick={() => onAction('flyer')}
+                  style={{ flex: 1, padding: '13px', backgroundColor: '#EBF5FF', color: '#1E3A8A', borderRadius: 12, fontWeight: 700, fontSize: 14, border: '1.5px solid #BFDBFE', cursor: 'pointer', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#DBEAFE')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#EBF5FF')}
+                >
+                  Ver Flyer
+                </button>
+              )}
+              {event.sensibilization_course_url && (
+                <button
+                  onClick={() => onAction('curso')}
+                  style={{ flex: 1, padding: '13px', backgroundColor: '#F0FDF4', color: '#15803D', borderRadius: 12, fontWeight: 700, fontSize: 14, border: '1.5px solid #BBF7D0', cursor: 'pointer', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#DCFCE7')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#F0FDF4')}
+                >
+                  Curso de sensibilización
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
