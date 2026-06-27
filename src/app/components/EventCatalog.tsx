@@ -233,48 +233,6 @@ export function EventCatalog() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setSelectedEventName(event.title); setCourseInterest(false); }}
-                          className="btn-slide flex-1"
-                          style={{
-                            '--btn-bg': '#FEE2E2',
-                            '--btn-text': '#DC2626',
-                            '--btn-hover-bg': '#DC2626',
-                            '--btn-hover-text': '#FFFFFF',
-                          } as React.CSSProperties}
-                        >
-                          Me interesa
-                        </button>
-                        {event.flyer_url && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setFlyerEvent(event); }}
-                            className="btn-slide flex-1"
-                            style={{
-                              '--btn-bg': '#EBF5FF',
-                              '--btn-text': '#1E3A8A',
-                              '--btn-hover-bg': '#1E3A8A',
-                              '--btn-hover-text': '#FFFFFF',
-                            } as React.CSSProperties}
-                          >
-                            Flyer
-                          </button>
-                        )}
-                        {event.sensibilization_course_url && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setCourseEvent(event); }}
-                            className="btn-slide flex-1"
-                            style={{
-                              '--btn-bg': '#F0FDF4',
-                              '--btn-text': '#15803D',
-                              '--btn-hover-bg': '#15803D',
-                              '--btn-hover-text': '#FFFFFF',
-                            } as React.CSSProperties}
-                          >
-                            Curso
-                          </button>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -314,8 +272,12 @@ export function EventCatalog() {
             } else if (type === 'flyer' && detailsEvent.flyer_url) {
               setFlyerEvent(detailsEvent);
             } else if (type === 'curso') {
-              setCourseInterest(true);
-              setSelectedEventName(detailsEvent.title);
+              if (detailsEvent.sensibilization_course_url) {
+                setCourseEvent(detailsEvent);
+              } else {
+                setCourseInterest(true);
+                setSelectedEventName(detailsEvent.title);
+              }
             }
           }}
         />
@@ -962,14 +924,16 @@ function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose
                </button>
              )}
              
-             <button 
-               onClick={() => onAction('curso')} 
-               style={{ flex: 1, padding: '14px', backgroundColor: '#FEFCE8', color: '#B45309', borderRadius: '12px', fontWeight: 700, border: '1px solid #FEF08A', cursor: 'pointer', minWidth: '220px', transition: 'transform 0.1s' }}
-               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-             >
-               Curso de sensibilización
-             </button>
+             {event.sensibilization_course_url && (
+               <button 
+                 onClick={() => onAction('curso')} 
+                 style={{ flex: 1, padding: '14px', backgroundColor: '#FEFCE8', color: '#B45309', borderRadius: '12px', fontWeight: 700, border: '1px solid #FEF08A', cursor: 'pointer', minWidth: '220px', transition: 'transform 0.1s' }}
+                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+               >
+                 Curso de sensibilización
+               </button>
+             )}
           </div>
         </div>
       </div>
