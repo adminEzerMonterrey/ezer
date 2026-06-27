@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users, ArrowRight, Filter, ChevronDown, X } from "lucide-react";
+import { Users, ArrowRight, Filter, ChevronDown, X, Heart, FileText, BookOpen } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 import { EVENT_CATEGORY_FILTERS } from "../eventCategories";
 import { formatSpotsRange } from "../eventSpots";
@@ -151,10 +151,13 @@ export function EventCatalog() {
             <p style={{ color: "#6B7280", fontSize: 14, margin: 0 }}>
               Mostrando <strong style={{ color: "#1A2E6C" }}>{filtered.length}</strong> evento{filtered.length !== 1 ? "s" : ""}
             </p>
+          </div>
+
+          <div className="text-center mb-8">
             <button
               onClick={() => setRequestOpen(true)}
-              style={{ color: "#E8401C", fontWeight: 700, fontSize: 13, background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
-              className="hover:underline"
+              style={{ color: "#E8401C", fontWeight: 800, fontSize: 17, background: "none", border: "none", cursor: "pointer", transition: "transform 0.2s" }}
+              className="hover:underline hover:scale-105"
             >
               ¿No encuentras evento en tu municipio? Escríbenos →
             </button>
@@ -235,10 +238,11 @@ export function EventCatalog() {
                   <div style={{ padding: "0 18px 18px", display: "flex", flexDirection: "column", gap: 8, marginTop: "auto" }}>
                     <button
                       onClick={(e) => { e.stopPropagation(); setSelectedEventName(event.title); setCourseInterest(false); }}
-                      style={{ width: "100%", padding: "11px", backgroundColor: "#E8401C", color: "#FFFFFF", borderRadius: 10, fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer", transition: "opacity 0.15s" }}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                      style={{ width: "100%", padding: "11px 16px", background: "linear-gradient(135deg, #E8401C 0%, #C53010 100%)", color: "#FFFFFF", borderRadius: 10, fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer", transition: "transform 0.18s ease, box-shadow 0.18s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 20px rgba(232,64,28,0.4)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                     >
+                      <Heart size={14} />
                       Me interesa
                     </button>
                     {(event.flyer_url || event.sensibilization_course_url) && (
@@ -246,20 +250,22 @@ export function EventCatalog() {
                         {event.flyer_url && (
                           <button
                             onClick={(e) => { e.stopPropagation(); setFlyerEvent(event); }}
-                            style={{ flex: 1, padding: "9px 8px", backgroundColor: "#EBF5FF", color: "#1E3A8A", borderRadius: 10, fontWeight: 700, fontSize: 13, border: "1.5px solid #BFDBFE", cursor: "pointer", transition: "background 0.15s" }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#DBEAFE")}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#EBF5FF")}
+                            style={{ flex: 1, padding: "9px 8px", backgroundColor: "transparent", color: "#1E3A8A", borderRadius: 10, fontWeight: 700, fontSize: 13, border: "1.5px solid #BFDBFE", cursor: "pointer", transition: "all 0.18s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#1E3A8A"; e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(30,58,138,0.3)"; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#1E3A8A"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                           >
+                            <FileText size={13} />
                             Flyer
                           </button>
                         )}
                         {event.sensibilization_course_url && (
                           <button
                             onClick={(e) => { e.stopPropagation(); setCourseEvent(event); }}
-                            style={{ flex: 1, padding: "9px 8px", backgroundColor: "#F0FDF4", color: "#15803D", borderRadius: 10, fontWeight: 700, fontSize: 13, border: "1.5px solid #BBF7D0", cursor: "pointer", transition: "background 0.15s" }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#DCFCE7")}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#F0FDF4")}
+                            style={{ flex: 1, padding: "9px 8px", backgroundColor: "transparent", color: "#15803D", borderRadius: 10, fontWeight: 700, fontSize: 13, border: "1.5px solid #BBF7D0", cursor: "pointer", transition: "all 0.18s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#15803D"; e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(21,128,61,0.3)"; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#15803D"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                           >
+                            <BookOpen size={13} />
                             Curso
                           </button>
                         )}
@@ -932,13 +938,14 @@ function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose
         </div>
 
         {/* Actions */}
-        <div style={{ padding: '24px 28px 28px', display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
+        <div style={{ padding: '20px 28px 28px', display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
           <button
             onClick={() => onAction('interest')}
-            style={{ width: '100%', padding: '14px', backgroundColor: '#E8401C', color: '#FFFFFF', borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', transition: 'opacity 0.15s' }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            style={{ width: '100%', padding: '14px 20px', background: 'linear-gradient(135deg, #E8401C 0%, #C53010 100%)', color: '#FFFFFF', borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', transition: 'transform 0.18s ease, box-shadow 0.18s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 24px rgba(232,64,28,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
           >
+            <Heart size={16} />
             Me interesa
           </button>
 
@@ -947,20 +954,22 @@ function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose
               {event.flyer_url && (
                 <button
                   onClick={() => onAction('flyer')}
-                  style={{ flex: 1, padding: '13px', backgroundColor: '#EBF5FF', color: '#1E3A8A', borderRadius: 12, fontWeight: 700, fontSize: 14, border: '1.5px solid #BFDBFE', cursor: 'pointer', transition: 'background 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#DBEAFE')}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#EBF5FF')}
+                  style={{ flex: 1, padding: '13px 16px', backgroundColor: 'transparent', color: '#1E3A8A', borderRadius: 12, fontWeight: 700, fontSize: 14, border: '1.5px solid #BFDBFE', cursor: 'pointer', transition: 'all 0.18s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#1E3A8A'; e.currentTarget.style.color = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(30,58,138,0.3)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#1E3A8A'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
+                  <FileText size={15} />
                   Ver Flyer
                 </button>
               )}
               {event.sensibilization_course_url && (
                 <button
                   onClick={() => onAction('curso')}
-                  style={{ flex: 1, padding: '13px', backgroundColor: '#F0FDF4', color: '#15803D', borderRadius: 12, fontWeight: 700, fontSize: 14, border: '1.5px solid #BBF7D0', cursor: 'pointer', transition: 'background 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#DCFCE7')}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#F0FDF4')}
+                  style={{ flex: 1, padding: '13px 16px', backgroundColor: 'transparent', color: '#15803D', borderRadius: 12, fontWeight: 700, fontSize: 14, border: '1.5px solid #BBF7D0', cursor: 'pointer', transition: 'all 0.18s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#15803D'; e.currentTarget.style.color = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(21,128,61,0.3)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#15803D'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
+                  <BookOpen size={15} />
                   Curso de sensibilización
                 </button>
               )}
