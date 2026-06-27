@@ -20,6 +20,8 @@ const ALLOWED_EVENT_FIELDS = [
   'is_annual',
   'coordinador',
   'municipio',
+  'asociacion',
+  'asociacion_municipio',
 ];
 
 const getSupabaseConfig = () => {

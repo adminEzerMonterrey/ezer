@@ -35,6 +35,8 @@ type EventImportDraft = {
   has_ficha_tecnica: boolean;
   spots_min: number;
   spots_max: number;
+  asociacion: string;
+  asociacion_municipio: string;
 };
 
 const TEMPLATE_COLUMNS = [
@@ -50,6 +52,8 @@ const TEMPLATE_COLUMNS = [
   'Tiene flyer',
   'Tiene ficha tecnica',
   'Descripcion',
+  'Asociacion',
+  'Municipio de la asociacion',
 ];
 
 const EXAMPLE_ROW = [
@@ -65,6 +69,8 @@ const EXAMPLE_ROW = [
   'No',
   'No',
   'Describe el evento con claridad.',
+  'Asociación Civil Ejemplo (opcional)',
+  'Monterrey',
 ];
 
 const normalizeText = (value: unknown) => String(value ?? '').trim();
@@ -231,6 +237,8 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         const hasFlyer = parseBoolean(row['Tiene flyer']);
         const hasFichaTecnica = parseBoolean(row['Tiene ficha tecnica']);
         const description = normalizeText(row['Descripcion']);
+        const asociacion = normalizeText(row['Asociacion']);
+        const asociacionMunicipio = resolveMunicipio(row['Municipio de la asociacion']);
 
         if (!title) {
           validationErrors.push(buildError(
@@ -417,6 +425,8 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           has_ficha_tecnica: hasFichaTecnica === true,
           spots_min: spotsMin ?? 0,
           spots_max: spotsMax ?? 0,
+          asociacion,
+          asociacion_municipio: asociacionMunicipio,
         };
       });
 

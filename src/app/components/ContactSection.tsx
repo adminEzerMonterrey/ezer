@@ -38,8 +38,8 @@ export function ContactSection() {
             </div>
             <h3 style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 22, marginBottom: 12 }}>Teléfono</h3>
             <p style={{ color: "#6B7280", fontSize: 15, marginBottom: 16 }}>Llámanos directamente para recibir atención personalizada de nuestro equipo.</p>
-            <a href="tel:+528181512400" style={{ color: "#E8401C", fontWeight: 800, fontSize: 24, textDecoration: "none" }} className="hover:underline">
-              +52 (81) 8151 2400
+            <a href="tel:+528112572544" style={{ color: "#E8401C", fontWeight: 800, fontSize: 24, textDecoration: "none" }} className="hover:underline">
+              +52 81 1257 2544
             </a>
           </div>
 

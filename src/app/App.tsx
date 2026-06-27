@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { ImpactStats } from "./components/ImpactStats";
-import { Partners } from "./components/Partners";
 import { EventCatalog } from "./components/EventCatalog";
 import { HowItWorks } from "./components/HowItWorks";
 import { CollaborationForm } from "./components/CollaborationForm";
@@ -39,7 +38,6 @@ function HomePage() {
     <AppShell>
       <Hero />
       <ImpactStats />
-      <Partners />
     </AppShell>
   );
 }

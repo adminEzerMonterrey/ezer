@@ -1,8 +1,7 @@
 export const navItems = [
-  { label: "Inicio", path: "/" },
-  { label: "Asociaciones", path: "/registro" },
-  { label: "Empresas", path: "/empresas" },
-  { label: "Catálogo de Eventos", path: "/catalogo-eventos" },
+  { label: "Quiénes Somos", path: "/" },
+  { label: "Registro", path: "/empresas" },
+  { label: "¿Cómo funciona?", path: "/catalogo-eventos" },
   { label: "Contáctanos", path: "/contactanos" },
 ] as const;
 

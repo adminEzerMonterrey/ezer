@@ -37,6 +37,7 @@ export function Admin() {
 
   // Tabs state
   const [activeTab, setActiveTab] = useState<'eventos' | 'aliados' | 'estadisticas' | 'configuracion'>('eventos');
+  const [showManualForm, setShowManualForm] = useState(false);
 
   // Hero stats state
   const [heroStats, setHeroStats] = useState({
@@ -770,12 +771,32 @@ export function Admin() {
             </div>
           ) : activeTab === 'eventos' ? (
             <>
-              <AddEventForm onEventAdded={loadEvents} />
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', margin: 0 }}>Eventos Actuales</h3>
+              <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '24px', marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
+                  <h3 style={{ color: '#1A2E6C', fontSize: 20, fontWeight: 800, margin: 0 }}>📤 Importar eventos desde Excel</h3>
+                  <span style={{ backgroundColor: '#1A2E6C', color: '#FFFFFF', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>Recomendado</span>
+                </div>
+                <p style={{ color: '#3730A3', fontSize: 14, lineHeight: 1.6, margin: '0 0 16px', maxWidth: 620 }}>
+                  La forma más rápida de cargar eventos: descarga la plantilla, llénala y súbela. Puedes registrar muchos eventos a la vez.
+                </p>
                 <ImportEventsButton onEventsImported={loadEvents} />
               </div>
+
+              <div style={{ marginBottom: 28 }}>
+                <button
+                  onClick={() => setShowManualForm((s) => !s)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, border: '1px solid #D1D5DB', backgroundColor: showManualForm ? '#EEF2FF' : '#FFFFFF', color: '#1A2E6C', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
+                >
+                  {showManualForm ? '− Ocultar formulario manual' : '+ Crear un evento manualmente'}
+                </button>
+                {showManualForm && (
+                  <div style={{ marginTop: 16 }}>
+                    <AddEventForm onEventAdded={loadEvents} />
+                  </div>
+                )}
+              </div>
+
+              <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A2E6C', marginBottom: '16px' }}>Eventos Actuales</h3>
               {eventsError && (
                 <div style={{ padding: '12px 16px', marginBottom: '16px', borderRadius: '8px', border: '1px solid #FCA5A5', backgroundColor: '#FEF2F2', color: '#B91C1C', fontSize: '14px' }}>
                   {eventsError}
@@ -793,8 +814,10 @@ export function Admin() {
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Fecha</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Municipio</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Coordinador</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Asociación</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Espacios</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Imagen</th>
+                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Docs</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
                       </tr>
                     </thead>
@@ -805,6 +828,14 @@ export function Admin() {
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date || event.event_date}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.municipio || 'Monterrey'}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px', fontWeight: 600 }}>{event.coordinador || <span style={{ color: '#9CA3AF', fontWeight: 'normal' }}>No asignado</span>}</td>
+                          <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>
+                            {event.asociacion ? (
+                              <div>
+                                <div style={{ fontWeight: 600 }}>{event.asociacion}</div>
+                                {event.asociacion_municipio && <div style={{ fontSize: '12px', color: '#9CA3AF' }}>{event.asociacion_municipio}</div>}
+                              </div>
+                            ) : <span style={{ color: '#9CA3AF' }}>—</span>}
+                          </td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>
                             {formatSpotsRange(event.spots_min ?? event.spots ?? 0, event.spots_max ?? event.spots ?? 0)}
                           </td>
@@ -820,6 +851,16 @@ export function Admin() {
                                 Sin imagen
                               </div>
                             )}
+                          </td>
+                          <td style={{ padding: '16px', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                              {event.flyer_url ? (
+                                <a href={event.flyer_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#3B82F6', textDecoration: 'underline' }}>Flyer</a>
+                              ) : <span style={{ fontSize: '12px', color: '#9CA3AF' }}>-</span>}
+                              {event.ficha_tecnica_url ? (
+                                <a href={event.ficha_tecnica_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#3B82F6', textDecoration: 'underline' }}>Ficha</a>
+                              ) : <span style={{ fontSize: '12px', color: '#9CA3AF' }}>-</span>}
+                            </div>
                           </td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
                             <button
@@ -844,7 +885,7 @@ export function Admin() {
                       ))}
                       {events.length === 0 && (
                         <tr>
-                          <td colSpan={7} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
+                          <td colSpan={9} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
                             No hay eventos registrados en la base de datos.
                           </td>
                         </tr>

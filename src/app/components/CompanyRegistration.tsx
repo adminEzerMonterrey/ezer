@@ -1,22 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
+import { NUEVO_LEON_MUNICIPALITIES } from "../municipalities";
 
 export function CompanyRegistration() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [projects, setProjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('name')
+          .order('name', { ascending: true });
+
+        if (!error && data) {
+          const uniqueNames = Array.from(new Set(data.map((e: any) => e.name).filter(Boolean)));
+          setProjects(uniqueNames as string[]);
+        }
+      } catch (e) {
+        console.error('Error fetching projects:', e);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('loading');
 
     const formData = new FormData(e.currentTarget);
+    const selectedProjects = formData.getAll('projects') as string[];
+    const municipio = (formData.get('municipio') as string) || '';
+    const baseDescription = (formData.get('description') as string) || '';
+
+    const projectsLabel = selectedProjects.length > 0 ? selectedProjects.join(', ') : 'No especificado';
+    const eventName = selectedProjects.length > 0
+      ? `Registro — ${selectedProjects.join(', ')}`
+      : 'Registro general';
+    const description = `${baseDescription}\n\nMunicipio: ${municipio || 'No especificado'}\nProyectos de interés: ${projectsLabel}`;
+
     const data = {
       name: formData.get('name'),
       phone: formData.get('phone'),
       company: formData.get('company'),
       email: formData.get('email'),
-      description: formData.get('description'),
+      description,
       wantsTraining: formData.get('wants_training') === 'on',
-      eventName: 'Registro General de Empresas'
+      eventName,
     };
 
     try {
@@ -57,10 +88,10 @@ export function CompanyRegistration() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2 }}>
-            Registro para Empresas
+            Registro
           </h2>
           <p style={{ color: "#6B7280", marginTop: 12 }} className="mx-auto text-base">
-            Únete como empresa y participa en voluntariados corporativos. Completa los datos y nos pondremos en contacto.
+            Regístrate, elige los proyectos que te interesan y tu municipio. Nos pondremos en contacto contigo.
           </p>
         </div>
 
@@ -89,8 +120,8 @@ export function CompanyRegistration() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Nombre de la Empresa *</label>
-                <input required name="company" type="text" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px' }} placeholder="Tu empresa" />
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Empresa / Grupo / Organización</label>
+                <input name="company" type="text" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px' }} placeholder="Nombre de tu empresa, grupo u organización (opcional)" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -106,8 +137,51 @@ export function CompanyRegistration() {
               </div>
 
               <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Municipio *</label>
+                <select required name="municipio" defaultValue="" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px', backgroundColor: 'white' }}>
+                  <option value="" disabled>Selecciona tu municipio</option>
+                  {NUEVO_LEON_MUNICIPALITIES.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Proyectos de interés (puedes elegir varios)</label>
+                {projects.length > 0 ? (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                    gap: '8px',
+                    maxHeight: '220px',
+                    overflowY: 'auto',
+                    padding: '14px',
+                    borderRadius: '8px',
+                    border: '1px solid #D1D5DB',
+                    backgroundColor: 'white'
+                  }}>
+                    {projects.map((project) => (
+                      <label key={project} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', cursor: 'pointer', color: '#374151' }}>
+                        <input
+                          type="checkbox"
+                          name="projects"
+                          value={project}
+                          style={{ width: '16px', height: '16px', accentColor: '#E8401C', flexShrink: 0 }}
+                        />
+                        {project}
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ color: '#9CA3AF', fontSize: '14px', padding: '12px 14px', border: '1px dashed #D1D5DB', borderRadius: '8px', backgroundColor: 'white' }}>
+                    Por ahora no hay proyectos disponibles. Puedes contarnos tu interés en el siguiente campo.
+                  </p>
+                )}
+              </div>
+
+              <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Descripción / Comentarios *</label>
-                <textarea required name="description" rows={4} style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical', fontSize: '15px' }} placeholder="Cuenta por qué te interesa participar..."></textarea>
+                <textarea required name="description" rows={4} style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical', fontSize: '15px' }} placeholder="Cuéntanos por qué te interesa participar..."></textarea>
               </div>
 
               <label
@@ -132,7 +206,7 @@ export function CompanyRegistration() {
                   type="checkbox"
                   style={{ width: '18px', height: '18px', accentColor: '#E8401C', cursor: 'pointer' }}
                 />
-                ¿Quieres capacitación para tu empresa?
+                ¿Quieres capacitación?
               </label>
 
               {status === 'error' && <p style={{ color: '#E8401C', fontSize: '14px', fontWeight: 500 }}>Hubo un error al enviar tu solicitud. Por favor intenta de nuevo.</p>}
@@ -156,7 +230,7 @@ export function CompanyRegistration() {
                 onMouseEnter={(e) => !status && (e.currentTarget.style.backgroundColor = '#C73212')}
                 onMouseLeave={(e) => !status && (e.currentTarget.style.backgroundColor = '#E8401C')}
               >
-                {status === 'loading' ? 'Enviando...' : 'Enviar Solicitud de Empresa'}
+                {status === 'loading' ? 'Enviando...' : 'Enviar Registro'}
               </button>
             </form>
           )}

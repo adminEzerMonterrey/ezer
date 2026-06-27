@@ -18,80 +18,25 @@ interface Event {
   description: string;
   image: string;
   spotsMin: number;
+  spotsMax: number;
   cost: string | number;
   isAnnual: boolean;
   flyer_url?: string;
   ficha_tecnica_url?: string;
 }
 
-const DATE_FILTERS = ["Todos", "Próximos 3 meses", "Próximos 6 meses", "Permanente"];
-
-const parseLocalDate = (dateValue: string | null | undefined) => {
-  if (!dateValue) return null;
-
-  const match = dateValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) {
-    const [, year, month, day] = match;
-    return new Date(Number(year), Number(month) - 1, Number(day));
-  }
-
-  const parsedDate = new Date(dateValue);
-  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
-};
-
-const getCurrentMonthRange = (monthsAhead: number) => {
-  const today = new Date();
-  const start = new Date(today.getFullYear(), today.getMonth(), 1);
-  const end = new Date(today.getFullYear(), today.getMonth() + monthsAhead, 1);
-
-  return { start, end };
-};
-
-const isPermanentEvent = (event: Event) => {
-  const normalizedDate = event.date?.toString().trim().toLowerCase();
-  return !normalizedDate || normalizedDate.includes("permanente");
-};
-
-const isEventInNextMonths = (event: Event, monthsAhead: number) => {
-  const eventDate = parseLocalDate(event.date);
-  if (!eventDate) return false;
-
-  const eventMonth = new Date(eventDate.getFullYear(), eventDate.getMonth(), 1);
-  const { start, end } = getCurrentMonthRange(monthsAhead);
-
-  return eventMonth >= start && eventMonth < end;
-};
-
-const formatCost = (costValue: string | number | null | undefined) => {
-  if (costValue == null || costValue === '') return "Gratuito";
-  const strCost = costValue.toString();
-
-  if (strCost.toLowerCase().includes('grat')) {
-    return strCost;
-  }
-
-  const cleanStr = strCost.replace(/\$/g, '').replace(/,/g, '').trim();
-  const numericValue = parseFloat(cleanStr);
-
-  if (!isNaN(numericValue)) {
-    return `$${numericValue.toLocaleString('en-US')}`;
-  }
-
-  return strCost.includes('$') ? strCost : `$${strCost}`;
-};
-
 export function EventCatalog() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("Todos");
-  const [dateFilter, setDateFilter] = useState("Todos");
   const [municipality, setMunicipality] = useState("Todos");
 
   const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
-  const [dates] = useState<string[]>(DATE_FILTERS);
-  const [municipalities] = useState<string[]>(["Todos", ...NUEVO_LEON_MUNICIPALITIES]);
+  const [municipalities, setMunicipalities] = useState<string[]>(["Todos"]);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
   const [fullDescEvent, setFullDescEvent] = useState<Event | null>(null);
+  const [flyerEvent, setFlyerEvent] = useState<Event | null>(null);
+  const [requestOpen, setRequestOpen] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -137,6 +82,10 @@ export function EventCatalog() {
         const dbCats = Array.from(new Set(formattedEvents.map(e => e.category)));
         const allCats = Array.from(new Set([...EVENT_CATEGORY_FILTERS, ...dbCats]));
         setCategories(allCats);
+
+        const dbMuns = Array.from(new Set(formattedEvents.flatMap((e: any) => e.municipio ? e.municipio.split(',').map((m: string) => m.trim()) : [])));
+        const allMuns = Array.from(new Set(["Todos", ...dbMuns]));
+        setMunicipalities(allMuns);
       } catch (fetchError) {
         console.error('Cant load events', fetchError);
       } finally {
@@ -152,13 +101,7 @@ export function EventCatalog() {
     const eventMunicipios = e.municipio ? e.municipio.split(',').map(m => m.trim()) : [];
     const municipalityOk = municipality === "Todos" || eventMunicipios.includes(municipality);
 
-    const dateOk =
-      dateFilter === "Todos" ||
-      (dateFilter === "Próximos 3 meses" && isEventInNextMonths(e, 3)) ||
-      (dateFilter === "Próximos 6 meses" && isEventInNextMonths(e, 6)) ||
-      (dateFilter === "Permanente" && (isPermanentEvent(e) || e.isAnnual));
-
-    return catOk && municipalityOk && dateOk;
+    return catOk && municipalityOk;
   });
 
   return (
@@ -190,10 +133,9 @@ export function EventCatalog() {
             </div>
             <FilterSelect label="Sector beneficiado" value={category} options={categories} onChange={setCategory} />
             <FilterSelect label="Municipio" value={municipality} options={municipalities} onChange={setMunicipality} />
-            <FilterSelect label="Cierre de convocatoria" value={dateFilter} options={dates} onChange={setDateFilter} />
-            {(category !== "Todos" || municipality !== "Todos" || dateFilter !== "Todos") && (
+            {(category !== "Todos" || municipality !== "Todos") && (
               <button
-                onClick={() => { setCategory("Todos"); setMunicipality("Todos"); setDateFilter("Todos"); }}
+                onClick={() => { setCategory("Todos"); setMunicipality("Todos"); }}
                 style={{ color: "#E8401C", fontWeight: 600, fontSize: 13, alignSelf: "flex-end", marginBottom: "12px" }}
                 className="ml-auto hover:underline cursor-pointer"
               >
@@ -202,15 +144,24 @@ export function EventCatalog() {
             )}
           </div>
 
-          <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 24 }}>
-            Mostrando <strong style={{ color: "#1A2E6C" }}>{filtered.length}</strong> evento{filtered.length !== 1 ? "s" : ""}
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+            <p style={{ color: "#6B7280", fontSize: 14, margin: 0 }}>
+              Mostrando <strong style={{ color: "#1A2E6C" }}>{filtered.length}</strong> evento{filtered.length !== 1 ? "s" : ""}
+            </p>
+            <button
+              onClick={() => setRequestOpen(true)}
+              style={{ color: "#E8401C", fontWeight: 700, fontSize: 13, background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+              className="hover:underline"
+            >
+              ¿No encuentras evento en tu municipio? Escríbenos →
+            </button>
+          </div>
 
           {loading ? (
             <div className="text-center py-16" style={{ color: "#6B7280" }}>Cargando eventos...</div>
           ) : filtered.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((event) => (
+              {filtered.map((event, index) => (
                 <div
                   key={event.id}
                   style={{
@@ -227,29 +178,16 @@ export function EventCatalog() {
                 >
                   <div style={{ height: 4, backgroundColor: "#E8401C", flexShrink: 0 }} />
 
-                  <div style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0 }}>
+                  <div
+                    style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0, cursor: event.flyer_url ? "pointer" : "default" }}
+                    onClick={() => { if (event.flyer_url) setFlyerEvent(event); }}
+                  >
                     <img
                       src={event.image}
                       alt={event.title}
                       style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
                       className="group-hover:scale-105"
                     />
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 12,
-                        right: 12,
-                        backgroundColor: "#F5C200",
-                        borderRadius: 8,
-                        padding: "6px 10px",
-                        textAlign: "center",
-                        minWidth: 52,
-                      }}
-                    >
-                      <div style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 10, marginBottom: 2 }}>CIERRE</div>
-                      <div style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 20, lineHeight: 1 }}>{event.day}</div>
-                      <div style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 10, letterSpacing: "0.1em" }}>{event.month}</div>
-                    </div>
                   </div>
 
                   <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
@@ -266,34 +204,16 @@ export function EventCatalog() {
                       >
                         {event.category}
                       </span>
-                      <span
-                        style={{
-                          backgroundColor: "#EEF2FF",
-                          color: "#1A2E6C",
-                          borderRadius: 20,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: "3px 10px",
-                        }}
-                      >
-                        {event.municipio}
-                      </span>
                     </div>
 
                     <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 16, lineHeight: 1.3, marginBottom: 6 }}>
-                      {event.title}
+                      {index + 1}. {event.title}
                       {event.isAnnual && (
                         <span style={{ marginLeft: 8, backgroundColor: "#FEF3C7", color: "#D97706", fontSize: 11, padding: "2px 6px", borderRadius: 12, verticalAlign: "middle", display: "inline-block" }}>
                           ⭐ Anual
                         </span>
                       )}
                     </h3>
-
-                    <div className="mb-3">
-                      <span style={{ color: "#16A34A", fontSize: 12, fontWeight: 700, backgroundColor: "#DCFCE7", padding: "2px 8px", borderRadius: "12px" }}>
-                        Cuota de recuperación: {formatCost(event.cost)}
-                      </span>
-                    </div>
 
                     <div className="flex-1 mb-3">
                       <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 4 }} className="line-clamp-2">
@@ -310,13 +230,6 @@ export function EventCatalog() {
                       )}
                     </div>
 
-                    <div style={{ backgroundColor: "#F9FAFB", padding: "8px 12px", borderRadius: 8, marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 14 }}>📅</span>
-                      <span style={{ color: "#374151", fontSize: 12, fontWeight: 600 }}>
-                        Cierre de convocatoria: <span style={{ color: "#E8401C", fontWeight: 800 }}>{event.day} {event.month}</span>
-                      </span>
-                    </div>
-
                     <div className="flex flex-col gap-3 mt-auto pt-4" style={{ borderTop: "1px solid #F3F4F6" }}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
@@ -328,10 +241,8 @@ export function EventCatalog() {
                       {(event.flyer_url || event.ficha_tecnica_url) && (
                         <div className="flex gap-2">
                           {event.flyer_url && (
-                            <a
-                              href={event.flyer_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <button
+                              onClick={() => setFlyerEvent(event)}
                               className="btn-slide flex-1"
                               style={{
                                 '--btn-bg': '#EBF5FF',
@@ -341,7 +252,7 @@ export function EventCatalog() {
                               } as React.CSSProperties}
                             >
                               Flyer
-                            </a>
+                            </button>
                           )}
                           {event.ficha_tecnica_url && (
                             <a
@@ -384,7 +295,13 @@ export function EventCatalog() {
           ) : (
             <div className="text-center py-16">
               <div className="text-5xl mb-4">🔍</div>
-              <p style={{ color: "#6B7280" }}>No se encontraron eventos con los filtros seleccionados.</p>
+              <p style={{ color: "#6B7280", marginBottom: 20 }}>No se encontraron eventos con los filtros seleccionados.</p>
+              <button
+                onClick={() => setRequestOpen(true)}
+                style={{ backgroundColor: "#1A2E6C", color: "#FFFFFF", padding: "12px 24px", borderRadius: 8, fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer" }}
+              >
+                ¿No hay evento en tu municipio? Escríbenos
+              </button>
             </div>
           )}
         </div>
@@ -403,7 +320,256 @@ export function EventCatalog() {
           onClose={() => setFullDescEvent(null)}
         />
       )}
+
+      {flyerEvent && (
+        <FlyerModal
+          event={flyerEvent}
+          onClose={() => setFlyerEvent(null)}
+        />
+      )}
+
+      {requestOpen && (
+        <RequestEventModal
+          defaultMunicipio={municipality !== "Todos" ? municipality : ""}
+          onClose={() => setRequestOpen(false)}
+        />
+      )}
     </>
+  );
+}
+
+function RequestEventModal({ defaultMunicipio, onClose }: { defaultMunicipio: string, onClose: () => void }) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatus('loading');
+
+    const formData = new FormData(e.currentTarget);
+    const municipio = (formData.get('municipio') as string) || '';
+    const baseDescription = (formData.get('description') as string) || '';
+    const description = `${baseDescription}\n\nMunicipio solicitado: ${municipio}`;
+
+    const data = {
+      name: formData.get('name'),
+      phone: formData.get('phone'),
+      company: '',
+      email: formData.get('email'),
+      description,
+      wantsTraining: false,
+      eventName: `Solicitud de evento en municipio: ${municipio}`,
+    };
+
+    try {
+      const { error: dbError } = await supabase
+        .from('interest_leads')
+        .insert([{
+          name: data.name,
+          phone: data.phone,
+          company: data.company,
+          email: data.email,
+          event_name: data.eventName,
+          description: data.description,
+          wants_training: data.wantsTraining,
+        }]);
+
+      if (dbError) {
+        console.error('Error saving lead to Supabase:', dbError);
+      }
+
+      try {
+        await fetch('/api/interest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      } catch (emailErr) {
+        console.error('Email API call failed (lead was saved to DB):', emailErr);
+      }
+
+      setStatus('success');
+    } catch (err) {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0, width: '100%', height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        borderRadius: '16px',
+        maxWidth: '500px',
+        width: '100%',
+        padding: '30px',
+        position: 'relative',
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}>
+        <button
+          onClick={onClose}
+          style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
+        >
+          <X size={20} />
+        </button>
+
+        {status === 'success' ? (
+          <div className="text-center py-8">
+            <div style={{ fontSize: '40px', marginBottom: '16px' }}>✨</div>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>¡Mensaje Enviado!</h3>
+            <p style={{ color: '#4B5563', fontSize: '14px', marginBottom: '24px' }}>
+              Recibimos tu solicitud. Te avisaremos cuando haya un evento en tu municipio. ¡Gracias!
+            </p>
+            <button
+              onClick={onClose}
+              style={{ backgroundColor: '#1A2E6C', color: 'white', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+            >
+              Cerrar
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>¿No hay evento en tu municipio?</h3>
+            <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '20px' }}>
+              Déjanos tus datos y el municipio en el que te gustaría participar. Te contactaremos cuando tengamos un evento ahí.
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Municipio que te interesa *</label>
+                <select required name="municipio" defaultValue={defaultMunicipio} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+                  <option value="" disabled>Selecciona tu municipio</option>
+                  {NUEVO_LEON_MUNICIPALITIES.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Tu Nombre completo *</label>
+                <input required name="name" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu nombre" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Teléfono *</label>
+                <input required name="phone" type="tel" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu teléfono o celular" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Correo Electrónico *</label>
+                <input required name="email" type="email" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="correo@ejemplo.com" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>¿Qué te gustaría hacer? *</label>
+                <textarea required name="description" rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical' }} placeholder="Cuéntanos qué tipo de evento o proyecto te interesa..."></textarea>
+              </div>
+
+              {status === 'error' && <p style={{ color: '#E8401C', fontSize: '13px' }}>Hubo un error al enviar tu solicitud. Por favor intenta de nuevo.</p>}
+
+              <button
+                type="submit"
+                disabled={status === 'loading'}
+                style={{
+                  backgroundColor: '#E8401C',
+                  color: 'white',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                  opacity: status === 'loading' ? 0.7 : 1,
+                  marginTop: '4px'
+                }}
+              >
+                {status === 'loading' ? 'Enviando...' : 'Enviar Solicitud'}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FlyerModal({ event, onClose }: { event: Event, onClose: () => void }) {
+  const url = event.flyer_url || '';
+  const isPdf = url.toLowerCase().split('?')[0].endsWith('.pdf');
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0, left: 0, width: '100%', height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        zIndex: 9999,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '20px'
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: '16px',
+          maxWidth: '760px',
+          width: '100%',
+          padding: '24px',
+          position: 'relative',
+          maxHeight: '92vh',
+          overflowY: 'auto'
+        }}
+      >
+        <button
+          onClick={onClose}
+          style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
+        >
+          <X size={22} />
+        </button>
+
+        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px', paddingRight: '32px', lineHeight: 1.3 }}>
+          {event.title}
+        </h3>
+
+        {isPdf ? (
+          <iframe
+            src={url}
+            title={`Flyer ${event.title}`}
+            style={{ width: '100%', height: '70vh', border: '1px solid #E5E7EB', borderRadius: 8 }}
+          />
+        ) : (
+          <img
+            src={url}
+            alt={`Flyer ${event.title}`}
+            style={{ width: '100%', height: 'auto', borderRadius: 8, display: 'block' }}
+          />
+        )}
+
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ backgroundColor: '#EBF5FF', color: '#1E3A8A', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}
+          >
+            Abrir en pestaña nueva
+          </a>
+          <button
+            onClick={onClose}
+            style={{ backgroundColor: '#F3F4F6', color: '#4B5563', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -437,13 +603,6 @@ function DescriptionModal({ event, onClose }: { event: Event, onClose: () => voi
         <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px', paddingRight: '24px', lineHeight: 1.3 }}>
           {event.title}
         </h3>
-
-        <div style={{ backgroundColor: '#F9FAFB', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #E5E7EB' }}>
-          <div className="flex items-center gap-2">
-            <span style={{ color: '#6B7280', fontSize: '13px', fontWeight: 600 }}>Cierre:</span>
-            <span style={{ color: '#E8401C', fontSize: '13px', fontWeight: 800 }}>{event.day} {event.month}</span>
-          </div>
-        </div>
 
         <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>Descripción completa</h4>
         <p style={{ color: '#4B5563', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>

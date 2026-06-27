@@ -77,6 +77,8 @@ export function EditEventForm({
       description: formData.get('description'),
       cost: formData.get('cost'),
       coordinador: formData.get('coordinador'),
+      asociacion: formData.get('asociacion'),
+      asociacion_municipio: formData.get('asociacion_municipio'),
       is_annual: formData.get('is_annual') === 'on',
       spots_min: spotsMin,
       spots_max: spotsMax,
@@ -268,6 +270,21 @@ export function EditEventForm({
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Coordinador (Solo visible para administrador)</label>
           <input required defaultValue={initialData.coordinador} name="coordinador" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Nombre del coordinador" />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Asociación responsable (opcional)</label>
+          <input defaultValue={initialData.asociacion || ''} name="asociacion" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Nombre de la asociación" />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Municipio de la asociación</label>
+          <select defaultValue={initialData.asociacion_municipio || ''} name="asociacion_municipio" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
+            <option value="">— Selecciona —</option>
+            {NUEVO_LEON_MUNICIPALITIES.map((m) => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

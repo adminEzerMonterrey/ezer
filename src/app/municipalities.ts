@@ -6,7 +6,6 @@ export const NUEVO_LEON_MUNICIPALITIES = [
   "Anáhuac",
   "Apodaca",
   "Aramberri",
-  "Benito Juárez",
   "Bustamante",
   "Cadereyta Jiménez",
   "El Carmen",
