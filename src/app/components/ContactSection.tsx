@@ -1,4 +1,6 @@
-import { Clock3, Landmark, Mail, MapPin, Phone } from "lucide-react";
+"use client";
+
+import { Clock3, Landmark, Mail, MapPin, Phone, Send } from "lucide-react";
 
 export function ContactSection() {
   return (
@@ -64,6 +66,117 @@ export function ContactSection() {
               Francisco Zarco 911, Piso 3<br />
               Centro, 64000 Monterrey, N.L.
             </p>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 40, backgroundColor: "#FAFAFA", borderRadius: 16, padding: "40px 24px", border: "1px solid #E5E7EB" }}>
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-8">
+              <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.5rem, 3vw, 2rem)", marginBottom: 12 }}>
+                Envíanos un mensaje
+              </h3>
+              <p style={{ color: "#6B7280", fontSize: "1.1rem" }}>
+                Llena el siguiente formulario y nos pondremos en contacto contigo lo más pronto posible.
+              </p>
+            </div>
+            
+            <form onSubmit={(e) => { 
+              e.preventDefault(); 
+              alert("Mensaje enviado exitosamente. ¡Gracias por contactarnos!"); 
+              (e.target as HTMLFormElement).reset();
+            }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label htmlFor="name" style={{ display: "block", color: "#374151", fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
+                    Nombre completo <span style={{ color: "#E8401C" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    required
+                    style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, transition: "border-color 0.2s" }}
+                    placeholder="Tu nombre"
+                    onFocus={(e) => e.target.style.borderColor = "#1A2E6C"}
+                    onBlur={(e) => e.target.style.borderColor = "#D1D5DB"}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" style={{ display: "block", color: "#374151", fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
+                    Correo electrónico <span style={{ color: "#E8401C" }}>*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, transition: "border-color 0.2s" }}
+                    placeholder="tu@correo.com"
+                    onFocus={(e) => e.target.style.borderColor = "#1A2E6C"}
+                    onBlur={(e) => e.target.style.borderColor = "#D1D5DB"}
+                  />
+                </div>
+              </div>
+              <div className="mb-6">
+                <label htmlFor="subject" style={{ display: "block", color: "#374151", fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
+                  Asunto <span style={{ color: "#E8401C" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  required
+                  style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, transition: "border-color 0.2s" }}
+                  placeholder="¿En qué podemos ayudarte?"
+                  onFocus={(e) => e.target.style.borderColor = "#1A2E6C"}
+                  onBlur={(e) => e.target.style.borderColor = "#D1D5DB"}
+                />
+              </div>
+              <div className="mb-8">
+                <label htmlFor="message" style={{ display: "block", color: "#374151", fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
+                  Mensaje <span style={{ color: "#E8401C" }}>*</span>
+                </label>
+                <textarea
+                  id="message"
+                  required
+                  rows={5}
+                  style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, resize: "vertical", transition: "border-color 0.2s" }}
+                  placeholder="Escribe tu mensaje aquí..."
+                  onFocus={(e) => e.target.style.borderColor = "#1A2E6C"}
+                  onBlur={(e) => e.target.style.borderColor = "#D1D5DB"}
+                ></textarea>
+              </div>
+              <div className="text-center">
+                <button
+                  type="submit"
+                  style={{
+                    backgroundColor: "#1A2E6C",
+                    color: "#FFFFFF",
+                    fontWeight: 800,
+                    padding: "16px 36px",
+                    borderRadius: 12,
+                    fontSize: 16,
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    boxShadow: "0 4px 6px -1px rgba(26, 46, 108, 0.2)"
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = "#2a4393";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(26, 46, 108, 0.3)";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = "#1A2E6C";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(26, 46, 108, 0.2)";
+                  }}
+                >
+                  <Send size={20} />
+                  Enviar Mensaje
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 

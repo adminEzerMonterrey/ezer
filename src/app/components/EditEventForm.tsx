@@ -14,16 +14,9 @@ export function EditEventForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [image, setImage] = useState<File | null>(null);
   const [municipios, setMunicipios] = useState<string[]>(
     initialData.municipio ? initialData.municipio.split(',').map((s: string) => s.trim()) : ['Monterrey']
   );
-  const [hasFlyer, setHasFlyer] = useState(!!initialData.flyer_url);
-  const [flyer, setFlyer] = useState<File | null>(null);
-  const [removeFlyer, setRemoveFlyer] = useState(false);
-  const [hasFicha, setHasFicha] = useState(!!initialData.ficha_tecnica_url);
-  const [ficha, setFicha] = useState<File | null>(null);
-  const [removeFicha, setRemoveFicha] = useState(false);
 
   const formattedDate = initialData.event_date
     ? new Date(initialData.event_date).toISOString().split('T')[0]
@@ -79,6 +72,9 @@ export function EditEventForm({
       coordinador: formData.get('coordinador'),
       asociacion: formData.get('asociacion'),
       asociacion_municipio: formData.get('asociacion_municipio'),
+      image_url: formData.get('image_url') || initialData.image_url || null,
+      flyer_url: formData.get('flyer_url') || null,
+      sensibilization_course_url: formData.get('sensibilization_course_url') || null,
       is_annual: formData.get('is_annual') === 'on',
       spots_min: spotsMin,
       spots_max: spotsMax,
@@ -91,66 +87,7 @@ export function EditEventForm({
     }
 
     try {
-      let imageUrl = initialData.image_url || initialData.image;
-
-      if (image) {
-        const fileName = `events/${crypto.randomUUID()}-${image.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from('event-images')
-          .upload(fileName, image);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from('event-images')
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrlData.publicUrl;
-      }
-
-      let flyerUrl = initialData.flyer_url;
-
-      if (removeFlyer && !flyer) {
-        flyerUrl = null;
-      } else if (flyer) {
-        const flyerFileName = `flyers/${crypto.randomUUID()}-${flyer.name}`;
-        const { error: flyerUploadError } = await supabase.storage
-          .from('event-images')
-          .upload(flyerFileName, flyer);
-
-        if (flyerUploadError) throw flyerUploadError;
-
-        const { data: flyerData } = supabase.storage
-          .from('event-images')
-          .getPublicUrl(flyerFileName);
-          
-        flyerUrl = flyerData.publicUrl;
-      }
-
-      let fichaUrl = initialData.ficha_tecnica_url;
-
-      if (removeFicha && !ficha) {
-        fichaUrl = null;
-      } else if (ficha) {
-        const fichaFileName = `fichas/${crypto.randomUUID()}-${ficha.name}`;
-        const { error: fichaUploadError } = await supabase.storage
-          .from('event-images')
-          .upload(fichaFileName, ficha);
-
-        if (fichaUploadError) throw fichaUploadError;
-
-        const { data: fichaData } = supabase.storage
-          .from('event-images')
-          .getPublicUrl(fichaFileName);
-          
-        fichaUrl = fichaData.publicUrl;
-      }
-
-      const finalDataToUpdate = { ...updatePayload, image_url: imageUrl, flyer_url: flyerUrl, ficha_tecnica_url: fichaUrl };
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
       if (sessionError || !session) {
         throw new Error('Tu sesión de administrador expiró. Cierra sesión, vuelve a iniciar sesión e intenta guardar otra vez.');
       }
@@ -161,18 +98,11 @@ export function EditEventForm({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          id: initialData.id,
-          event: finalDataToUpdate,
-        }),
+        body: JSON.stringify({ id: initialData.id, event: updatePayload }),
       });
 
       let responseData: any = {};
-      try {
-        responseData = await response.json();
-      } catch {
-        // La API deberia responder JSON, pero evitamos ocultar el status real.
-      }
+      try { responseData = await response.json(); } catch { /* ignore */ }
 
       if (!response.ok) {
         throw new Error(responseData.message || `No se pudo actualizar el evento. Status ${response.status}`);
@@ -214,31 +144,13 @@ export function EditEventForm({
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '8px' }}>Municipios</label>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
-            gap: '8px',
-            maxHeight: '200px',
-            overflowY: 'auto',
-            padding: '12px',
-            borderRadius: '6px', 
-            border: '1px solid #D1D5DB', 
-            backgroundColor: 'white' 
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px', maxHeight: '200px', overflowY: 'auto', padding: '12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             {NUEVO_LEON_MUNICIPALITIES.map((municipality) => (
               <label key={municipality} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
-                <input 
-                  type="checkbox" 
-                  checked={municipios.includes(municipality)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setMunicipios([...municipios, municipality]);
-                    } else {
-                      setMunicipios(municipios.filter(m => m !== municipality));
-                    }
-                  }}
-                  style={{ accentColor: '#E8401C' }} 
-                />
+                <input type="checkbox" checked={municipios.includes(municipality)} onChange={(e) => {
+                  if (e.target.checked) setMunicipios([...municipios, municipality]);
+                  else setMunicipios(municipios.filter(m => m !== municipality));
+                }} style={{ accentColor: '#E8401C' }} />
                 {municipality}
               </label>
             ))}
@@ -262,9 +174,7 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
-            Si el evento maneja una cantidad fija, usa el mismo valor como mínimo y máximo.
-          </p>
+          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Si el evento maneja una cantidad fija, usa el mismo valor como mínimo y máximo.</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
@@ -295,96 +205,22 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen del evento (Dejar en blanco para mantener la actual)</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
-            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
-          />
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>URL de imagen en Google Drive (opcional)</label>
+          <input defaultValue={initialData.image_url || ''} name="image_url" type="url" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="https://drive.google.com/file/d/..." />
+          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '4px 0 0' }}>Dejar en blanco mantiene la imagen actual</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#4B5563', cursor: 'pointer' }}>
-            <input 
-              type="checkbox" 
-              checked={hasFlyer}
-              onChange={(e) => {
-                setHasFlyer(e.target.checked);
-                if (!e.target.checked) setRemoveFlyer(true);
-                else setRemoveFlyer(false);
-              }}
-              style={{ width: '16px', height: '16px', accentColor: '#E8401C' }} 
-            />
-            ¿Este evento tiene un flyer con más información?
-          </label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>URL del Flyer en Google Drive (opcional)</label>
+          <input defaultValue={initialData.flyer_url || ''} name="flyer_url" type="url" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="https://drive.google.com/file/d/..." />
+          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '4px 0 0' }}>Link directo del PDF en Google Drive</p>
         </div>
-
-        {hasFlyer && (
-          <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>
-              Archivo de Flyer (PDF o Imagen) {initialData.flyer_url && !removeFlyer ? '(Dejar en blanco para mantener el actual)' : '*'}
-            </label>
-            {initialData.flyer_url && !removeFlyer && !flyer && (
-              <div style={{ marginBottom: '8px', fontSize: '13px' }}>
-                <a href={initialData.flyer_url} target="_blank" rel="noopener noreferrer" style={{ color: '#3B82F6', textDecoration: 'underline' }}>
-                  Ver Flyer actual
-                </a>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => {
-                setFlyer(e.target.files ? e.target.files[0] : null);
-                if (e.target.files && e.target.files[0]) setRemoveFlyer(false);
-              }}
-              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
-              required={hasFlyer && (!initialData.flyer_url || removeFlyer)}
-            />
-          </div>
-        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#4B5563', cursor: 'pointer' }}>
-            <input 
-              type="checkbox" 
-              checked={hasFicha}
-              onChange={(e) => {
-                setHasFicha(e.target.checked);
-                if (!e.target.checked) setRemoveFicha(true);
-                else setRemoveFicha(false);
-              }}
-              style={{ width: '16px', height: '16px', accentColor: '#E8401C' }} 
-            />
-            ¿Este evento tiene una Ficha Técnica?
-          </label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>URL del Curso de Sensibilización en Google Drive (opcional)</label>
+          <input defaultValue={initialData.sensibilization_course_url || ''} name="sensibilization_course_url" type="url" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="https://drive.google.com/file/d/..." />
+          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '4px 0 0' }}>Link directo del PDF en Google Drive</p>
         </div>
-
-        {hasFicha && (
-          <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>
-              Archivo de Ficha Técnica (PDF o Imagen) {initialData.ficha_tecnica_url && !removeFicha ? '(Dejar en blanco para mantener el actual)' : '*'}
-            </label>
-            {initialData.ficha_tecnica_url && !removeFicha && !ficha && (
-              <div style={{ marginBottom: '8px', fontSize: '13px' }}>
-                <a href={initialData.ficha_tecnica_url} target="_blank" rel="noopener noreferrer" style={{ color: '#3B82F6', textDecoration: 'underline' }}>
-                  Ver Ficha Técnica actual
-                </a>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => {
-                setFicha(e.target.files ? e.target.files[0] : null);
-                if (e.target.files && e.target.files[0]) setRemoveFicha(false);
-              }}
-              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
-              required={hasFicha && (!initialData.ficha_tecnica_url || removeFicha)}
-            />
-          </div>
-        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Descripción</label>
@@ -392,36 +228,10 @@ export function EditEventForm({
         </div>
 
         <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={loading}
-            style={{
-              backgroundColor: 'white',
-              color: '#4B5563',
-              border: '1px solid #D1D5DB',
-              padding: '10px 24px',
-              borderRadius: '8px',
-              fontWeight: 600,
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
-          >
+          <button type="button" onClick={onCancel} disabled={loading} style={{ backgroundColor: 'white', color: '#4B5563', border: '1px solid #D1D5DB', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer' }}>
             Cancelar
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              backgroundColor: '#1A2E6C',
-              color: 'white',
-              padding: '10px 24px',
-              borderRadius: '8px',
-              fontWeight: 600,
-              border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1
-            }}
-          >
+          <button type="submit" disabled={loading} style={{ backgroundColor: '#1A2E6C', color: 'white', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
             {loading ? 'Guardando...' : 'Actualizar'}
           </button>
         </div>

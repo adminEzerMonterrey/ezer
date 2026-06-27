@@ -13,6 +13,7 @@ const ALLOWED_EVENT_FIELDS = [
   'category',
   'image_url',
   'image',
+  'flyer_url',
   'cost',
   'spots_min',
   'spots_max',
@@ -22,6 +23,7 @@ const ALLOWED_EVENT_FIELDS = [
   'municipio',
   'asociacion',
   'asociacion_municipio',
+  'sensibilization_course_url',
 ];
 
 const getSupabaseConfig = () => {

@@ -22,7 +22,7 @@ interface Event {
   cost: string | number;
   isAnnual: boolean;
   flyer_url?: string;
-  ficha_tecnica_url?: string;
+  sensibilization_course_url?: string;
 }
 
 export function EventCatalog() {
@@ -36,7 +36,10 @@ export function EventCatalog() {
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
   const [fullDescEvent, setFullDescEvent] = useState<Event | null>(null);
   const [flyerEvent, setFlyerEvent] = useState<Event | null>(null);
+  const [courseEvent, setCourseEvent] = useState<Event | null>(null);
+  const [detailsEvent, setDetailsEvent] = useState<Event | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
+  const [courseInterest, setCourseInterest] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -73,7 +76,7 @@ export function EventCatalog() {
             cost: e.cost || "Gratuito",
             isAnnual: !!e.is_annual,
             flyer_url: e.flyer_url,
-            ficha_tecnica_url: e.ficha_tecnica_url,
+            sensibilization_course_url: e.sensibilization_course_url,
           };
         });
 
@@ -173,14 +176,15 @@ export function EventCatalog() {
                     transition: "transform 0.2s, box-shadow 0.2s",
                     display: "flex",
                     flexDirection: "column",
+                    cursor: "pointer",
                   }}
                   className="group hover:-translate-y-1 hover:shadow-xl"
+                  onClick={() => setDetailsEvent(event)}
                 >
                   <div style={{ height: 4, backgroundColor: "#E8401C", flexShrink: 0 }} />
 
                   <div
-                    style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0, cursor: event.flyer_url ? "pointer" : "default" }}
-                    onClick={() => { if (event.flyer_url) setFlyerEvent(event); }}
+                    style={{ position: "relative", height: 180, overflow: "hidden", flexShrink: 0 }}
                   >
                     <img
                       src={event.image}
@@ -216,18 +220,9 @@ export function EventCatalog() {
                     </h3>
 
                     <div className="flex-1 mb-3">
-                      <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, marginBottom: 4 }} className="line-clamp-2">
+                      <p style={{ color: "#4B5563", fontSize: 13, lineHeight: 1.6, margin: 0 }} className="line-clamp-3">
                         {event.description}
                       </p>
-                      {event.description && event.description.length > 100 && (
-                        <button
-                          onClick={() => setFullDescEvent(event)}
-                          style={{ color: "#E8401C", fontSize: 12, fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                          className="hover:underline"
-                        >
-                          Leer más
-                        </button>
-                      )}
                     </div>
 
                     <div className="flex flex-col gap-3 mt-auto pt-4" style={{ borderTop: "1px solid #F3F4F6" }}>
@@ -238,55 +233,48 @@ export function EventCatalog() {
                         </div>
                       </div>
 
-                      {(event.flyer_url || event.ficha_tecnica_url) && (
-                        <div className="flex gap-2">
-                          {event.flyer_url && (
-                            <button
-                              onClick={() => setFlyerEvent(event)}
-                              className="btn-slide flex-1"
-                              style={{
-                                '--btn-bg': '#EBF5FF',
-                                '--btn-text': '#1E3A8A',
-                                '--btn-hover-bg': '#1E3A8A',
-                                '--btn-hover-text': '#FFFFFF',
-                              } as React.CSSProperties}
-                            >
-                              Flyer
-                            </button>
-                          )}
-                          {event.ficha_tecnica_url && (
-                            <a
-                              href={event.ficha_tecnica_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn-slide flex-1"
-                              style={{
-                                '--btn-bg': '#F3F4F6',
-                                '--btn-text': '#374151',
-                                '--btn-hover-bg': '#374151',
-                                '--btn-hover-text': '#FFFFFF',
-                              } as React.CSSProperties}
-                            >
-                              Ficha Técnica
-                            </a>
-                          )}
-                        </div>
-                      )}
-
-                      <button
-                        onClick={() => setSelectedEventName(event.title)}
-                        className="btn-slide"
-                        style={{
-                          width: "100%",
-                          marginTop: "8px",
-                          '--btn-bg': '#FEE2E2',
-                          '--btn-text': '#DC2626',
-                          '--btn-hover-bg': '#DC2626',
-                          '--btn-hover-text': '#FFFFFF',
-                        } as React.CSSProperties}
-                      >
-                        Me interesa
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSelectedEventName(event.title); setCourseInterest(false); }}
+                          className="btn-slide flex-1"
+                          style={{
+                            '--btn-bg': '#FEE2E2',
+                            '--btn-text': '#DC2626',
+                            '--btn-hover-bg': '#DC2626',
+                            '--btn-hover-text': '#FFFFFF',
+                          } as React.CSSProperties}
+                        >
+                          Me interesa
+                        </button>
+                        {event.flyer_url && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setFlyerEvent(event); }}
+                            className="btn-slide flex-1"
+                            style={{
+                              '--btn-bg': '#EBF5FF',
+                              '--btn-text': '#1E3A8A',
+                              '--btn-hover-bg': '#1E3A8A',
+                              '--btn-hover-text': '#FFFFFF',
+                            } as React.CSSProperties}
+                          >
+                            Flyer
+                          </button>
+                        )}
+                        {event.sensibilization_course_url && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setCourseEvent(event); }}
+                            className="btn-slide flex-1"
+                            style={{
+                              '--btn-bg': '#F0FDF4',
+                              '--btn-text': '#15803D',
+                              '--btn-hover-bg': '#15803D',
+                              '--btn-hover-text': '#FFFFFF',
+                            } as React.CSSProperties}
+                          >
+                            Curso
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -310,7 +298,26 @@ export function EventCatalog() {
       {selectedEventName && (
         <InterestModal
           eventName={selectedEventName}
-          onClose={() => setSelectedEventName(null)}
+          defaultWantsTraining={courseInterest}
+          onClose={() => { setSelectedEventName(null); setCourseInterest(false); }}
+        />
+      )}
+
+      {detailsEvent && (
+        <EventDetailsModal
+          event={detailsEvent}
+          onClose={() => setDetailsEvent(null)}
+          onAction={(type) => {
+            if (type === 'interest') {
+              setCourseInterest(false);
+              setSelectedEventName(detailsEvent.title);
+            } else if (type === 'flyer' && detailsEvent.flyer_url) {
+              setFlyerEvent(detailsEvent);
+            } else if (type === 'curso') {
+              setCourseInterest(true);
+              setSelectedEventName(detailsEvent.title);
+            }
+          }}
         />
       )}
 
@@ -325,6 +332,13 @@ export function EventCatalog() {
         <FlyerModal
           event={flyerEvent}
           onClose={() => setFlyerEvent(null)}
+        />
+      )}
+
+      {courseEvent && (
+        <CourseModal
+          event={courseEvent}
+          onClose={() => setCourseEvent(null)}
         />
       )}
 
@@ -573,6 +587,38 @@ function FlyerModal({ event, onClose }: { event: Event, onClose: () => void }) {
   );
 }
 
+function CourseModal({ event, onClose }: { event: Event, onClose: () => void }) {
+  const url = event.sensibilization_course_url || '';
+  const isPdf = url.toLowerCase().split('?')[0].endsWith('.pdf') || url.includes('drive.google.com');
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', maxWidth: '760px', width: '100%', padding: '24px', position: 'relative', maxHeight: '92vh', overflowY: 'auto' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}>
+          <X size={22} />
+        </button>
+        <p style={{ fontSize: '13px', fontWeight: 700, color: '#15803D', marginBottom: '4px', paddingRight: '32px' }}>Curso de Sensibilización</p>
+        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px', paddingRight: '32px', lineHeight: 1.3 }}>
+          {event.title}
+        </h3>
+        {isPdf ? (
+          <iframe src={url} title={`Curso ${event.title}`} style={{ width: '100%', height: '70vh', border: '1px solid #E5E7EB', borderRadius: 8 }} />
+        ) : (
+          <img src={url} alt={`Curso ${event.title}`} style={{ width: '100%', height: 'auto', borderRadius: 8, display: 'block' }} />
+        )}
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+          <a href={url} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#F0FDF4', color: '#15803D', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>
+            Abrir en pestaña nueva
+          </a>
+          <button onClick={onClose} style={{ backgroundColor: '#F3F4F6', color: '#4B5563', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DescriptionModal({ event, onClose }: { event: Event, onClose: () => void }) {
   return (
     <div style={{
@@ -624,7 +670,7 @@ function DescriptionModal({ event, onClose }: { event: Event, onClose: () => voi
   );
 }
 
-function InterestModal({ eventName, onClose }: { eventName: string, onClose: () => void }) {
+function InterestModal({ eventName, defaultWantsTraining = false, onClose }: { eventName: string, defaultWantsTraining?: boolean, onClose: () => void }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -764,6 +810,7 @@ function InterestModal({ eventName, onClose }: { eventName: string, onClose: () 
                 <input
                   name="wants_training"
                   type="checkbox"
+                  defaultChecked={defaultWantsTraining}
                   style={{ width: '16px', height: '16px', accentColor: '#E8401C', cursor: 'pointer' }}
                 />
                 ¿Quieres capacitación?
@@ -846,3 +893,87 @@ function FilterSelect({
     </div>
   );
 }
+
+function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose: () => void, onAction: (type: string) => void }) {
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+    }} onClick={onClose}>
+      <div style={{
+        backgroundColor: '#FFFFFF', borderRadius: '16px', maxWidth: '700px', width: '100%',
+        overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ position: 'relative' }}>
+           <button 
+             onClick={onClose} 
+             style={{ 
+               position: 'absolute', top: 16, right: 16, zIndex: 10, 
+               background: 'rgba(255, 255, 255, 0.9)', border: 'none', borderRadius: '50%', 
+               padding: 8, cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+               display: 'flex', alignItems: 'center', justifyContent: 'center'
+             }}
+           >
+             <X size={20} style={{ color: '#4B5563' }} />
+           </button>
+           <img src={event.image} alt={event.title} style={{ width: '100%', height: '280px', objectFit: 'cover' }} />
+        </div>
+        
+        <div style={{ padding: '32px', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <span style={{ backgroundColor: "#FFF7ED", color: "#E8401C", borderRadius: 20, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>
+              {event.category}
+            </span>
+            {event.isAnnual && (
+              <span style={{ backgroundColor: "#FEF3C7", color: "#D97706", fontSize: 12, padding: "4px 12px", borderRadius: 20, fontWeight: 600 }}>
+                ⭐ Anual
+              </span>
+            )}
+          </div>
+
+          <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#1A2E6C', marginBottom: '16px', lineHeight: 1.2 }}>
+            {event.title}
+          </h3>
+          
+          <p style={{ color: '#4B5563', fontSize: '15px', marginBottom: '24px', whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
+            {event.description}
+          </p>
+          
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '32px', borderTop: '1px solid #E5E7EB', paddingTop: '24px' }}>
+             <button 
+               onClick={() => onAction('interest')} 
+               style={{ flex: 1, padding: '14px', backgroundColor: '#E8401C', color: 'white', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', minWidth: '180px', transition: 'transform 0.1s' }}
+               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+             >
+               Me interesa
+             </button>
+             
+             {event.flyer_url && (
+               <button 
+                 onClick={() => onAction('flyer')} 
+                 style={{ flex: 1, padding: '14px', backgroundColor: '#EBF5FF', color: '#1E3A8A', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', minWidth: '180px', transition: 'transform 0.1s' }}
+                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+               >
+                 Ver Flyer
+               </button>
+             )}
+             
+             <button 
+               onClick={() => onAction('curso')} 
+               style={{ flex: 1, padding: '14px', backgroundColor: '#FEFCE8', color: '#B45309', borderRadius: '12px', fontWeight: 700, border: '1px solid #FEF08A', cursor: 'pointer', minWidth: '220px', transition: 'transform 0.1s' }}
+               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+             >
+               Curso de sensibilización
+             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
