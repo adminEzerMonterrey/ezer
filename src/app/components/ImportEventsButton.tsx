@@ -166,6 +166,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
   const [errors, setErrors] = useState<ImportError[]>([]);
   const [summary, setSummary] = useState('');
   const [pendingEvents, setPendingEvents] = useState<EventImportDraft[]>([]);
+  const [eventImages, setEventImages] = useState<Record<number, File>>({});
 
   const downloadTemplate = () => {
     const workbook = XLSX.utils.book_new();
@@ -281,6 +282,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
     setErrors([]);
     setSummary('');
     setPendingEvents([]);
+    setEventImages({});
 
     try {
       const workbook = XLSX.read(await file.arrayBuffer(), { cellDates: true });
@@ -324,7 +326,28 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         return;
       }
 
-      const events = pendingEvents.map(({ sourceRow, ...event }) => event);
+      const eventsWithImages = [...pendingEvents];
+
+      for (let i = 0; i < eventsWithImages.length; i++) {
+        const file = eventImages[i];
+        if (file) {
+          const fileName = `events/${crypto.randomUUID()}-${file.name}`;
+          const { error: uploadError } = await supabase.storage
+            .from('event-images')
+            .upload(fileName, file);
+
+          if (!uploadError) {
+            const { data } = supabase.storage
+              .from('event-images')
+              .getPublicUrl(fileName);
+            eventsWithImages[i].image_url = data.publicUrl;
+          } else {
+            console.error('Error uploading image for event', i, uploadError);
+          }
+        }
+      }
+
+      const events = eventsWithImages.map(({ sourceRow, ...event }) => event);
 
       const response = await fetch('/api/admin-events', {
         method: 'POST',
@@ -343,6 +366,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
 
       setSummary(`✅ Se importaron ${events.length} eventos correctamente.`);
       setPendingEvents([]);
+      setEventImages({});
       onEventsImported();
     } catch (error: any) {
       setErrors([buildError(0, 'Importación', error?.message || 'Error inesperado.', ['Intenta de nuevo.'])]);
@@ -381,15 +405,41 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
       {pendingEvents.length > 0 && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9998, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ backgroundColor: '#FFFFFF', width: '100%', maxWidth: 600, maxHeight: '84vh', overflowY: 'auto', borderRadius: 14, padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.25)', position: 'relative' }}>
-            <button type="button" onClick={() => setPendingEvents([])} style={{ position: 'absolute', top: 16, right: 16, border: 'none', background: 'transparent', color: '#6B7280', cursor: 'pointer' }}>
+            <button type="button" onClick={() => { setPendingEvents([]); setEventImages({}); }} style={{ position: 'absolute', top: 16, right: 16, border: 'none', background: 'transparent', color: '#6B7280', cursor: 'pointer' }}>
               <X size={20} />
             </button>
             <h3 style={{ color: '#1A2E6C', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Confirmar importación</h3>
             <p style={{ color: '#4B5563', fontSize: 14, marginBottom: 18 }}>
-              Se van a importar <strong>{pendingEvents.length}</strong> evento{pendingEvents.length !== 1 ? 's' : ''}. ¿Continuar?
+              Se van a importar <strong>{pendingEvents.length}</strong> evento{pendingEvents.length !== 1 ? 's' : ''}. Si lo deseas, puedes asignarles una imagen ahora.
             </p>
+
+            <div style={{ maxHeight: '40vh', overflowY: 'auto', marginBottom: '20px', borderTop: '1px solid #E5E7EB', paddingTop: '10px' }}>
+              {pendingEvents.map((event, index) => (
+                <div key={index} style={{ borderBottom: '1px solid #E5E7EB', paddingBottom: '12px', marginBottom: '12px' }}>
+                  <p style={{ fontWeight: 600, fontSize: 14, margin: '0 0 6px', color: '#1F2937' }}>{event.name}</p>
+                  <label style={{ fontSize: 12, color: '#4B5563', display: 'block', marginBottom: 4 }}>Imagen del evento (opcional):</label>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setEventImages(prev => ({ ...prev, [index]: e.target.files![0] }));
+                      } else {
+                        setEventImages(prev => {
+                          const newImages = { ...prev };
+                          delete newImages[index];
+                          return newImages;
+                        });
+                      }
+                    }} 
+                    style={{ fontSize: 12, color: '#4B5563' }}
+                  />
+                </div>
+              ))}
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-              <button type="button" onClick={() => setPendingEvents([])} disabled={loading} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#4B5563', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
+              <button type="button" onClick={() => { setPendingEvents([]); setEventImages({}); }} disabled={loading} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #D1D5DB', backgroundColor: '#FFFFFF', color: '#4B5563', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
                 Cancelar
               </button>
               <button type="button" onClick={importPendingEvents} disabled={loading} style={{ padding: '10px 16px', borderRadius: 8, border: 'none', backgroundColor: loading ? '#CBD5E1' : '#1A2E6C', color: '#FFFFFF', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
