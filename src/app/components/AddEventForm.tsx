@@ -25,6 +25,12 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       return;
     }
 
+    if (!image) {
+      setError('Debes subir una imagen para el evento.');
+      setLoading(false);
+      return;
+    }
+
     const municipio = municipios.join(', ');
     const coordinador = formData.get('coordinador') as string;
     const asociacion = formData.get('asociacion') as string;
@@ -147,8 +153,9 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen del evento (opcional)</label>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen del evento *</label>
           <input 
+            required
             type="file" 
             accept="image/*"
             onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}

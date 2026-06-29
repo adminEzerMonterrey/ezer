@@ -513,7 +513,8 @@ function RequestEventModal({ defaultMunicipio, onClose }: { defaultMunicipio: st
 
 function FlyerModal({ event, onClose }: { event: Event, onClose: () => void }) {
   const url = event.flyer_url || '';
-  const isPdf = url.toLowerCase().split('?')[0].endsWith('.pdf');
+  const isPdf = url.toLowerCase().split('?')[0].endsWith('.pdf') || url.includes('drive.google.com');
+  const embedUrl = url.replace('/view', '/preview');
 
   return (
     <div
@@ -553,7 +554,7 @@ function FlyerModal({ event, onClose }: { event: Event, onClose: () => void }) {
 
         {isPdf ? (
           <iframe
-            src={url}
+            src={embedUrl}
             title={`Flyer ${event.title}`}
             style={{ width: '100%', height: '70vh', border: '1px solid #E5E7EB', borderRadius: 8 }}
           />
@@ -589,6 +590,7 @@ function FlyerModal({ event, onClose }: { event: Event, onClose: () => void }) {
 function CourseModal({ event, onClose }: { event: Event, onClose: () => void }) {
   const url = event.sensibilization_course_url || '';
   const isPdf = url.toLowerCase().split('?')[0].endsWith('.pdf') || url.includes('drive.google.com');
+  const embedUrl = url.replace('/view', '/preview');
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -601,7 +603,7 @@ function CourseModal({ event, onClose }: { event: Event, onClose: () => void }) 
           {event.title}
         </h3>
         {isPdf ? (
-          <iframe src={url} title={`Curso ${event.title}`} style={{ width: '100%', height: '70vh', border: '1px solid #E5E7EB', borderRadius: 8 }} />
+          <iframe src={embedUrl} title={`Curso ${event.title}`} style={{ width: '100%', height: '70vh', border: '1px solid #E5E7EB', borderRadius: 8 }} />
         ) : (
           <img src={url} alt={`Curso ${event.title}`} style={{ width: '100%', height: 'auto', borderRadius: 8, display: 'block' }} />
         )}

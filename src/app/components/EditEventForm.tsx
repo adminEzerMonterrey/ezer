@@ -35,67 +35,52 @@ export function EditEventForm({
 
     let finalImageUrl = initialData.image_url || null;
     
-    if (image) {
-      const fileName = `events/${crypto.randomUUID()}-${image.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('event-images')
-        .upload(fileName, image);
-
-      if (uploadError) {
-        setError('Error al subir la imagen: ' + uploadError.message);
-        setLoading(false);
-        return;
-      }
-
-      const { data } = supabase.storage
-        .from('event-images')
-        .getPublicUrl(fileName);
-      
-      finalImageUrl = data.publicUrl;
-    }
-
-    const updatePayload: any = {
-      company: 'EZER',
-      objective: formData.get('category'),
-      municipio: municipios.join(', '),
-      target_audience: initialData.target_audience || 'Público General',
-      description: formData.get('description'),
-      coordinador: formData.get('coordinador'),
-      asociacion: formData.get('asociacion'),
-      asociacion_municipio: formData.get('asociacion_municipio'),
-      image_url: finalImageUrl,
-      flyer_url: formData.get('flyer_url') || null,
-      sensibilization_course_url: formData.get('sensibilization_course_url') || null,
-      is_annual: formData.get('is_annual') === 'on',
-    };
-
-    if (initialData.hasOwnProperty('name')) updatePayload.name = titleVal;
-    if (initialData.hasOwnProperty('title')) updatePayload.title = titleVal;
-    if (!initialData.hasOwnProperty('name') && !initialData.hasOwnProperty('title')) {
-      updatePayload.name = titleVal;
-    }
-
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
-        throw new Error('Tu sesión de administrador expiró. Cierra sesión, vuelve a iniciar sesión e intenta guardar otra vez.');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Tu sesión de administrador expiró. Cierra sesión, vuelve a iniciar sesión e intenta guardar otra vez.');
+
+      if (image) {
+        const fileName = `events/${crypto.randomUUID()}-${image.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('event-images')
+          .upload(fileName, image);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(fileName);
+        
+        finalImageUrl = data.publicUrl;
       }
 
-      const response = await fetch('/api/admin-events', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ id: initialData.id, event: updatePayload }),
-      });
+      const updatePayload: any = {
+        company: 'EZER',
+        objective: formData.get('category'),
+        municipio: municipios.join(', '),
+        target_audience: initialData.target_audience || 'Público General',
+        description: formData.get('description'),
+        coordinador: formData.get('coordinador'),
+        asociacion: formData.get('asociacion'),
+        asociacion_municipio: formData.get('asociacion_municipio'),
+        image_url: finalImageUrl,
+        flyer_url: formData.get('flyer_url') || null,
+        sensibilization_course_url: formData.get('sensibilization_course_url') || null,
+        is_annual: formData.get('is_annual') === 'on',
+      };
 
-      let responseData: any = {};
-      try { responseData = await response.json(); } catch { /* ignore */ }
-
-      if (!response.ok) {
-        throw new Error(responseData.message || `No se pudo actualizar el evento. Status ${response.status}`);
+      if (initialData.hasOwnProperty('name')) updatePayload.name = titleVal;
+      if (initialData.hasOwnProperty('title')) updatePayload.title = titleVal;
+      if (!initialData.hasOwnProperty('name') && !initialData.hasOwnProperty('title')) {
+        updatePayload.name = titleVal;
       }
+
+      const { error: updateError } = await supabase
+        .from('events')
+        .update(updatePayload)
+        .eq('id', initialData.id);
+
+      if (updateError) throw updateError;
 
       alert('¡Evento actualizado exitosamente!');
       onEventUpdated();
