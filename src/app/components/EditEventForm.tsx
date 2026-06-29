@@ -19,15 +19,6 @@ export function EditEventForm({
     initialData.municipio ? initialData.municipio.split(',').map((s: string) => s.trim()) : ['Monterrey']
   );
 
-  const formattedDate = initialData.event_date
-    ? new Date(initialData.event_date).toISOString().split('T')[0]
-    : initialData.date
-      ? new Date(initialData.date).toISOString().split('T')[0]
-      : '';
-
-  const initialSpotsMin = initialData.spots_min ?? initialData.spots ?? 0;
-  const initialSpotsMax = initialData.spots_max ?? initialData.spots ?? 0;
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -35,26 +26,6 @@ export function EditEventForm({
 
     const formData = new FormData(e.currentTarget);
     const titleVal = formData.get('title_input');
-    const spotsMin = parseInt(formData.get('spots_min') as string, 10);
-    const spotsMax = parseInt(formData.get('spots_max') as string, 10);
-
-    if (!Number.isFinite(spotsMin) || !Number.isFinite(spotsMax)) {
-      setError('Debes capturar un rango válido de espacios disponibles.');
-      setLoading(false);
-      return;
-    }
-
-    if (spotsMin < 0 || spotsMax < 0) {
-      setError('Los espacios disponibles no pueden ser negativos.');
-      setLoading(false);
-      return;
-    }
-
-    if (spotsMin > spotsMax) {
-      setError('El mínimo de espacios no puede ser mayor que el máximo.');
-      setLoading(false);
-      return;
-    }
 
     if (municipios.length === 0) {
       setError('Debes seleccionar al menos un municipio.');
@@ -85,12 +56,10 @@ export function EditEventForm({
 
     const updatePayload: any = {
       company: 'EZER',
-      date: formData.get('event_date'),
       objective: formData.get('category'),
       municipio: municipios.join(', '),
       target_audience: initialData.target_audience || 'Público General',
       description: formData.get('description'),
-      cost: formData.get('cost'),
       coordinador: formData.get('coordinador'),
       asociacion: formData.get('asociacion'),
       asociacion_municipio: formData.get('asociacion_municipio'),
@@ -98,8 +67,6 @@ export function EditEventForm({
       flyer_url: formData.get('flyer_url') || null,
       sensibilization_course_url: formData.get('sensibilization_course_url') || null,
       is_annual: formData.get('is_annual') === 'on',
-      spots_min: spotsMin,
-      spots_max: spotsMax,
     };
 
     if (initialData.hasOwnProperty('name')) updatePayload.name = titleVal;
@@ -151,11 +118,6 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha de cierre de convocatoria</label>
-          <input required defaultValue={formattedDate} name="event_date" type="date" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Sector beneficiado</label>
           <select required defaultValue={initialData.objective} name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             {EVENT_CATEGORIES.map((category) => (
@@ -179,24 +141,7 @@ export function EditEventForm({
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios mínimos</label>
-            <input required name="spots_min" type="number" min="0" step="1" defaultValue={initialSpotsMin} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios máximos</label>
-            <input required name="spots_max" type="number" min="0" step="1" defaultValue={initialSpotsMax} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Cuota de recuperación</label>
-          <input defaultValue={initialData.cost} name="cost" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. 500 MXN o Gratuito" />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Si el evento maneja una cantidad fija, usa el mismo valor como mínimo y máximo.</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

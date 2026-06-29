@@ -15,7 +15,6 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
     const formData = new FormData(e.currentTarget);
     const name = formData.get('title') as string;
-    const date = formData.get('event_date') as string;
     const description = formData.get('description') as string;
     const objective = formData.get('category') as string;
     const municipios = formData.getAll('municipios') as string[];
@@ -27,33 +26,12 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     }
 
     const municipio = municipios.join(', ');
-    const cost = formData.get('cost') as string;
     const coordinador = formData.get('coordinador') as string;
     const asociacion = formData.get('asociacion') as string;
     const asociacionMunicipio = formData.get('asociacion_municipio') as string;
     const flyerUrl = formData.get('flyer_url') as string;
     const sensibilizationCourseUrl = formData.get('sensibilization_course_url') as string;
     const isAnnual = formData.get('is_annual') === 'on';
-    const spotsMin = parseInt(formData.get('spots_min') as string, 10);
-    const spotsMax = parseInt(formData.get('spots_max') as string, 10);
-
-    if (!Number.isFinite(spotsMin) || !Number.isFinite(spotsMax)) {
-      setError('Debes capturar un rango válido de espacios disponibles.');
-      setLoading(false);
-      return;
-    }
-
-    if (spotsMin < 0 || spotsMax < 0) {
-      setError('Los espacios disponibles no pueden ser negativos.');
-      setLoading(false);
-      return;
-    }
-
-    if (spotsMin > spotsMax) {
-      setError('El mínimo de espacios no puede ser mayor que el máximo.');
-      setLoading(false);
-      return;
-    }
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -80,18 +58,14 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         .insert([{
           name,
           company: 'EZER',
-          date,
           target_audience: 'Público General',
           description,
           objective,
           municipio,
-          cost,
           coordinador,
           asociacion,
           asociacion_municipio: asociacionMunicipio,
           is_annual: isAnnual,
-          spots_min: spotsMin,
-          spots_max: spotsMax,
           image_url: finalImageUrl,
           flyer_url: flyerUrl || null,
           sensibilization_course_url: sensibilizationCourseUrl || null,
@@ -125,11 +99,6 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Fecha de cierre de convocatoria *</label>
-          <input required name="event_date" type="date" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Sector beneficiado *</label>
           <select required name="category" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', backgroundColor: 'white' }}>
             {EVENT_CATEGORIES.map((category) => (
@@ -150,24 +119,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios mínimos *</label>
-            <input required name="spots_min" type="number" min="0" step="1" defaultValue="10" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Espacios máximos *</label>
-            <input required name="spots_max" type="number" min="0" step="1" defaultValue="20" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Cuota de recuperación</label>
-          <input name="cost" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Ej. 500 MXN o Gratuito" />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Si el evento tiene cupo fijo, escribe el mismo número en ambos campos.</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
