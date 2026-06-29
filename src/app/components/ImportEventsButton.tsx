@@ -51,8 +51,8 @@ const TEMPLATE_COLUMNS = [
   'Municipio de la asociacion',
   'URL Imagen',
   'URL Flyer (Drive)',
-  'URL Curso Sensibilizacion (Drive)',
-
+  'URL Curso Sensibilizacion (Drive)'
+];
 
 const normalizeText = (value: unknown) => String(value ?? '').trim();
 

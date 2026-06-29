@@ -119,9 +119,6 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
           </div>
         </div>
 
-          </div>
-        </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Coordinador (Solo visible para administrador) *</label>
           <input required name="coordinador" type="text" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="Nombre del coordinador" />

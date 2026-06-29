@@ -811,11 +811,9 @@ export function Admin() {
                     <thead style={{ backgroundColor: '#F9FAFB' }}>
                       <tr>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Título</th>
-                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Fecha</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Municipio</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Coordinador</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Asociación</th>
-                        <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>Espacios</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Imagen</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Docs</th>
                         <th style={{ padding: '12px 16px', color: '#4B5563', fontSize: '13px', fontWeight: 600, borderBottom: '1px solid #E5E7EB', width: '80px', textAlign: 'center' }}>Acciones</th>
@@ -825,7 +823,6 @@ export function Admin() {
                       {events.map((event) => (
                         <tr key={event.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
                           <td style={{ padding: '16px', color: '#111827', fontSize: '14px', fontWeight: 500 }}>{event.name || event.title}</td>
-                          <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.date || event.event_date}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>{event.municipio || 'Monterrey'}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px', fontWeight: 600 }}>{event.coordinador || <span style={{ color: '#9CA3AF', fontWeight: 'normal' }}>No asignado</span>}</td>
                           <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>
@@ -835,9 +832,6 @@ export function Admin() {
                                 {event.asociacion_municipio && <div style={{ fontSize: '12px', color: '#9CA3AF' }}>{event.asociacion_municipio}</div>}
                               </div>
                             ) : <span style={{ color: '#9CA3AF' }}>—</span>}
-                          </td>
-                          <td style={{ padding: '16px', color: '#4B5563', fontSize: '14px' }}>
-                            {formatSpotsRange(event.spots_min ?? event.spots ?? 0, event.spots_max ?? event.spots ?? 0)}
                           </td>
                           <td style={{ padding: '16px', textAlign: 'center' }}>
                             {event.image_url ? (
@@ -885,7 +879,7 @@ export function Admin() {
                       ))}
                       {events.length === 0 && (
                         <tr>
-                          <td colSpan={9} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
+                          <td colSpan={7} style={{ padding: '30px', textAlign: 'center', color: '#6B7280' }}>
                             No hay eventos registrados en la base de datos.
                           </td>
                         </tr>
