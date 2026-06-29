@@ -23,7 +23,7 @@ type EventImportDraft = {
   sourceRow: number;
   name: string;
   company: string;
-  date: string;
+  date: string | null;
   target_audience: string;
   description: string;
   objective: string;
@@ -255,7 +255,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           sourceRow: excelRow,
           name: title,
           company: 'EZER',
-          date: '2099-12-31',
+          date: null,
           target_audience: 'Público General',
           description,
           objective,
