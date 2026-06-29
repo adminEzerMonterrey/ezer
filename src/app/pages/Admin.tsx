@@ -104,7 +104,7 @@ export function Admin() {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('date', { ascending: true });
+        .order('id', { ascending: true });
 
       if (error) throw error;
       setEvents(data ?? []);

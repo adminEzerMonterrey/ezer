@@ -228,10 +228,6 @@ export function EventCatalog() {
                       {event.description}
                     </p>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
-                      <Users size={13} style={{ color: "#9CA3AF", flexShrink: 0 }} />
-                      <span style={{ color: "#9CA3AF", fontSize: 12, fontWeight: 600 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
-                    </div>
                   </div>
 
                   {/* Buttons */}
@@ -931,10 +927,6 @@ function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose
         <div style={{ padding: '28px 28px 0', overflowY: 'auto', flex: 1 }}>
           <h3 style={{ fontSize: 24, fontWeight: 800, color: '#1A2E6C', marginBottom: 8, lineHeight: 1.25 }}>{event.title}</h3>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 18 }}>
-            <Users size={14} style={{ color: '#9CA3AF' }} />
-            <span style={{ color: '#6B7280', fontSize: 13, fontWeight: 600 }}>{formatSpotsRange(event.spotsMin, event.spotsMax)}</span>
-          </div>
 
           <p style={{ color: '#4B5563', fontSize: 14, lineHeight: 1.75, margin: 0, whiteSpace: 'pre-wrap' }}>{event.description}</p>
         </div>
