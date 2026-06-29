@@ -81,16 +81,42 @@ export function EditEventForm({
         updatePayload.name = titleVal;
       }
 
-      const { data, error: updateError } = await supabase
-        .from('events')
-        .update(updatePayload)
-        .eq('id', initialData.id)
-        .select('*');
+      // Intentamos usar la API primero para saltar las reglas RLS en producción
+      let apiSuccess = false;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch('/api/admin-events', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session ? { Authorization: `Bearer ${session.access_token}` } : {})
+          },
+          body: JSON.stringify({ id: initialData.id, event: updatePayload }),
+        });
 
-      if (updateError) throw updateError;
-      
-      if (!data || data.length === 0) {
-        throw new Error("No se pudo actualizar (quizá por permisos de seguridad RLS en la base de datos).");
+        if (response.ok) {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+            apiSuccess = true;
+          }
+        }
+      } catch (e) {
+        console.warn("Error usando API de actualización:", e);
+      }
+
+      // Si la API falló (ej. desarrollo local Vite), usamos actualización directa
+      if (!apiSuccess) {
+        const { data, error: updateError } = await supabase
+          .from('events')
+          .update(updatePayload)
+          .eq('id', initialData.id)
+          .select('*');
+
+        if (updateError) throw updateError;
+        
+        if (!data || data.length === 0) {
+          throw new Error("No se pudo actualizar. La seguridad (RLS) bloquea la actualización directa y la API falló (¿Estás en desarrollo local?).");
+        }
       }
 
       alert('¡Evento actualizado exitosamente!');
