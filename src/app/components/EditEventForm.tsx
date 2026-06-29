@@ -75,12 +75,17 @@ export function EditEventForm({
         updatePayload.name = titleVal;
       }
 
-      const { error: updateError } = await supabase
+      const { data, error: updateError } = await supabase
         .from('events')
         .update(updatePayload)
-        .eq('id', initialData.id);
+        .eq('id', initialData.id)
+        .select('*');
 
       if (updateError) throw updateError;
+      
+      if (!data || data.length === 0) {
+        throw new Error("No se pudo actualizar (quizá por permisos de seguridad RLS en la base de datos).");
+      }
 
       alert('¡Evento actualizado exitosamente!');
       onEventUpdated();
