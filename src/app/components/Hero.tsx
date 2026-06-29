@@ -2,121 +2,67 @@ import { Link } from "react-router-dom";
 
 const HERO_IMAGE = "/hero.png";
 
-const HERO_PHRASES = [
-  "Que nadie se prive, de lo que es destino y vocación de todos: SERVIR.",
-  "Experimenta la felicidad de compartir.",
-  "Poner el yo a la disposición del tú, para la plenitud de nosotros: AMAR.",
-  "BELLEZA, VERDAD y BONDAD",
-];
-
 export function Hero() {
-
   return (
-    <section
-      id="inicio"
-      style={{ background: "linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-      className="relative overflow-hidden"
-    >
-      <StarPattern />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 md:pt-10 md:pb-16 lg:pt-14 lg:pb-24">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-          <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 mb-4" />
-
-            <h1
-              style={{ color: "#1A2E6C", fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.02em" }}
-              className="mb-5"
-            >
-              Conectando empresas / grupos con <span style={{ color: "#E8401C" }}>causas que importan</span>
-            </h1>
-
-            <p
-              style={{ color: "#4B5563", fontSize: "clamp(1rem, 2vw, 1.2rem)", lineHeight: 1.7 }}
-              className="mb-8 max-w-2xl mx-auto lg:mx-0"
-            >
-              Nuestra misión es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una visión sistémica y comunitaria.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                to="/catalogo-eventos"
-                style={{ backgroundColor: "#F5C200", color: "#1A2E6C", borderRadius: 8 }}
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:brightness-105 active:scale-95 transition-all duration-200 shadow-lg shadow-yellow-400/40 text-center"
-              >
-                ¿Eres empresa y quieres colaborar?
-              </Link>
-              <Link
-                to="/registro"
-                style={{ color: "#FFFFFF", border: "2px solid #1A2E6C", borderRadius: 8, backgroundColor: "#1A2E6C" }}
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 font-bold text-sm hover:brightness-110 active:scale-95 transition-all duration-200 text-center"
-              >
-                ¿Eres una asociación? Comparte tu proyecto
-              </Link>
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:hidden">
-              {HERO_PHRASES.map((phrase) => (
-                <div
-                  key={phrase}
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid rgba(26,46,108,0.12)",
-                    borderRadius: 12,
-                    boxShadow: "0 10px 24px rgba(26,46,108,0.08)",
-                  }}
-                  className="px-4 py-4 text-left"
-                >
-                  <p style={{ color: "#1A2E6C", fontSize: 13, fontWeight: 700, lineHeight: 1.6 }}>{phrase}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative hidden lg:block">
-            <div
-              style={{ borderRadius: 20, overflow: "hidden", border: "3px solid rgba(26,46,108,0.12)", boxShadow: "0 24px 60px rgba(26,46,108,0.15)" }}
-              className="relative"
-            >
-              <img src={HERO_IMAGE} alt="Voluntarios trabajando juntos" className="w-full h-[480px] object-cover" />
-              <div style={{ background: "linear-gradient(to top, rgba(26,46,108,0.45) 0%, transparent 60%)" }} className="absolute inset-0" />
-            </div>
-
-            <div
-              style={{ backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid rgba(229,231,235,0.9)" }}
-              className="absolute -left-4 top-6 max-w-[180px] px-3 py-3 hidden xl:block"
-            >
-              <p style={{ color: "#1A2E6C", fontSize: 12, fontWeight: 700, lineHeight: 1.5 }}>{HERO_PHRASES[0]}</p>
-            </div>
-
-            <div
-              style={{ backgroundColor: "rgba(26,46,108,0.92)", borderRadius: 12, border: "1px solid rgba(245,194,0,0.3)", boxShadow: "0 8px 24px rgba(26,46,108,0.22)" }}
-              className="absolute -right-3 top-16 max-w-[180px] px-3 py-3 hidden xl:block"
-            >
-              <p style={{ color: "#FFFFFF", fontSize: 12, fontWeight: 700, lineHeight: 1.5 }}>{HERO_PHRASES[1]}</p>
-            </div>
-
-            <div
-              style={{ backgroundColor: "rgba(255,255,255,0.9)", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid rgba(229,231,235,0.9)" }}
-              className="absolute -left-2 bottom-6 max-w-[200px] px-3 py-3 hidden xl:block"
-            >
-              <p style={{ color: "#1A2E6C", fontSize: 12, fontWeight: 700, lineHeight: 1.5 }}>{HERO_PHRASES[2]}</p>
-            </div>
-
-            <div
-              style={{ backgroundColor: "rgba(245,194,0,0.94)", borderRadius: 12, border: "1px solid rgba(26,46,108,0.1)", boxShadow: "0 8px 24px rgba(245,194,0,0.24)" }}
-              className="absolute right-5 -bottom-3 max-w-[165px] px-3 py-3 hidden xl:block"
-            >
-              <p style={{ color: "#1A2E6C", fontSize: 12, fontWeight: 800, lineHeight: 1.45 }}>{HERO_PHRASES[3]}</p>
-            </div>
-          </div>
-        </div>
+    <section id="inicio" className="w-full flex flex-col bg-white">
+      {/* Imagen completa a todo el ancho */}
+      <div className="w-full h-[50vh] md:h-[60vh] lg:h-[70vh] relative">
+        <img 
+          src={HERO_IMAGE} 
+          alt="Voluntarios trabajando juntos" 
+          className="w-full h-full object-cover" 
+        />
+        {/* Sombra sutil interna para dar profundidad si se requiere */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none rotate-180">
-        <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" className="w-full" style={{ height: 60 }}>
-          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#FFFFFF" />
-        </svg>
+      {/* Título, párrafo y Call to Action */}
+      <div 
+        style={{ 
+          background: "linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%)", 
+          fontFamily: "'Plus Jakarta Sans', sans-serif" 
+        }} 
+        className="relative w-full py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center overflow-hidden"
+      >
+        <StarPattern />
+        
+        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          <h1
+            style={{ 
+              color: "#1A2E6C", 
+              fontSize: "clamp(2rem, 5vw, 4rem)", 
+              fontWeight: 800, 
+              lineHeight: 1.15, 
+              letterSpacing: "-0.02em" 
+            }}
+            className="mb-6"
+          >
+            Conectando empresas y grupos con <span style={{ color: "#E8401C" }}>causas que importan</span>
+          </h1>
+
+          <p
+            style={{ 
+              color: "#4B5563", 
+              fontSize: "clamp(1.125rem, 2vw, 1.25rem)", 
+              lineHeight: 1.7 
+            }}
+            className="mb-10 max-w-3xl"
+          >
+            Nuestra misión es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una visión sistémica y comunitaria.
+          </p>
+
+          <Link
+            to="/catalogo-eventos"
+            style={{ 
+              backgroundColor: "#F5C200", 
+              color: "#1A2E6C", 
+              borderRadius: 12 
+            }}
+            className="inline-flex items-center justify-center gap-2 px-10 py-4 font-bold text-lg hover:brightness-105 active:scale-95 transition-all duration-200 shadow-xl shadow-yellow-400/30 text-center"
+          >
+            Ver catálogo de eventos
+          </Link>
+        </div>
       </div>
     </section>
   );
