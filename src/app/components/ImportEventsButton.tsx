@@ -23,7 +23,7 @@ type EventImportDraft = {
   sourceRow: number;
   name: string;
   company: string;
-  date: string;
+  date: string | null;
   target_audience: string;
   description: string;
   objective: string;
@@ -42,12 +42,8 @@ type EventImportDraft = {
 
 const TEMPLATE_COLUMNS = [
   'Titulo',
-  'Fecha de cierre',
   'Sector beneficiado',
   'Municipio',
-  'Espacios minimos',
-  'Espacios maximos',
-  'Cuota de recuperacion',
   'Coordinador',
   'Evento anual',
   'Descripcion',
@@ -60,12 +56,8 @@ const TEMPLATE_COLUMNS = [
 
 const EXAMPLE_ROW = [
   'Limpieza de parque',
-  '2026-08-15',
   'Medio Ambiente',
-  'Monterrey',
-  10,
-  25,
-  'Gratuito',
+  'Monterrey, San Pedro Garza García',
   'Nombre del coordinador',
   'No',
   'Describe el evento con claridad.',
@@ -212,12 +204,8 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
       .map((row, index) => {
         const excelRow = index + 2;
         const title = normalizeText(row['Titulo']);
-        const date = parseDate(row['Fecha de cierre']);
         const objective = findOption(row['Sector beneficiado'], EVENT_CATEGORIES);
         const municipio = resolveMunicipio(row['Municipio']);
-        const spotsMin = parseNonNegativeInteger(row['Espacios minimos']);
-        const spotsMax = parseNonNegativeInteger(row['Espacios maximos']);
-        const cost = normalizeText(row['Cuota de recuperacion']) || 'Gratuito';
         const coordinador = normalizeText(row['Coordinador']);
         const isAnnual = parseBoolean(row['Evento anual']);
         const description = normalizeText(row['Descripcion']);
@@ -235,15 +223,6 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           ]));
         }
 
-        if (!date) {
-          const raw = normalizeText(row['Fecha de cierre']);
-          validationErrors.push(buildError(excelRow, 'Fecha de cierre', raw ? `"${raw}" no es una fecha válida.` : 'La celda está vacía.', [
-            `Ve a la fila ${excelRow}, columna "Fecha de cierre".`,
-            'Escribe la fecha en formato AAAA-MM-DD (ejemplo: 2026-08-15) o DD/MM/AAAA (ejemplo: 15/08/2026).',
-            'Guarda el archivo y vuelve a importarlo.',
-          ]));
-        }
-
         if (!objective) {
           const raw = normalizeText(row['Sector beneficiado']);
           validationErrors.push(buildError(excelRow, 'Sector beneficiado', raw ? `"${raw}" no es un sector reconocido.` : 'La celda está vacía.', [
@@ -255,32 +234,9 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
 
         if (!municipio) {
           const raw = normalizeText(row['Municipio']);
-          validationErrors.push(buildError(excelRow, 'Municipio', raw ? `"${raw}" no se reconoce como un municipio de Nuevo León.` : 'La celda está vacía.', [
-            'Revisa que el municipio exista en Nuevo León.',
-            'Guarda el archivo y vuelve a importarlo.',
-          ]));
-        }
-
-        if (spotsMin == null) {
-          validationErrors.push(buildError(excelRow, 'Espacios minimos', 'No es un número válido.', [
-            `Ve a la fila ${excelRow}, columna "Espacios minimos".`,
-            'Escribe solo un número entero (ejemplo: 10).',
-            'Guarda el archivo y vuelve a importarlo.',
-          ]));
-        }
-
-        if (spotsMax == null) {
-          validationErrors.push(buildError(excelRow, 'Espacios maximos', 'No es un número válido.', [
-            `Ve a la fila ${excelRow}, columna "Espacios maximos".`,
-            'Escribe solo un número entero (ejemplo: 25).',
-            'Guarda el archivo y vuelve a importarlo.',
-          ]));
-        }
-
-        if (spotsMin != null && spotsMax != null && spotsMin > spotsMax) {
-          validationErrors.push(buildError(excelRow, 'Espacios maximos', `Máximo (${spotsMax}) menor que mínimo (${spotsMin}).`, [
-            `Revisa la fila ${excelRow}.`,
-            '"Espacios maximos" debe ser igual o mayor que "Espacios minimos".',
+          validationErrors.push(buildError(excelRow, 'Municipio', raw ? `"${raw}" contiene uno o más municipios no reconocidos.` : 'La celda está vacía.', [
+            'Revisa que los municipios existan en Nuevo León.',
+            'Si vas a ingresar varios, sepáralos con comas (ejemplo: Monterrey, Apodaca).',
             'Guarda el archivo y vuelve a importarlo.',
           ]));
         }
@@ -313,16 +269,16 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
           sourceRow: excelRow,
           name: title,
           company: 'EZER',
-          date,
+          date: null,
           target_audience: 'Público General',
           description,
           objective,
           municipio,
-          cost,
+          cost: 'Gratuito',
           coordinador,
           is_annual: isAnnual === true,
-          spots_min: spotsMin ?? 0,
-          spots_max: spotsMax ?? 0,
+          spots_min: 0,
+          spots_max: 0,
           asociacion,
           asociacion_municipio: asociacionMunicipio,
           image_url: imageUrl,
