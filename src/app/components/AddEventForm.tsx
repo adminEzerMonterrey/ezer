@@ -6,6 +6,7 @@ import { NUEVO_LEON_MUNICIPALITIES } from '../municipalities';
 export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [image, setImage] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +31,6 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
     const coordinador = formData.get('coordinador') as string;
     const asociacion = formData.get('asociacion') as string;
     const asociacionMunicipio = formData.get('asociacion_municipio') as string;
-    const imageUrl = formData.get('image_url') as string;
     const flyerUrl = formData.get('flyer_url') as string;
     const sensibilizationCourseUrl = formData.get('sensibilization_course_url') as string;
     const isAnnual = formData.get('is_annual') === 'on';
@@ -59,6 +59,22 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
+      let finalImageUrl = null;
+      if (image) {
+        const fileName = `events/${crypto.randomUUID()}-${image.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('event-images')
+          .upload(fileName, image);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('event-images')
+          .getPublicUrl(fileName);
+        
+        finalImageUrl = data.publicUrl;
+      }
+
       const { error: insertError } = await supabase
         .from('events')
         .insert([{
@@ -76,7 +92,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
           is_annual: isAnnual,
           spots_min: spotsMin,
           spots_max: spotsMax,
-          image_url: imageUrl || null,
+          image_url: finalImageUrl,
           flyer_url: flyerUrl || null,
           sensibilization_course_url: sensibilizationCourseUrl || null,
           user_id: user.id,
@@ -86,6 +102,7 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
       alert('Evento creado correctamente.');
       (e.target as HTMLFormElement).reset();
+      setImage(null);
       onEventAdded();
     } catch (submitError: any) {
       console.error('ERROR:', submitError);
@@ -181,9 +198,13 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>URL de imagen en Google Drive (opcional)</label>
-          <input name="image_url" type="url" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="https://drive.google.com/file/d/..." />
-          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '4px 0 0' }}>Link directo de la imagen en Google Drive</p>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen del evento (opcional)</label>
+          <input 
+            type="file" 
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} 
+          />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

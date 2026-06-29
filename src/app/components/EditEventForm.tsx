@@ -14,6 +14,7 @@ export function EditEventForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [image, setImage] = useState<File | null>(null);
   const [municipios, setMunicipios] = useState<string[]>(
     initialData.municipio ? initialData.municipio.split(',').map((s: string) => s.trim()) : ['Monterrey']
   );
@@ -61,6 +62,27 @@ export function EditEventForm({
       return;
     }
 
+    let finalImageUrl = initialData.image_url || null;
+    
+    if (image) {
+      const fileName = `events/${crypto.randomUUID()}-${image.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('event-images')
+        .upload(fileName, image);
+
+      if (uploadError) {
+        setError('Error al subir la imagen: ' + uploadError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from('event-images')
+        .getPublicUrl(fileName);
+      
+      finalImageUrl = data.publicUrl;
+    }
+
     const updatePayload: any = {
       company: 'EZER',
       date: formData.get('event_date'),
@@ -72,7 +94,7 @@ export function EditEventForm({
       coordinador: formData.get('coordinador'),
       asociacion: formData.get('asociacion'),
       asociacion_municipio: formData.get('asociacion_municipio'),
-      image_url: formData.get('image_url') || initialData.image_url || null,
+      image_url: finalImageUrl,
       flyer_url: formData.get('flyer_url') || null,
       sensibilization_course_url: formData.get('sensibilization_course_url') || null,
       is_annual: formData.get('is_annual') === 'on',
@@ -205,9 +227,19 @@ export function EditEventForm({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>URL de imagen en Google Drive (opcional)</label>
-          <input defaultValue={initialData.image_url || ''} name="image_url" type="url" style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} placeholder="https://drive.google.com/file/d/..." />
-          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '4px 0 0' }}>Dejar en blanco mantiene la imagen actual</p>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Imagen del evento (opcional)</label>
+          {initialData.image_url && (
+            <div style={{ marginBottom: '8px' }}>
+              <img src={initialData.image_url} alt="Actual" style={{ height: '100px', borderRadius: '4px', objectFit: 'cover' }} />
+            </div>
+          )}
+          <input 
+            type="file" 
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }} 
+          />
+          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '4px 0 0' }}>Sube un nuevo archivo para reemplazar la imagen actual</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gridColumn: 'span 2' }}>

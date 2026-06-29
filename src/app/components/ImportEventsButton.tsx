@@ -53,7 +53,7 @@ const TEMPLATE_COLUMNS = [
   'Descripcion',
   'Asociacion',
   'Municipio de la asociacion',
-  'URL Imagen (Drive)',
+  'URL Imagen',
   'URL Flyer (Drive)',
   'URL Curso Sensibilizacion (Drive)',
 ];
@@ -71,7 +71,7 @@ const EXAMPLE_ROW = [
   'Describe el evento con claridad.',
   'Asociación Civil Ejemplo (opcional)',
   'Monterrey',
-  'https://drive.google.com/file/d/IMAGE_ID/view',
+  '',
   'https://drive.google.com/file/d/FLYER_ID/view',
   'https://drive.google.com/file/d/CURSO_ID/view',
 ];
@@ -223,7 +223,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
         const description = normalizeText(row['Descripcion']);
         const asociacion = normalizeText(row['Asociacion']);
         const asociacionMunicipio = resolveMunicipio(row['Municipio de la asociacion']);
-        const imageUrl = normalizeText(row['URL Imagen (Drive)']);
+        const imageUrl = normalizeText(row['URL Imagen']) || normalizeText(row['URL Imagen (Drive)']);
         const flyerUrl = normalizeText(row['URL Flyer (Drive)']);
         const sensibilizationCourseUrl = normalizeText(row['URL Curso Sensibilizacion (Drive)']);
 
