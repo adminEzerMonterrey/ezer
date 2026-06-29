@@ -40,7 +40,13 @@ export function EditEventForm({
       if (!user) throw new Error('Tu sesión de administrador expiró. Cierra sesión, vuelve a iniciar sesión e intenta guardar otra vez.');
 
       if (image) {
-        const fileName = `events/${crypto.randomUUID()}-${image.name}`;
+        const sanitizeFileName = (name: string) => {
+          return name
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-zA-Z0-9.\-_]/g, '_')
+            .toLowerCase();
+        };
+        const fileName = `events/${crypto.randomUUID()}-${sanitizeFileName(image.name)}`;
         const { error: uploadError } = await supabase.storage
           .from('event-images')
           .upload(fileName, image);

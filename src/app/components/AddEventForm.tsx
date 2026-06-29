@@ -45,7 +45,13 @@ export function AddEventForm({ onEventAdded }: { onEventAdded: () => void }) {
 
       let finalImageUrl = null;
       if (image) {
-        const fileName = `events/${crypto.randomUUID()}-${image.name}`;
+        const sanitizeFileName = (name: string) => {
+          return name
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-zA-Z0-9.\-_]/g, '_')
+            .toLowerCase();
+        };
+        const fileName = `events/${crypto.randomUUID()}-${sanitizeFileName(image.name)}`;
         const { error: uploadError } = await supabase.storage
           .from('event-images')
           .upload(fileName, image);
