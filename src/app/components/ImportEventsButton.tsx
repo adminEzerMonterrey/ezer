@@ -415,25 +415,42 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
 
             <div style={{ maxHeight: '40vh', overflowY: 'auto', marginBottom: '20px', borderTop: '1px solid #E5E7EB', paddingTop: '10px' }}>
               {pendingEvents.map((event, index) => (
-                <div key={index} style={{ borderBottom: '1px solid #E5E7EB', paddingBottom: '12px', marginBottom: '12px' }}>
-                  <p style={{ fontWeight: 600, fontSize: 14, margin: '0 0 6px', color: '#1F2937' }}>{event.name}</p>
-                  <label style={{ fontSize: 12, color: '#4B5563', display: 'block', marginBottom: 4 }}>Imagen del evento (opcional):</label>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        setEventImages(prev => ({ ...prev, [index]: e.target.files![0] }));
-                      } else {
-                        setEventImages(prev => {
-                          const newImages = { ...prev };
-                          delete newImages[index];
-                          return newImages;
-                        });
-                      }
-                    }} 
-                    style={{ fontSize: 12, color: '#4B5563' }}
-                  />
+                <div key={index} style={{ borderBottom: '1px solid #E5E7EB', paddingBottom: '12px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ flex: 1, paddingRight: '16px' }}>
+                    <p style={{ fontWeight: 600, fontSize: 14, margin: '0 0 4px', color: '#1F2937' }}>{event.name}</p>
+                    <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>
+                      {eventImages[index] ? (
+                        <span style={{ color: '#16A34A', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          ✅ Imagen lista: {eventImages[index].name}
+                        </span>
+                      ) : 'Sin imagen seleccionada'}
+                    </p>
+                  </div>
+                  <div>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      id={`file-upload-${index}`}
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setEventImages(prev => ({ ...prev, [index]: e.target.files![0] }));
+                        } else {
+                          setEventImages(prev => {
+                            const newImages = { ...prev };
+                            delete newImages[index];
+                            return newImages;
+                          });
+                        }
+                      }} 
+                    />
+                    <label 
+                      htmlFor={`file-upload-${index}`}
+                      style={{ display: 'inline-block', padding: '8px 12px', backgroundColor: eventImages[index] ? '#EEF2FF' : '#F3F4F6', color: eventImages[index] ? '#4F46E5' : '#374151', border: '1px solid', borderColor: eventImages[index] ? '#C7D2FE' : '#D1D5DB', borderRadius: '6px', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', textAlign: 'center', minWidth: '130px' }}
+                    >
+                      {eventImages[index] ? 'Cambiar imagen' : '📎 Subir imagen'}
+                    </label>
+                  </div>
                 </div>
               ))}
             </div>
