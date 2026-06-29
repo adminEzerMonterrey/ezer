@@ -52,21 +52,7 @@ const TEMPLATE_COLUMNS = [
   'URL Imagen',
   'URL Flyer (Drive)',
   'URL Curso Sensibilizacion (Drive)',
-];
 
-const EXAMPLE_ROW = [
-  'Limpieza de parque',
-  'Medio Ambiente',
-  'Monterrey, San Pedro Garza García',
-  'Nombre del coordinador',
-  'No',
-  'Describe el evento con claridad.',
-  'Asociación Civil Ejemplo (opcional)',
-  'Monterrey',
-  '',
-  'https://drive.google.com/file/d/FLYER_ID/view',
-  'https://drive.google.com/file/d/CURSO_ID/view',
-];
 
 const normalizeText = (value: unknown) => String(value ?? '').trim();
 
@@ -183,7 +169,7 @@ export function ImportEventsButton({ onEventsImported }: { onEventsImported: () 
 
   const downloadTemplate = () => {
     const workbook = XLSX.utils.book_new();
-    const eventsSheet = XLSX.utils.aoa_to_sheet([TEMPLATE_COLUMNS, EXAMPLE_ROW]);
+    const eventsSheet = XLSX.utils.aoa_to_sheet([TEMPLATE_COLUMNS]);
     const optionsSheet = XLSX.utils.aoa_to_sheet([
       ['Sectores beneficiados', 'Municipios', 'Evento anual'],
       ...Array.from({ length: Math.max(EVENT_CATEGORIES.length, NUEVO_LEON_MUNICIPALITIES.length) }).map((_, index) => [
