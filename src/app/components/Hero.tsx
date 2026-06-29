@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const HERO_IMAGE = "/hero-landing.jpg";
+const HERO_IMAGE = "/hero.png";
 
 const HERO_PHRASES = [
   "Que nadie se prive, de lo que es destino y vocación de todos: SERVIR.",
