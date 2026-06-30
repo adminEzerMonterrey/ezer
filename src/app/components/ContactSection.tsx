@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Clock3, Landmark, Mail, MapPin, Phone, Send } from "lucide-react";
 
 export function ContactSection() {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
   return (
     <section id="contacto" className="pt-8 pb-12 md:pt-10 md:pb-16" style={{ backgroundColor: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,28 +29,46 @@ export function ContactSection() {
               </p>
             </div>
             
-            <form onSubmit={async (e) => { 
-              e.preventDefault();
-              const form = e.target as HTMLFormElement;
-              const data = {
-                name: (form.elements.namedItem('name') as HTMLInputElement).value,
-                email: (form.elements.namedItem('email') as HTMLInputElement).value,
-                subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
-                message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
-              };
-              
-              try {
-                await fetch('/api/contact', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(data)
-                });
-                alert("Mensaje enviado exitosamente. ¡Gracias por contactarnos!"); 
-                form.reset();
-              } catch (err) {
-                alert("Hubo un error al enviar tu mensaje. Por favor intenta de nuevo.");
-              }
-            }}>
+            {status === 'success' ? (
+              <div className="text-center py-8">
+                <div style={{ fontSize: '40px', marginBottom: '16px' }}>✨</div>
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>¡Mensaje Enviado!</h3>
+                <p style={{ color: '#4B5563', fontSize: '14px', marginBottom: '24px' }}>
+                  Nos pondremos en contacto contigo pronto. ¡Gracias por comunicarte con Ezer!
+                </p>
+                <button
+                  onClick={() => setStatus('idle')}
+                  style={{ backgroundColor: '#1A2E6C', color: 'white', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#162560'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1A2E6C'}
+                >
+                  Enviar otro mensaje
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={async (e) => { 
+                e.preventDefault();
+                setStatus('loading');
+                const form = e.target as HTMLFormElement;
+                const data = {
+                  name: (form.elements.namedItem('name') as HTMLInputElement).value,
+                  email: (form.elements.namedItem('email') as HTMLInputElement).value,
+                  subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
+                  message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+                };
+                
+                try {
+                  await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                  });
+                  setStatus('success');
+                  form.reset();
+                } catch (err) {
+                  setStatus('error');
+                }
+              }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label htmlFor="name" style={{ display: "block", color: "#374151", fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
@@ -113,6 +134,7 @@ export function ContactSection() {
               <div className="text-center">
                 <button
                   type="submit"
+                  disabled={status === 'loading'}
                   style={{
                     backgroundColor: "#1A2E6C",
                     color: "#FFFFFF",
@@ -121,7 +143,8 @@ export function ContactSection() {
                     borderRadius: 12,
                     fontSize: 16,
                     border: "none",
-                    cursor: "pointer",
+                    cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                    opacity: status === 'loading' ? 0.7 : 1,
                     transition: "all 0.2s",
                     display: "inline-flex",
                     alignItems: "center",
@@ -129,18 +152,22 @@ export function ContactSection() {
                     boxShadow: "0 4px 6px -1px rgba(26, 46, 108, 0.2)"
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.backgroundColor = "#2a4393";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(26, 46, 108, 0.3)";
+                    if (status !== 'loading') {
+                      e.currentTarget.style.backgroundColor = "#2a4393";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(26, 46, 108, 0.3)";
+                    }
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor = "#1A2E6C";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(26, 46, 108, 0.2)";
+                    if (status !== 'loading') {
+                      e.currentTarget.style.backgroundColor = "#1A2E6C";
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(26, 46, 108, 0.2)";
+                    }
                   }}
                 >
                   <Send size={20} />
-                  Enviar Mensaje
+                  {status === 'loading' ? 'Enviando...' : 'Enviar Mensaje'}
                 </button>
               </div>
             </form>
