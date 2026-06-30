@@ -298,19 +298,13 @@ export function EventCatalog() {
         <EventDetailsModal
           event={detailsEvent}
           onClose={() => setDetailsEvent(null)}
-          onAction={(type) => {
-            if (type === 'interest') {
-              setCourseInterest(false);
-              setSelectedEventName(detailsEvent.title);
-            } else if (type === 'flyer' && detailsEvent.flyer_url) {
-              setFlyerEvent(detailsEvent);
-            } else if (type === 'curso') {
-              if (detailsEvent.sensibilization_course_url) {
-                setCourseEvent(detailsEvent);
-              } else {
-                setCourseInterest(true);
-                setSelectedEventName(detailsEvent.title);
-              }
+          onAction={(action) => {
+            setDetailsEvent(null);
+            if (action === 'interest') setSelectedEventName(detailsEvent.title);
+            if (action === 'flyer') setFlyerEvent(detailsEvent);
+            if (action === 'course') {
+              setCourseEvent(detailsEvent);
+              setCourseInterest(true);
             }
           }}
         />
@@ -362,7 +356,7 @@ function RequestEventModal({ defaultMunicipio, onClose }: { defaultMunicipio: st
     const data = {
       name: formData.get('name'),
       phone: formData.get('phone'),
-      company: '',
+      company: formData.get('company'),
       email: formData.get('email'),
       description,
       wantsTraining: false,
@@ -465,6 +459,11 @@ function RequestEventModal({ defaultMunicipio, onClose }: { defaultMunicipio: st
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Tu Nombre completo *</label>
                 <input required name="name" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu nombre" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa / Organización *</label>
+                <input required name="company" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Nombre de tu empresa" />
               </div>
 
               <div>
@@ -680,7 +679,7 @@ function InterestModal({ eventName, defaultWantsTraining = false, onClose }: { e
     const data = {
       name: formData.get('name'),
       phone: formData.get('phone'),
-      company: '',
+      company: formData.get('company'),
       email: formData.get('email'),
       description: formData.get('description'),
       wantsTraining: formData.get('wants_training') === 'on',
@@ -774,6 +773,11 @@ function InterestModal({ eventName, defaultWantsTraining = false, onClose }: { e
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Tu Nombre completo *</label>
                 <input required name="name" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Tu nombre" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Empresa / Organización *</label>
+                <input required name="company" type="text" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB' }} placeholder="Nombre de tu empresa" />
               </div>
 
               <div>

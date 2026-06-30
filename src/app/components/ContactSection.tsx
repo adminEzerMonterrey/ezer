@@ -171,6 +171,7 @@ export function ContactSection() {
                 </button>
               </div>
             </form>
+            )}
           </div>
         </div>
 
