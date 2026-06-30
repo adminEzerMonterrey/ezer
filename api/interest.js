@@ -160,7 +160,7 @@ ezer-eventos.vercel.app`;
 
     if (!isRegistration) {
       try {
-        await fetch("https://hook.us1.make.com/xxxxxxxx", {
+        await fetch("https://hook.us2.make.com/gk3msgktwdcxack4cb718h5d6a5ntfsd", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
