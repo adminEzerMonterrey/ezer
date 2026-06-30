@@ -64,11 +64,20 @@ export default async function handler(req, res) {
       }
     }
 
+    const isRegistration = eventName.startsWith('Registro');
+    const adminSubject = isRegistration 
+      ? `Nuevo Registro de Empresa: ${eventName}`
+      : `Nuevo Interesado en Evento del Catálogo: ${eventName}`;
+      
+    const userSubject = isRegistration
+      ? `Recibimos tu interés — te buscaremos muy pronto`
+      : `Confirmación de solicitud para evento: ${eventName}`;
+
     // 1. Mensaje para el administrador
     const adminInfo = await transporter.sendMail({
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
       to: adminEmail, 
-      subject: `Nuevo Interesado en Evento: ${eventName}`,
+      subject: adminSubject,
       text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\n¿Quiere capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}`,
       html: `
         <h2>Nuevo Prospecto de Voluntariado</h2>
@@ -85,26 +94,56 @@ export default async function handler(req, res) {
       `,
     });
 
+    const userTextRegistration = `Estimada/o ${name}:
+¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que ${company || 'su empresa/asociación'} quiere participar.
+Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.
+Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.
+Agradecemos su confianza y sus ganas de generar impacto en la comunidad. ¡Estamos por construir algo muy valioso juntos!
+
+Saludos cordiales,
+Equipo EZER
+EZER A.B.P. · La Casa del Voluntario
+voluntariadocorporativo@ezer.org.mx
+ezer-eventos.vercel.app`;
+
+    const userHtmlRegistration = `
+      <p>Estimada/o ${name}:</p>
+      <p>¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que <strong>${company || 'su empresa/asociación'}</strong> quiere participar.</p>
+      <p>Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.</p>
+      <p>Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.</p>
+      <p>Agradecemos su confianza y sus ganas de generar impacto en la comunidad. ¡Estamos por construir algo muy valioso juntos!</p>
+      <br>
+      <p>Saludos cordiales,<br>
+      <strong>Equipo EZER</strong><br>
+      EZER A.B.P. · La Casa del Voluntario<br>
+      <a href="mailto:voluntariadocorporativo@ezer.org.mx">voluntariadocorporativo@ezer.org.mx</a><br>
+      <a href="https://ezer-eventos.vercel.app">ezer-eventos.vercel.app</a></p>
+    `;
+
+    const userTextCatalog = `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\n¿Quieres capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`;
+
+    const userHtmlCatalog = `
+      <h2>¡Gracias por tu interés, ${name}!</h2>
+      <p>Hemos recibido correctamente tus datos para participar en el evento <strong>${eventName}</strong>.</p>
+      <p><strong>Resumen de tu solicitud:</strong></p>
+      <ul>
+        <li><strong>Teléfono:</strong> ${phone}</li>
+        <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
+        <li><strong>¿Quieres capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
+        <li><strong>Tus comentarios:</strong> ${description}</li>
+      </ul>
+      <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles.</p>
+      <br>
+      <p>Atentamente,<br><strong>Equipo EZER</strong></p>
+    `;
+
     // 2. Mensaje de confirmación para el usuario que llenó el formulario
     const userInfo = await transporter.sendMail({
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
       to: email, 
-      subject: `Confirmación de solicitud para evento: ${eventName}`,
-      text: `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\n¿Quieres capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`,
-      html: `
-        <h2>¡Gracias por tu interés, ${name}!</h2>
-        <p>Hemos recibido correctamente tus datos para participar en el evento <strong>${eventName}</strong>.</p>
-        <p><strong>Resumen de tu solicitud:</strong></p>
-        <ul>
-          <li><strong>Teléfono:</strong> ${phone}</li>
-          <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
-          <li><strong>¿Quieres capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
-          <li><strong>Tus comentarios:</strong> ${description}</li>
-        </ul>
-        <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles.</p>
-        <br>
-        <p>Atentamente,<br><strong>Equipo EZER</strong></p>
-      `,
+      subject: userSubject,
+      text: isRegistration ? userTextRegistration : userTextCatalog,
+      html: isRegistration ? userHtmlRegistration : userHtmlCatalog,
     });
 
     console.log('Message sent to admin: %s', adminInfo.messageId);

@@ -26,10 +26,27 @@ export function ContactSection() {
               </p>
             </div>
             
-            <form onSubmit={(e) => { 
-              e.preventDefault(); 
-              alert("Mensaje enviado exitosamente. ¡Gracias por contactarnos!"); 
-              (e.target as HTMLFormElement).reset();
+            <form onSubmit={async (e) => { 
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const data = {
+                name: (form.elements.namedItem('name') as HTMLInputElement).value,
+                email: (form.elements.namedItem('email') as HTMLInputElement).value,
+                subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
+                message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+              };
+              
+              try {
+                await fetch('/api/contact', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+                });
+                alert("Mensaje enviado exitosamente. ¡Gracias por contactarnos!"); 
+                form.reset();
+              } catch (err) {
+                alert("Hubo un error al enviar tu mensaje. Por favor intenta de nuevo.");
+              }
             }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
@@ -39,6 +56,7 @@ export function ContactSection() {
                   <input
                     type="text"
                     id="name"
+                    name="name"
                     required
                     style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, transition: "border-color 0.2s" }}
                     placeholder="Tu nombre"
@@ -53,6 +71,7 @@ export function ContactSection() {
                   <input
                     type="email"
                     id="email"
+                    name="email"
                     required
                     style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, transition: "border-color 0.2s" }}
                     placeholder="tu@correo.com"
@@ -68,6 +87,7 @@ export function ContactSection() {
                 <input
                   type="text"
                   id="subject"
+                  name="subject"
                   required
                   style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, transition: "border-color 0.2s" }}
                   placeholder="¿En qué podemos ayudarte?"
@@ -81,6 +101,7 @@ export function ContactSection() {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   required
                   rows={5}
                   style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1px solid #D1D5DB", outline: "none", fontSize: 15, resize: "vertical", transition: "border-color 0.2s" }}
