@@ -157,6 +157,30 @@ ezer-eventos.vercel.app`;
 
     console.log('Message sent to admin: %s', adminInfo.messageId);
     console.log('Message sent to user: %s', userInfo.messageId);
+
+    if (!isRegistration) {
+      try {
+        await fetch("https://hook.us1.make.com/xxxxxxxx", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nombre: name,
+                correo: email,
+                telefono: phone,
+                empresa: company || '',
+                evento: eventName,
+                comentarios: finalComments,
+                capacitacion: wantsTraining ? 'Sí' : 'No'
+            })
+        });
+        console.log('Webhook sent to Make.com');
+      } catch (webhookErr) {
+        console.error('Error sending webhook to Make:', webhookErr);
+      }
+    }
+
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
