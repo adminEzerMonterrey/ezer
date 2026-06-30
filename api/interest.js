@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, phone, company, email, eventName, description, wantsTraining } = req.body;
+  const { name, phone, company, email, eventName, description, wantsTraining, municipio, projects, comments } = req.body;
 
   if (!name || !phone || !email || !eventName) {
     return res.status(400).json({ message: 'Name, phone, email, and eventName are required' });
@@ -73,12 +73,19 @@ export default async function handler(req, res) {
       ? `Recibimos tu interés — te buscaremos muy pronto`
       : `Confirmación de solicitud para evento: ${eventName}`;
 
+    const projectsHtml = (projects && projects.length > 0)
+      ? `<li><strong>Programas de interés:</strong><ul>${projects.map(p => `<li>${p}</li>`).join('')}</ul></li>`
+      : '';
+    
+    const municipioHtml = municipio ? `<li><strong>Municipio:</strong> ${municipio}</li>` : '';
+    const finalComments = comments ? comments : description;
+
     // 1. Mensaje para el administrador
     const adminInfo = await transporter.sendMail({
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
       to: adminEmail, 
       subject: adminSubject,
-      text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\n¿Quiere capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}`,
+      text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\nMunicipio: ${municipio || 'No especificado'}\nProgramas de interés: ${projects ? projects.join(', ') : 'N/A'}\n¿Quiere capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nComentarios: ${finalComments}`,
       html: `
         <h2>Nuevo Prospecto de Voluntariado</h2>
         <p><strong>Evento seleccionado:</strong> ${eventName}</p>
@@ -87,10 +94,12 @@ export default async function handler(req, res) {
           <li><strong>Teléfono:</strong> ${phone}</li>
           <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
           <li><strong>Correo Electrónico:</strong> <a href="mailto:${email}">${email}</a></li>
+          ${municipioHtml}
+          ${projectsHtml}
           <li><strong>¿Quiere capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
         </ul>
         <p><strong>Comentarios adicionales:</strong></p>
-        <p>${description}</p>
+        <p>${finalComments}</p>
       `,
     });
 

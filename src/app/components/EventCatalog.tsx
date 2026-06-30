@@ -367,6 +367,8 @@ function RequestEventModal({ defaultMunicipio, onClose }: { defaultMunicipio: st
       description,
       wantsTraining: false,
       eventName: `Solicitud de evento en municipio: ${municipio}`,
+      municipio: municipio,
+      comments: baseDescription
     };
 
     try {

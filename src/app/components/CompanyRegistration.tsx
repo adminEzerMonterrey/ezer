@@ -48,6 +48,9 @@ export function CompanyRegistration() {
       description,
       wantsTraining: formData.get('wants_training') === 'on',
       eventName,
+      municipio: municipio || 'No especificado',
+      projects: selectedProjects,
+      comments: baseDescription
     };
 
     try {
