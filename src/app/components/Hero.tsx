@@ -50,39 +50,53 @@ export function Hero() {
             Nuestra misión es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una visión sistémica y comunitaria.
           </p>
 
-          <Link
-            to="/catalogo-eventos"
-            style={{
-              backgroundColor: "#F5C200",
-              color: "#1A2E6C",
-              borderRadius: 12
-            }}
-            className="inline-flex items-center justify-center gap-2 px-10 py-4 font-bold text-lg hover:brightness-105 active:scale-95 transition-all duration-200 shadow-xl shadow-yellow-400/30 text-center"
-          >
-            Ver catálogo de eventos
-          </Link>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-2 w-full max-w-2xl justify-center">
+          <div className="flex flex-col sm:flex-row gap-5 w-full max-w-3xl justify-center">
             <Link
               to="/empresas"
-              style={{ backgroundColor: "#1A2E6C", color: "#FFFFFF", borderRadius: 10, border: "2px solid #1A2E6C" }}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 font-bold text-sm hover:brightness-110 active:scale-95 transition-all duration-200 text-center"
+              style={{
+                background: "linear-gradient(135deg, #1A2E6C 0%, #243d8f 100%)",
+                color: "#FFFFFF",
+                borderRadius: 14,
+                boxShadow: "0 8px 24px rgba(26,46,108,0.35)",
+                textDecoration: "none",
+              }}
+              className="flex-1 flex flex-col items-center justify-center gap-1 px-6 py-5 font-bold active:scale-95 transition-all duration-200 hover:brightness-110"
             >
-              🏢 Empresas
+              <span style={{ fontSize: 28 }}>🏢</span>
+              <span style={{ fontSize: 16, fontWeight: 800 }}>Empresas</span>
+              <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.8, marginTop: 2 }}>Voluntariado corporativo</span>
             </Link>
+
             <Link
               to="/aliados"
-              style={{ backgroundColor: "transparent", color: "#1A2E6C", borderRadius: 10, border: "2px solid #1A2E6C" }}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 font-bold text-sm hover:bg-blue-50 active:scale-95 transition-all duration-200 text-center"
+              style={{
+                background: "linear-gradient(135deg, #F5C200 0%, #e6b400 100%)",
+                color: "#1A2E6C",
+                borderRadius: 14,
+                boxShadow: "0 8px 24px rgba(245,194,0,0.4)",
+                textDecoration: "none",
+              }}
+              className="flex-1 flex flex-col items-center justify-center gap-1 px-6 py-5 font-bold active:scale-95 transition-all duration-200 hover:brightness-105"
             >
-              🤝 Aliados Voluntarios
+              <span style={{ fontSize: 28 }}>🤝</span>
+              <span style={{ fontSize: 16, fontWeight: 800 }}>Aliados Voluntarios</span>
+              <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.75, marginTop: 2 }}>Únete como aliado</span>
             </Link>
+
             <Link
               to="/empresas-aliadas"
-              style={{ backgroundColor: "transparent", color: "#E8401C", borderRadius: 10, border: "2px solid #E8401C" }}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 font-bold text-sm hover:bg-red-50 active:scale-95 transition-all duration-200 text-center"
+              style={{
+                background: "linear-gradient(135deg, #E8401C 0%, #c53010 100%)",
+                color: "#FFFFFF",
+                borderRadius: 14,
+                boxShadow: "0 8px 24px rgba(232,64,28,0.35)",
+                textDecoration: "none",
+              }}
+              className="flex-1 flex flex-col items-center justify-center gap-1 px-6 py-5 font-bold active:scale-95 transition-all duration-200 hover:brightness-110"
             >
-              💝 Empresas Aliadas (Donativo)
+              <span style={{ fontSize: 28 }}>💝</span>
+              <span style={{ fontSize: 16, fontWeight: 800 }}>Empresas Aliadas</span>
+              <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.85, marginTop: 2 }}>Donativo</span>
             </Link>
           </div>
         </div>
