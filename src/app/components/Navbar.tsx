@@ -21,14 +21,14 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center justify-center gap-8">
+          <div className="hidden md:flex items-center justify-center gap-8 lg:gap-10">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-white font-medium hover:opacity-80 transition-opacity relative group text-sm"
+                  className="text-white font-bold hover:opacity-80 transition-opacity relative group text-base lg:text-lg"
                 >
                   {item.label}
                   <span
@@ -45,7 +45,7 @@ export function Navbar() {
             className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors justify-self-end"
             aria-label="Toggle menu"
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
       </div>
@@ -53,15 +53,15 @@ export function Navbar() {
       {menuOpen && (
         <div
           style={{ backgroundColor: "#162560", borderTop: "1px solid rgba(245,194,0,0.2)" }}
-          className="md:hidden px-4 pb-4 pt-2"
+          className="md:hidden px-4 pb-6 pt-3"
         >
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setMenuOpen(false)}
-                className="text-white font-medium py-3 px-3 rounded-lg hover:bg-white/10 transition-colors text-sm"
+                className="text-white font-bold py-4 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg"
               >
                 {item.label}
               </Link>

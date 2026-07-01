@@ -12,6 +12,7 @@ import { Admin } from "./pages/Admin";
 import { CompanyRegistration } from "./components/CompanyRegistration";
 import { AliadosPage } from "./pages/Aliados";
 import { EmpresasAliadasPage } from "./pages/EmpresasAliadas";
+import { CursosSensibilizacionPage } from "./pages/CursosSensibilizacion";
 
 function ScrollToTop() {
   useEffect(() => {
@@ -102,6 +103,11 @@ export default function App() {
         <Route path="/empresas" element={<CompanyPage />} />
         <Route path="/catalogo-eventos" element={<EventCatalogPage />} />
         <Route path="/contactanos" element={<ContactPage />} />
+        <Route path="/cursos" element={
+          <AppShell>
+            <CursosSensibilizacionPage />
+          </AppShell>
+        } />
         <Route path="/aliados" element={<AliadosPageWrapper />} />
         <Route path="/empresas-aliadas" element={<EmpresasAliadasPageWrapper />} />
         <Route path="/admin" element={<Admin />} />

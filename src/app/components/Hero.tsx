@@ -6,13 +6,12 @@ export function Hero() {
   return (
     <section id="inicio" className="w-full flex flex-col bg-white">
       {/* Imagen completa a todo el ancho */}
-      <div className="w-full h-[38vh] md:h-[48vh] lg:h-[55vh] relative">
-        <img 
-          src={HERO_IMAGE} 
-          alt="Voluntarios trabajando juntos" 
-          className="w-full h-full object-cover" 
+      <div className="w-full relative">
+        <img
+          src={HERO_IMAGE}
+          alt="Voluntarios trabajando juntos"
+          className="w-full h-auto block"
         />
-        {/* Sombra sutil interna para dar profundidad si se requiere */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
       </div>
 

@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, phone, company, email, eventName, description, wantsTraining, municipio, projects, comments } = req.body;
+  const { name, phone, company, email, eventName, description, wantsTraining, municipio, projects, comments, flyerUrl, courseUrl } = req.body;
 
   if (!name || !phone || !email || !eventName) {
     return res.status(400).json({ message: 'Name, phone, email, and eventName are required' });
@@ -76,9 +76,16 @@ export default async function handler(req, res) {
     const projectsHtml = (projects && projects.length > 0)
       ? `<li><strong>Programas de interés:</strong><ul>${projects.map(p => `<li>${p}</li>`).join('')}</ul></li>`
       : '';
-    
+
     const municipioHtml = municipio ? `<li><strong>Municipio:</strong> ${municipio}</li>` : '';
     const finalComments = comments ? comments : description;
+
+    const eventFilesHtml = (flyerUrl || courseUrl) ? `
+      <div style="margin-top:20px; padding:16px; background:#F8FAFC; border-radius:8px; border:1px solid #E5E7EB;">
+        <p style="margin:0 0 10px; font-weight:700; color:#1A2E6C;">Archivos del evento:</p>
+        ${flyerUrl ? `<a href="${flyerUrl}" target="_blank" style="display:inline-block; margin-right:12px; padding:8px 16px; background:#1E3A8A; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📄 Ver Flyer</a>` : ''}
+        ${courseUrl ? `<a href="${courseUrl}" target="_blank" style="display:inline-block; padding:8px 16px; background:#15803D; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📚 Curso de Sensibilización</a>` : ''}
+      </div>` : '';
 
     // 1. Mensaje para el administrador
     const adminInfo = await transporter.sendMail({
@@ -100,6 +107,7 @@ export default async function handler(req, res) {
         </ul>
         <p><strong>Comentarios adicionales:</strong></p>
         <p>${finalComments}</p>
+        ${eventFilesHtml}
       `,
     });
 
@@ -142,6 +150,7 @@ ezer-eventos.vercel.app`;
         <li><strong>Tus comentarios:</strong> ${description}</li>
       </ul>
       <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles.</p>
+      ${eventFilesHtml}
       <br>
       <p>Atentamente,<br><strong>Equipo EZER</strong></p>
     `;

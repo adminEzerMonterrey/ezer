@@ -209,7 +209,7 @@ export function CompanyRegistration() {
                   type="checkbox"
                   style={{ width: '18px', height: '18px', accentColor: '#E8401C', cursor: 'pointer' }}
                 />
-                ¿Quieres capacitación?
+                ¿Te gustaría recibir un curso de sensibilización?
               </label>
 
               {status === 'error' && <p style={{ color: '#E8401C', fontSize: '14px', fontWeight: 500 }}>Hubo un error al enviar tu solicitud. Por favor intenta de nuevo.</p>}

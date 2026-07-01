@@ -33,7 +33,7 @@ export function EventCatalog() {
 
   const [categories, setCategories] = useState<string[]>(EVENT_CATEGORY_FILTERS);
   const [municipalities, setMunicipalities] = useState<string[]>(["Todos"]);
-  const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [fullDescEvent, setFullDescEvent] = useState<Event | null>(null);
   const [flyerEvent, setFlyerEvent] = useState<Event | null>(null);
   const [courseEvent, setCourseEvent] = useState<Event | null>(null);
@@ -229,7 +229,7 @@ export function EventCatalog() {
                   {/* Buttons */}
                   <div style={{ padding: "0 18px 18px", display: "flex", flexDirection: "column", gap: 8, marginTop: "auto" }}>
                     <button
-                      onClick={(e) => { e.stopPropagation(); setSelectedEventName(event.title); setCourseInterest(false); }}
+                      onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); setCourseInterest(false); }}
                       style={{ width: "100%", padding: "11px 16px", background: "linear-gradient(135deg, #E8401C 0%, #C53010 100%)", color: "#FFFFFF", borderRadius: 10, fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer", transition: "transform 0.18s ease, box-shadow 0.18s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
                       onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 20px rgba(232,64,28,0.4)"; }}
                       onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
@@ -282,11 +282,11 @@ export function EventCatalog() {
         </div>
       </section>
 
-      {selectedEventName && (
+      {selectedEvent && (
         <InterestModal
-          eventName={selectedEventName}
+          event={selectedEvent}
           defaultWantsTraining={courseInterest}
-          onClose={() => { setSelectedEventName(null); setCourseInterest(false); }}
+          onClose={() => { setSelectedEvent(null); setCourseInterest(false); }}
         />
       )}
 
@@ -296,7 +296,7 @@ export function EventCatalog() {
           onClose={() => setDetailsEvent(null)}
           onAction={(action) => {
             setDetailsEvent(null);
-            if (action === 'interest') setSelectedEventName(detailsEvent.title);
+            if (action === 'interest') setSelectedEvent(detailsEvent);
             if (action === 'flyer') setFlyerEvent(detailsEvent);
             if (action === 'course') {
               setCourseEvent(detailsEvent);
@@ -664,8 +664,9 @@ function DescriptionModal({ event, onClose }: { event: Event, onClose: () => voi
   );
 }
 
-function InterestModal({ eventName, defaultWantsTraining = false, onClose }: { eventName: string, defaultWantsTraining?: boolean, onClose: () => void }) {
+function InterestModal({ event, defaultWantsTraining = false, onClose }: { event: Event, defaultWantsTraining?: boolean, onClose: () => void }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const eventName = event.title;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -679,7 +680,9 @@ function InterestModal({ eventName, defaultWantsTraining = false, onClose }: { e
       email: formData.get('email'),
       description: formData.get('description'),
       wantsTraining: formData.get('wants_training') === 'on',
-      eventName
+      eventName,
+      flyerUrl: event.flyer_url || null,
+      courseUrl: event.sensibilization_course_url || null,
     };
 
     try {
@@ -812,7 +815,7 @@ function InterestModal({ eventName, defaultWantsTraining = false, onClose }: { e
                   defaultChecked={defaultWantsTraining}
                   style={{ width: '16px', height: '16px', accentColor: '#E8401C', cursor: 'pointer' }}
                 />
-                ¿Te gustaría un curso de sensibilización?
+                ¿Te gustaría recibir un curso de sensibilización?
               </label>
 
               {status === 'error' && <p style={{ color: '#E8401C', fontSize: '13px' }}>Hubo un error al enviar tu interés. Por favor intenta de nuevo.</p>}
