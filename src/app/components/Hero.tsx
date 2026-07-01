@@ -6,13 +6,13 @@ export function Hero() {
   return (
     <section id="inicio" className="w-full flex flex-col bg-white">
       {/* Imagen completa a todo el ancho */}
-      <div className="w-full relative bg-[#F8FAFC]">
+      <div className="w-full relative">
         <img
           src={HERO_IMAGE}
           alt="Voluntarios trabajando juntos"
-          className="w-full max-h-[45vh] lg:max-h-[50vh] object-contain block mx-auto"
+          className="w-full h-[45vh] lg:h-[50vh] object-cover object-center block"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#F8FAFC]/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
       </div>
 
       {/* Título, párrafo y Call to Action */}
