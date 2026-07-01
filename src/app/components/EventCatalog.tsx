@@ -200,10 +200,6 @@ export function EventCatalog() {
                     )}
                     {/* Gradient overlay */}
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)" }} />
-                    {/* Number badge */}
-                    <div style={{ position: "absolute", top: 12, left: 12, width: 32, height: 32, borderRadius: "50%", backgroundColor: "#E8401C", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
-                      <span style={{ color: "#FFFFFF", fontWeight: 800, fontSize: 13 }}>{index + 1}</span>
-                    </div>
                     {/* Annual badge */}
                     {event.isAnnual && (
                       <div style={{ position: "absolute", top: 12, right: 12, backgroundColor: "#FEF3C7", color: "#D97706", fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20 }}>
@@ -221,10 +217,10 @@ export function EventCatalog() {
                   {/* Content */}
                   <div style={{ padding: "18px 18px 0", display: "flex", flexDirection: "column", flex: 1 }}>
                     <h3 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: 16, lineHeight: 1.35, marginBottom: 8 }}>
-                      {event.title}
+                      <span style={{ color: "#E8401C", marginRight: 6 }}>{index + 1}.</span>{event.title}
                     </h3>
 
-                    <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6, margin: "0 0 12px" }} className="line-clamp-2">
+                    <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6, margin: "0 0 12px" }} className="line-clamp-4">
                       {event.description}
                     </p>
 
@@ -262,7 +258,7 @@ export function EventCatalog() {
                             onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#15803D"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                           >
                             <BookOpen size={13} />
-                            Curso
+                            Curso de Sensibilización
                           </button>
                         )}
                       </div>
@@ -816,7 +812,7 @@ function InterestModal({ eventName, defaultWantsTraining = false, onClose }: { e
                   defaultChecked={defaultWantsTraining}
                   style={{ width: '16px', height: '16px', accentColor: '#E8401C', cursor: 'pointer' }}
                 />
-                ¿Quieres capacitación?
+                ¿Te gustaría un curso de sensibilización?
               </label>
 
               {status === 'error' && <p style={{ color: '#E8401C', fontSize: '13px' }}>Hubo un error al enviar tu interés. Por favor intenta de nuevo.</p>}

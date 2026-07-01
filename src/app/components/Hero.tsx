@@ -6,7 +6,7 @@ export function Hero() {
   return (
     <section id="inicio" className="w-full flex flex-col bg-white">
       {/* Imagen completa a todo el ancho */}
-      <div className="w-full h-[50vh] md:h-[60vh] lg:h-[70vh] relative">
+      <div className="w-full h-[38vh] md:h-[48vh] lg:h-[55vh] relative">
         <img 
           src={HERO_IMAGE} 
           alt="Voluntarios trabajando juntos" 
@@ -53,15 +53,39 @@ export function Hero() {
 
           <Link
             to="/catalogo-eventos"
-            style={{ 
-              backgroundColor: "#F5C200", 
-              color: "#1A2E6C", 
-              borderRadius: 12 
+            style={{
+              backgroundColor: "#F5C200",
+              color: "#1A2E6C",
+              borderRadius: 12
             }}
             className="inline-flex items-center justify-center gap-2 px-10 py-4 font-bold text-lg hover:brightness-105 active:scale-95 transition-all duration-200 shadow-xl shadow-yellow-400/30 text-center"
           >
             Ver catálogo de eventos
           </Link>
+
+          <div className="flex flex-col sm:flex-row gap-4 mt-2 w-full max-w-2xl justify-center">
+            <Link
+              to="/empresas"
+              style={{ backgroundColor: "#1A2E6C", color: "#FFFFFF", borderRadius: 10, border: "2px solid #1A2E6C" }}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 font-bold text-sm hover:brightness-110 active:scale-95 transition-all duration-200 text-center"
+            >
+              🏢 Empresas
+            </Link>
+            <Link
+              to="/aliados"
+              style={{ backgroundColor: "transparent", color: "#1A2E6C", borderRadius: 10, border: "2px solid #1A2E6C" }}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 font-bold text-sm hover:bg-blue-50 active:scale-95 transition-all duration-200 text-center"
+            >
+              🤝 Aliados Voluntarios
+            </Link>
+            <Link
+              to="/empresas-aliadas"
+              style={{ backgroundColor: "transparent", color: "#E8401C", borderRadius: 10, border: "2px solid #E8401C" }}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 font-bold text-sm hover:bg-red-50 active:scale-95 transition-all duration-200 text-center"
+            >
+              💝 Empresas Aliadas (Donativo)
+            </Link>
+          </div>
         </div>
       </div>
     </section>
