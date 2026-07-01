@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Building2, UserPlus, HeartHandshake } from "lucide-react";
 
 const HERO_IMAGE = "/hero.png";
 
@@ -10,7 +11,7 @@ export function Hero() {
         <img
           src={HERO_IMAGE}
           alt="Voluntarios trabajando juntos"
-          className="w-full h-[45vh] lg:h-[50vh] object-cover object-center block"
+          className="w-full h-[45vh] lg:h-[50vh] object-cover object-[center_30%] block"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
       </div>
@@ -50,53 +51,44 @@ export function Hero() {
             Nuestra misión es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una visión sistémica y comunitaria.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-5 w-full max-w-3xl justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl justify-center mt-4">
             <Link
               to="/empresas"
-              style={{
-                background: "linear-gradient(135deg, #1A2E6C 0%, #243d8f 100%)",
-                color: "#FFFFFF",
-                borderRadius: 14,
-                boxShadow: "0 8px 24px rgba(26,46,108,0.35)",
-                textDecoration: "none",
-              }}
-              className="flex-1 flex flex-col items-center justify-center gap-1 px-6 py-5 font-bold active:scale-95 transition-all duration-200 hover:brightness-110"
+              className="group flex flex-col items-center text-center p-8 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(26,46,108,0.1)] hover:-translate-y-2 hover:border-blue-100 transition-all duration-300 relative overflow-hidden"
+              style={{ textDecoration: "none" }}
             >
-              <span style={{ fontSize: 28 }}>🏢</span>
-              <span style={{ fontSize: 16, fontWeight: 800 }}>Empresas</span>
-              <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.8, marginTop: 2 }}>Voluntariado corporativo</span>
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-[#1A2E6C]" />
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#1A2E6C] flex items-center justify-center mb-5 group-hover:bg-[#1A2E6C] group-hover:text-white transition-colors duration-300">
+                <Building2 size={32} />
+              </div>
+              <span className="text-[#1A2E6C] font-extrabold text-xl mb-2">Empresas</span>
+              <span className="text-gray-500 text-sm font-medium leading-relaxed">Voluntariado Corporativo</span>
             </Link>
 
             <Link
               to="/aliados"
-              style={{
-                background: "linear-gradient(135deg, #F5C200 0%, #e6b400 100%)",
-                color: "#1A2E6C",
-                borderRadius: 14,
-                boxShadow: "0 8px 24px rgba(245,194,0,0.4)",
-                textDecoration: "none",
-              }}
-              className="flex-1 flex flex-col items-center justify-center gap-1 px-6 py-5 font-bold active:scale-95 transition-all duration-200 hover:brightness-105"
+              className="group flex flex-col items-center text-center p-8 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(245,194,0,0.15)] hover:-translate-y-2 hover:border-yellow-100 transition-all duration-300 relative overflow-hidden"
+              style={{ textDecoration: "none" }}
             >
-              <span style={{ fontSize: 28 }}>🤝</span>
-              <span style={{ fontSize: 16, fontWeight: 800 }}>Aliados Voluntarios</span>
-              <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.75, marginTop: 2 }}>Únete como aliado</span>
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-[#F5C200]" />
+              <div className="w-16 h-16 rounded-2xl bg-yellow-50 text-[#D97706] flex items-center justify-center mb-5 group-hover:bg-[#F5C200] group-hover:text-[#1A2E6C] transition-colors duration-300">
+                <UserPlus size={32} />
+              </div>
+              <span className="text-[#1A2E6C] font-extrabold text-xl mb-2">Aliados Voluntarios</span>
+              <span className="text-gray-500 text-sm font-medium leading-relaxed">Comparte tu Talento</span>
             </Link>
 
             <Link
               to="/empresas-aliadas"
-              style={{
-                background: "linear-gradient(135deg, #E8401C 0%, #c53010 100%)",
-                color: "#FFFFFF",
-                borderRadius: 14,
-                boxShadow: "0 8px 24px rgba(232,64,28,0.35)",
-                textDecoration: "none",
-              }}
-              className="flex-1 flex flex-col items-center justify-center gap-1 px-6 py-5 font-bold active:scale-95 transition-all duration-200 hover:brightness-110"
+              className="group flex flex-col items-center text-center p-8 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(232,64,28,0.1)] hover:-translate-y-2 hover:border-red-100 transition-all duration-300 relative overflow-hidden"
+              style={{ textDecoration: "none" }}
             >
-              <span style={{ fontSize: 28 }}>💝</span>
-              <span style={{ fontSize: 16, fontWeight: 800 }}>Empresas Aliadas</span>
-              <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.85, marginTop: 2 }}>Donativo</span>
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-[#E8401C]" />
+              <div className="w-16 h-16 rounded-2xl bg-red-50 text-[#E8401C] flex items-center justify-center mb-5 group-hover:bg-[#E8401C] group-hover:text-white transition-colors duration-300">
+                <HeartHandshake size={32} />
+              </div>
+              <span className="text-[#1A2E6C] font-extrabold text-xl mb-2">Empresas Aliadas</span>
+              <span className="text-gray-500 text-sm font-medium leading-relaxed">Apoya con un Donativo</span>
             </Link>
           </div>
         </div>

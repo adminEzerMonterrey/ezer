@@ -6,7 +6,7 @@ interface Curso {
   area: string;
   descripcion: string;
   flyerUrl: string;
-  icono: string;
+  imagen: string;
 }
 
 const CURSOS: Curso[] = [
@@ -15,63 +15,63 @@ const CURSOS: Curso[] = [
     area: "Infancia Vulnerable",
     descripcion: "Conoce los riesgos que enfrentan niñas y niños en situación de vulnerabilidad y aprende cómo ser un agente de cambio en su entorno.",
     flyerUrl: "https://drive.google.com/file/d/1cp6HlrKl_hl5sRDglyoi4lrgvKzpnH7j/preview",
-    icono: "🧒",
+    imagen: "/curso-1.png",
   },
   {
     id: 2,
     area: "Dignidad en la Vejez",
     descripcion: "Reflexiona sobre el envejecimiento digno y aprende a acompañar a adultos mayores desde la empatía y el respeto.",
     flyerUrl: "https://drive.google.com/file/d/1lkY59RtgUO25gfDzLE31nO2SFa5x4ZaI/preview",
-    icono: "👴",
+    imagen: "/curso-2.png",
   },
   {
     id: 3,
     area: "Mujeres y Empoderamiento",
     descripcion: "Explora la importancia de la equidad de género y el empoderamiento femenino como base del desarrollo social.",
     flyerUrl: "https://drive.google.com/file/d/13ePrkegUy7luXj65VdGRdsN9IAHkdYkR/preview",
-    icono: "👩",
+    imagen: "/curso-3.png",
   },
   {
     id: 4,
     area: "Inclusión y Discapacidad",
     descripcion: "Descubre cómo construir entornos verdaderamente inclusivos eliminando barreras físicas, sociales y actitudinales.",
     flyerUrl: "https://drive.google.com/file/d/1KlShnCQFEQ89E7OfHfrYF4bdqsEUZ-Bc/preview",
-    icono: "♿",
+    imagen: "/curso-4.png",
   },
   {
     id: 5,
     area: "Conciencia Ambiental",
     descripcion: "Sensibilízate sobre el impacto ambiental y aprende a promover hábitos sostenibles en tu empresa y comunidad.",
     flyerUrl: "https://drive.google.com/file/d/1yoXKgbYTg8miDjzVtNmYeNAXx9hc822/preview",
-    icono: "🌿",
+    imagen: "/curso-5.png",
   },
   {
     id: 6,
     area: "Hambre y Solidaridad",
     descripcion: "Comprende la realidad de la inseguridad alimentaria y cómo la solidaridad organizada puede ser una respuesta efectiva.",
     flyerUrl: "https://drive.google.com/file/d/1ZdLzciJI7c0vEHzMvoROj6uuAqrgccoN/preview",
-    icono: "🍽️",
+    imagen: "/curso-6.png",
   },
   {
     id: 7,
     area: "Migración y Hospitalidad",
     descripcion: "Conoce la situación de personas migrantes y refugiadas, y aprende cómo ser agente de integración y dignidad humana.",
     flyerUrl: "https://drive.google.com/file/d/1dG9qGrKGKI56whSPLNRvHG8ZddywbDwg/preview",
-    icono: "🌍",
+    imagen: "/curso-7.png",
   },
   {
     id: 8,
     area: "Derecho a la Educación",
     descripcion: "Explora la educación como derecho fundamental y aprende a contribuir para que ningún niño, joven o adulto quede fuera.",
     flyerUrl: "https://drive.google.com/file/d/19n2tar4FL4vyyNKqqChWqOnEhEnQEy3n/preview",
-    icono: "📚",
+    imagen: "/curso-8.png",
   },
   {
     id: 9,
     area: "Derecho a la Vivienda",
     descripcion: "Reflexiona sobre el acceso digno a la vivienda y el papel que juegan empresas y comunidades en la construcción de un hogar.",
     flyerUrl: "https://drive.google.com/file/d/1sUn97VgckRbQX5-MFmP-JymayOZHeexl/preview",
-    icono: "🏠",
+    imagen: "/curso-9.png",
   },
 ];
 
@@ -117,8 +117,8 @@ export function CursosSensibilizacionPage() {
                 <div className="p-6 flex flex-col flex-1 gap-4">
                   {/* Cabecera de la tarjeta */}
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#EEF2FF] flex items-center justify-center text-2xl flex-shrink-0">
-                      {curso.icono}
+                    <div className="w-12 h-12 rounded-xl bg-[#EEF2FF] overflow-hidden flex-shrink-0">
+                      <img src={curso.imagen} alt={curso.area} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-[#E8401C] uppercase tracking-widest mb-1">
@@ -176,8 +176,8 @@ function FlyerModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
           <div className="h-1 w-full bg-gradient-to-r from-[#1A2E6C] via-[#E8401C] to-[#F5C200]" />
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] flex items-center justify-center text-xl">
-                {curso.icono}
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] overflow-hidden">
+                <img src={curso.imagen} alt={curso.area} className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="text-xs font-bold text-[#E8401C] uppercase tracking-widest">
