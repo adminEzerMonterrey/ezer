@@ -3,6 +3,8 @@ export const navItems = [
   { label: "Registro", path: "/empresas" },
   { label: "¿Cómo funciona?", path: "/catalogo-eventos" },
   { label: "Cursos de Sensibilización", path: "/cursos" },
+  { label: "Aliados Voluntarios", path: "/aliados" },
+  { label: "Empresas Aliadas", path: "/empresas-aliadas" },
   { label: "Contáctanos", path: "/contactanos" },
 ] as const;
 
