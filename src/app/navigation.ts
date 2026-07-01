@@ -2,6 +2,7 @@ export const navItems = [
   { label: "Quiénes Somos", path: "/" },
   { label: "Registro", path: "/empresas" },
   { label: "¿Cómo funciona?", path: "/catalogo-eventos" },
+  { label: "Cursos de Sensibilización", path: "/cursos" },
   { label: "Contáctanos", path: "/contactanos" },
 ] as const;
 
