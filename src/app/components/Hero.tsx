@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Building2, UserPlus, HeartHandshake } from "lucide-react";
 
-const HERO_IMAGE = "/hero.png";
+const HERO_IMAGE = "/hero.jpg";
 
 export function Hero() {
   return (
@@ -11,6 +11,8 @@ export function Hero() {
         <img
           src={HERO_IMAGE}
           alt="Voluntarios trabajando juntos"
+          fetchPriority="high"
+          decoding="async"
           className="w-full h-[60vh] lg:h-[70vh] object-cover object-center block"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />

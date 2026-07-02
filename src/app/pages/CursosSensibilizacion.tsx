@@ -115,7 +115,7 @@ export function CursosSensibilizacionPage() {
               >
                 <div className="w-full h-48 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1A2E6C] via-[#E8401C] to-[#F5C200] z-10" />
-                  <img src={curso.imagen} alt={curso.area} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                  <img src={curso.imagen} alt={curso.area} loading="lazy" decoding="async" width={1000} height={667} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
                 </div>
 
                 <div className="p-6 flex flex-col flex-1 gap-4">

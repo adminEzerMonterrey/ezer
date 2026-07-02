@@ -23,10 +23,7 @@ export function AliadosPage() {
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#1A2E6C]/5 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 text-[#1A2E6C] font-bold text-sm mb-6 border border-blue-200">
-            <Star size={16} fill="#F5C200" color="#F5C200" />
-            Únete a nuestra red de talentos
-          </div>
+
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1A2E6C] mb-6 leading-tight tracking-tight">
             Conviértete en un <span className="text-[#E8401C]">Aliado Voluntario</span>

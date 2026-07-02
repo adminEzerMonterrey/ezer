@@ -23,10 +23,7 @@ export function EmpresasAliadasPage() {
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#F5C200]/20 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white font-bold text-sm mb-6 border border-white/20 backdrop-blur-sm">
-            <Building2 size={16} className="text-[#F5C200]" />
-            Alianzas Estratégicas
-          </div>
+
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
             Únete como <span className="text-[#F5C200]">Empresa Aliada</span>
