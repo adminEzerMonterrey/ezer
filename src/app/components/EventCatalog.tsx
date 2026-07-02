@@ -127,22 +127,24 @@ export function EventCatalog() {
           </div>
 
           <div
-            style={{ backgroundColor: "#F5F5F5", borderRadius: 12, border: "1px solid #E5E7EB" }}
-            className="flex flex-col sm:flex-row gap-3 p-4 mb-8 flex-wrap"
+            className="flex flex-col sm:flex-row items-center gap-4 p-4 mb-8 flex-wrap bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Filter size={16} style={{ color: "#1A2E6C" }} />
-              <span style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 14 }}>Filtrar:</span>
+            <div className="flex items-center gap-2 flex-shrink-0 sm:pl-2">
+              <Filter size={20} className="text-[#1A2E6C]" />
+              <span className="text-[#1A2E6C] font-extrabold text-sm uppercase tracking-wider">Filtros</span>
             </div>
-            <FilterSelect label="Sector beneficiado" value={category} options={categories} onChange={setCategory} />
+
+            <div className="hidden sm:block w-px h-8 bg-gray-100" />
+
+            <FilterSelect label="Sector" value={category} options={categories} onChange={setCategory} />
             <FilterSelect label="Municipio" value={municipality} options={municipalities} onChange={setMunicipality} />
+            
             {(category !== "Todos" || municipality !== "Todos") && (
               <button
                 onClick={() => { setCategory("Todos"); setMunicipality("Todos"); }}
-                style={{ color: "#E8401C", fontWeight: 600, fontSize: 13, alignSelf: "flex-end", marginBottom: "12px" }}
-                className="ml-auto hover:underline cursor-pointer"
+                className="sm:ml-auto text-[#E8401C] font-bold text-sm hover:bg-red-50 px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
               >
-                Limpiar filtros ✕
+                Limpiar <X size={16} />
               </button>
             )}
           </div>
@@ -184,6 +186,9 @@ export function EventCatalog() {
                   className="group hover:-translate-y-1 hover:shadow-xl"
                   onClick={() => setDetailsEvent(event)}
                 >
+                  {/* Card top gradient */}
+                  <div className="h-1 w-full flex-shrink-0 bg-gradient-to-r from-[#1A2E6C] via-[#E8401C] to-[#F5C200]" />
+                  
                   {/* Image with overlays */}
                   <div style={{ position: "relative", height: 210, overflow: "hidden", flexShrink: 0 }}>
                     {event.image ? (
@@ -857,40 +862,22 @@ function FilterSelect({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="relative flex-1 min-w-[160px]">
-      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6B7280", marginBottom: 4, paddingLeft: 2, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-        {label}
-      </label>
+    <div className="flex-1 min-w-[200px] relative">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{
-          appearance: "none",
-          backgroundColor: "#FFFFFF",
-          border: "1.5px solid #E5E7EB",
-          borderRadius: 8,
-          color: "#2C2C2A",
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          fontWeight: 500,
-          fontSize: 14,
-          paddingTop: 10,
-          paddingBottom: 10,
-          paddingLeft: 12,
-          paddingRight: 36,
-          width: "100%",
-          cursor: "pointer",
-        }}
-        className="focus:outline-none focus:ring-2"
+        className="appearance-none bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 text-sm font-semibold text-[#1A2E6C] w-full cursor-pointer hover:bg-gray-100 hover:border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#1A2E6C]/20 transition-all duration-200"
       >
-        {options.map((opt) => (
+        <option value="Todos">{label}: Todos</option>
+        {options.filter(o => o !== "Todos").map((opt) => (
           <option key={opt} value={opt}>
             {opt}
           </option>
         ))}
       </select>
       <ChevronDown
-        size={15}
-        style={{ color: "#1A2E6C", position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+        size={18}
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
       />
     </div>
   );

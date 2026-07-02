@@ -15,63 +15,63 @@ const CURSOS: Curso[] = [
     area: "Infancia Vulnerable",
     descripcion: "Conoce los riesgos que enfrentan niñas y niños en situación de vulnerabilidad y aprende cómo ser un agente de cambio en su entorno.",
     flyerUrl: "https://drive.google.com/file/d/1cp6HlrKl_hl5sRDglyoi4lrgvKzpnH7j/preview",
-    imagen: "/curso-1.png",
+    imagen: "/curso-1.jpg",
   },
   {
     id: 2,
     area: "Dignidad en la Vejez",
     descripcion: "Reflexiona sobre el envejecimiento digno y aprende a acompañar a adultos mayores desde la empatía y el respeto.",
     flyerUrl: "https://drive.google.com/file/d/1lkY59RtgUO25gfDzLE31nO2SFa5x4ZaI/preview",
-    imagen: "/curso-2.png",
+    imagen: "/curso-2.jpg",
   },
   {
     id: 3,
     area: "Mujeres y Empoderamiento",
     descripcion: "Explora la importancia de la equidad de género y el empoderamiento femenino como base del desarrollo social.",
     flyerUrl: "https://drive.google.com/file/d/13ePrkegUy7luXj65VdGRdsN9IAHkdYkR/preview",
-    imagen: "/curso-3.png",
+    imagen: "/curso-3.jpg",
   },
   {
     id: 4,
     area: "Inclusión y Discapacidad",
     descripcion: "Descubre cómo construir entornos verdaderamente inclusivos eliminando barreras físicas, sociales y actitudinales.",
     flyerUrl: "https://drive.google.com/file/d/1KlShnCQFEQ89E7OfHfrYF4bdqsEUZ-Bc/preview",
-    imagen: "/curso-4.png",
+    imagen: "/curso-4.jpg",
   },
   {
     id: 5,
     area: "Conciencia Ambiental",
     descripcion: "Sensibilízate sobre el impacto ambiental y aprende a promover hábitos sostenibles en tu empresa y comunidad.",
     flyerUrl: "https://drive.google.com/file/d/1yoXKgbYTg8miDjzVtNmYeNAXx9hc822/preview",
-    imagen: "/curso-5.png",
+    imagen: "/curso-5.jpg",
   },
   {
     id: 6,
     area: "Hambre y Solidaridad",
     descripcion: "Comprende la realidad de la inseguridad alimentaria y cómo la solidaridad organizada puede ser una respuesta efectiva.",
     flyerUrl: "https://drive.google.com/file/d/1ZdLzciJI7c0vEHzMvoROj6uuAqrgccoN/preview",
-    imagen: "/curso-6.png",
+    imagen: "/curso-6.jpg",
   },
   {
     id: 7,
     area: "Migración y Hospitalidad",
     descripcion: "Conoce la situación de personas migrantes y refugiadas, y aprende cómo ser agente de integración y dignidad humana.",
     flyerUrl: "https://drive.google.com/file/d/1dG9qGrKGKI56whSPLNRvHG8ZddywbDwg/preview",
-    imagen: "/curso-7.png",
+    imagen: "/curso-7.jpg",
   },
   {
     id: 8,
     area: "Derecho a la Educación",
     descripcion: "Explora la educación como derecho fundamental y aprende a contribuir para que ningún niño, joven o adulto quede fuera.",
     flyerUrl: "https://drive.google.com/file/d/19n2tar4FL4vyyNKqqChWqOnEhEnQEy3n/preview",
-    imagen: "/curso-8.png",
+    imagen: "/curso-8.jpg",
   },
   {
     id: 9,
     area: "Derecho a la Vivienda",
     descripcion: "Reflexiona sobre el acceso digno a la vivienda y el papel que juegan empresas y comunidades en la construcción de un hogar.",
     flyerUrl: "https://drive.google.com/file/d/1sUn97VgckRbQX5-MFmP-JymayOZHeexl/preview",
-    imagen: "/curso-9.png",
+    imagen: "/curso-9.jpg",
   },
 ];
 
@@ -95,8 +95,10 @@ export function CursosSensibilizacionPage() {
             Cursos de <span className="text-[#E8401C]">Sensibilización</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Antes de participar en un evento de voluntariado, te invitamos a conocer más sobre cada área de impacto. Explora los cursos y descarga el flyer de tu interés.
+          <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            Los Cursos de Sensibilización son módulos breves diseñados para concientizar y preparar a nuestros voluntarios sobre diversas realidades sociales. Nuestro objetivo es que cada intervención se realice con empatía, respeto y el conocimiento necesario para generar un verdadero impacto positivo.
+            <br/><br/>
+            Te invitamos a explorar las diferentes áreas y descargar el material de tu interés antes de participar en nuestros eventos.
           </p>
         </div>
       </section>

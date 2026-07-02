@@ -21,14 +21,14 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center justify-center gap-8 lg:gap-10">
+          <div className="hidden md:flex items-center justify-center gap-4 lg:gap-6">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-white font-bold hover:opacity-80 transition-opacity relative group text-base lg:text-lg"
+                  className="text-white font-bold hover:opacity-80 transition-opacity relative group text-sm lg:text-sm"
                 >
                   {item.label}
                   <span
