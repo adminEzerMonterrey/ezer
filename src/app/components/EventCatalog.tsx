@@ -952,7 +952,7 @@ function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose
               )}
               {event.sensibilization_course_url && (
                 <button
-                  onClick={() => onAction('curso')}
+                  onClick={() => onAction('course')}
                   style={{ flex: 1, padding: '13px 16px', backgroundColor: 'transparent', color: '#15803D', borderRadius: 12, fontWeight: 700, fontSize: 14, border: '1.5px solid #BBF7D0', cursor: 'pointer', transition: 'all 0.18s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}
                   onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#15803D'; e.currentTarget.style.color = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(21,128,61,0.3)'; }}
                   onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#15803D'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}

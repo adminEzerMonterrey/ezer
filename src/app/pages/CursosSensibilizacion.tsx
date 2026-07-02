@@ -86,10 +86,7 @@ export function CursosSensibilizacionPage() {
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#1A2E6C]/5 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 text-[#1A2E6C] font-bold text-sm mb-6 border border-blue-200">
-            <GraduationCap size={16} className="text-[#E8401C]" />
-            Formación para el voluntariado
-          </div>
+
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1A2E6C] mb-6 leading-tight tracking-tight">
             Cursos de <span className="text-[#E8401C]">Sensibilización</span>
@@ -139,7 +136,7 @@ export function CursosSensibilizacionPage() {
 
                   {/* Botón */}
                   <button
-                    className="w-full mt-auto flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#1A2E6C] text-white text-sm font-bold transition-all duration-200 group-hover:bg-[#2a4393]"
+                    className="w-full mt-auto flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#1A2E6C] text-white text-sm font-bold transition-all duration-200 group-hover:bg-[#2a4393] group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-[#1A2E6C]/30"
                   >
                     <BookOpen size={15} />
                     Ver flyer del curso
