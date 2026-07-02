@@ -143,7 +143,7 @@ export function ContactSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 transition-transform duration-300">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 hover:shadow-xl hover:border-gray-200 transition-all duration-300">
             <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-6">
               <Clock3 size={32} className="text-[#1A2E6C]" />
             </div>
@@ -155,7 +155,7 @@ export function ContactSection() {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 transition-transform duration-300">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 hover:shadow-xl hover:border-gray-200 transition-all duration-300">
             <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-6">
               <Phone size={32} className="text-[#E8401C]" />
             </div>
@@ -166,7 +166,7 @@ export function ContactSection() {
             </a>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 transition-transform duration-300">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 hover:shadow-xl hover:border-gray-200 transition-all duration-300">
             <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-6">
               <Mail size={32} className="text-[#1A2E6C]" />
             </div>
@@ -177,7 +177,7 @@ export function ContactSection() {
             </a>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 transition-transform duration-300">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 text-center hover:-translate-y-2 hover:shadow-xl hover:border-gray-200 transition-all duration-300">
             <div className="w-16 h-16 rounded-2xl bg-yellow-50 flex items-center justify-center mx-auto mb-6">
               <MapPin size={32} className="text-[#F5C200]" />
             </div>
@@ -205,17 +205,17 @@ export function ContactSection() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:border-gray-200 transition-colors">
+              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:border-[#1A2E6C]/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <p className="text-gray-400 text-xs font-extrabold tracking-wider uppercase mb-2">Titular</p>
                 <p className="text-[#1A2E6C] text-xl font-extrabold">EZER ABP</p>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:border-gray-200 transition-colors">
+              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:border-[#1A2E6C]/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <p className="text-gray-400 text-xs font-extrabold tracking-wider uppercase mb-2">Cuenta</p>
                 <p className="text-[#1A2E6C] text-xl font-extrabold">0198974066</p>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:border-gray-200 transition-colors">
+              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:border-[#1A2E6C]/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <p className="text-gray-400 text-xs font-extrabold tracking-wider uppercase mb-2">CLABE</p>
                 <p className="text-[#1A2E6C] text-lg font-extrabold break-words">072 580 00198974066 6</p>
               </div>

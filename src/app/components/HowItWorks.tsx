@@ -71,7 +71,9 @@ export function HowItWorks() {
                   border: "1px solid #E5E7EB",
                   boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
                   width: "100%",
+                  transition: "transform 0.25s, box-shadow 0.25s",
                 }}
+                className="hover:-translate-y-1 hover:shadow-xl"
               >
                 <div style={{ fontSize: 28, marginBottom: 10 }}>{step.icon}</div>
                 <h3 style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 16, marginBottom: 8, lineHeight: 1.3 }}>

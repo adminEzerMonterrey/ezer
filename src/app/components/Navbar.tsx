@@ -12,7 +12,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-[auto_1fr_auto] items-center h-24 md:h-28">
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center" style={{ textDecoration: "none" }}>
+            <Link to="/" className="flex items-center transition-transform duration-200 hover:scale-105 active:scale-95" style={{ textDecoration: "none" }}>
               <img
                 src="/logo-ezer-sin-fondo.png"
                 alt="Logo oficial Asociación EZER ABP"
@@ -28,7 +28,7 @@ export function Navbar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-white font-bold hover:opacity-80 transition-opacity relative group text-sm lg:text-sm"
+                  className="text-white font-bold transition-all duration-200 hover:text-[#F5C200] relative group text-sm lg:text-sm"
                 >
                   {item.label}
                   <span

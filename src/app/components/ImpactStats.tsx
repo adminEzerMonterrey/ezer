@@ -143,7 +143,7 @@ export function ImpactStats() {
                   position: "relative",
                   overflow: "hidden",
                 }}
-                className={`p-5 md:p-6 flex flex-col justify-between hover:-translate-y-1 transition-transform ${stat.featured ? "md:col-span-3" : "md:col-span-2"}`}
+                className={`p-5 md:p-6 flex flex-col justify-between hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ${stat.featured ? "md:col-span-3" : "md:col-span-2"}`}
               >
                 <div
                   style={{

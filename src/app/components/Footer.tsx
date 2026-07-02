@@ -97,7 +97,12 @@ export function Footer() {
                 </div>
                 <div>
                   <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginBottom: 2 }}>Email</p>
-                  <a href="mailto:voluntariadocorporativo@ezer.org.mx" style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, overflowWrap: "anywhere" }}>
+                  <a
+                    href="mailto:voluntariadocorporativo@ezer.org.mx"
+                    style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, overflowWrap: "anywhere", transition: "color 0.2s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#F5C200")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
+                  >
                     voluntariadocorporativo@ezer.org.mx
                   </a>
                 </div>
@@ -110,7 +115,14 @@ export function Footer() {
                 </div>
                 <div>
                   <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginBottom: 2 }}>Sitio web</p>
-                  <a href="https://www.ezer.org.mx/" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>
+                  <a
+                    href="https://www.ezer.org.mx/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, transition: "color 0.2s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#F5C200")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
+                  >
                     www.ezer.org.mx
                   </a>
                 </div>
