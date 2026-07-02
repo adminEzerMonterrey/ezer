@@ -113,23 +113,20 @@ export function CursosSensibilizacionPage() {
                 onClick={() => setSelectedCurso(curso)}
                 className="group bg-white rounded-2xl border border-gray-100 shadow-md shadow-gray-200/40 overflow-hidden cursor-pointer flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/60 hover:border-gray-200"
               >
-                {/* Franja superior de marca */}
-                <div className="h-1 w-full bg-gradient-to-r from-[#1A2E6C] via-[#E8401C] to-[#F5C200]" />
+                <div className="w-full h-48 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1A2E6C] via-[#E8401C] to-[#F5C200] z-10" />
+                  <img src={curso.imagen} alt={curso.area} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                </div>
 
                 <div className="p-6 flex flex-col flex-1 gap-4">
                   {/* Cabecera de la tarjeta */}
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#EEF2FF] overflow-hidden flex-shrink-0">
-                      <img src={curso.imagen} alt={curso.area} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-[#E8401C] uppercase tracking-widest mb-1">
-                        Curso #{curso.id}
-                      </p>
-                      <h3 className="text-base font-extrabold text-[#1A2E6C] leading-snug">
-                        {curso.area}
-                      </h3>
-                    </div>
+                  <div>
+                    <p className="text-xs font-bold text-[#E8401C] uppercase tracking-widest mb-1">
+                      Curso #{curso.id}
+                    </p>
+                    <h3 className="text-xl font-extrabold text-[#1A2E6C] leading-snug">
+                      {curso.area}
+                    </h3>
                   </div>
 
                   {/* Separador */}
@@ -178,14 +175,11 @@ function FlyerModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
           <div className="h-1 w-full bg-gradient-to-r from-[#1A2E6C] via-[#E8401C] to-[#F5C200]" />
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] overflow-hidden">
-                <img src={curso.imagen} alt={curso.area} className="w-full h-full object-cover" />
-              </div>
               <div>
                 <p className="text-xs font-bold text-[#E8401C] uppercase tracking-widest">
                   Curso de Sensibilización #{curso.id}
                 </p>
-                <h3 className="text-base font-extrabold text-[#1A2E6C] leading-tight">
+                <h3 className="text-lg font-extrabold text-[#1A2E6C] leading-tight mt-1">
                   {curso.area}
                 </h3>
               </div>

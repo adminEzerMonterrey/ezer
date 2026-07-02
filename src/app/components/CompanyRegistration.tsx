@@ -87,61 +87,61 @@ export function CompanyRegistration() {
   };
 
   return (
-    <section className="pt-8 pb-12 md:pt-16 md:pb-24" style={{ backgroundColor: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <section className="pt-8 pb-12 md:pt-16 md:pb-24 bg-white font-['Plus_Jakarta_Sans']">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <h2 style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2 }}>
+          <h2 className="text-[#1A2E6C] font-extrabold text-[clamp(1.75rem,4vw,2.75rem)] leading-tight">
             Registro
           </h2>
-          <p style={{ color: "#6B7280", marginTop: 12 }} className="mx-auto text-base">
+          <p className="text-gray-500 mt-4 max-w-2xl mx-auto text-base">
             Regístrate, elige los proyectos que te interesan y tu municipio. Nos pondremos en contacto contigo.
           </p>
         </div>
 
-        <div style={{ backgroundColor: '#F9FAFB', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '30px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
+        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 max-w-4xl mx-auto relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#1A2E6C] via-[#E8401C] to-[#F5C200]" />
+
           {status === 'success' ? (
-            <div className="text-center py-8">
-              <div style={{ fontSize: '40px', marginBottom: '16px' }}>✨</div>
-              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>¡Solicitud Enviada!</h3>
-              <p style={{ color: '#4B5563', fontSize: '14px', marginBottom: '24px' }}>
+            <div className="text-center py-16">
+              <div className="text-7xl mb-6">✨</div>
+              <h3 className="text-2xl font-extrabold text-[#1A2E6C] mb-4">¡Solicitud Enviada!</h3>
+              <p className="text-gray-500 text-lg mb-8 max-w-md mx-auto">
                 Nos pondremos en contacto contigo pronto. ¡Gracias por tu interés en Ezer!
               </p>
               <button
                 onClick={() => setStatus('idle')}
-                style={{ backgroundColor: '#1A2E6C', color: 'white', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#162560'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1A2E6C'}
+                className="bg-[#1A2E6C] hover:bg-[#2a4393] text-white font-bold py-3 px-8 rounded-xl transition-all"
               >
                 Enviar otra solicitud
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Tu Nombre completo *</label>
-                <input required name="name" type="text" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px' }} placeholder="Tu nombre" />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Empresa / Grupo / Organización</label>
-                <input name="company" type="text" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px' }} placeholder="Nombre de tu empresa, grupo u organización (opcional)" />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Teléfono *</label>
-                  <input required name="phone" type="tel" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px' }} placeholder="Tu teléfono o celular" />
+                  <label className="block text-gray-700 font-bold text-sm mb-2">Tu Nombre completo *</label>
+                  <input required name="name" type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none" placeholder="Tu nombre" />
                 </div>
-
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Correo Electrónico *</label>
-                  <input required name="email" type="email" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px' }} placeholder="correo@ejemplo.com" />
+                  <label className="block text-gray-700 font-bold text-sm mb-2">Empresa / Grupo / Organización</label>
+                  <input name="company" type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none" placeholder="Opcional" />
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-gray-700 font-bold text-sm mb-2">Teléfono *</label>
+                  <input required name="phone" type="tel" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none" placeholder="Tu celular" />
+                </div>
+                <div>
+                  <label className="block text-gray-700 font-bold text-sm mb-2">Correo Electrónico *</label>
+                  <input required name="email" type="email" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none" placeholder="correo@ejemplo.com" />
+                </div>
+              </div>
+
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Municipio *</label>
-                <select required name="municipio" defaultValue="" style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '15px', backgroundColor: 'white' }}>
+                <label className="block text-gray-700 font-bold text-sm mb-2">Municipio *</label>
+                <select required name="municipio" defaultValue="" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none bg-white">
                   <option value="" disabled>Selecciona tu municipio</option>
                   {NUEVO_LEON_MUNICIPALITIES.map((m) => (
                     <option key={m} value={m}>{m}</option>
@@ -150,90 +150,61 @@ export function CompanyRegistration() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Proyectos de interés (puedes elegir varios)</label>
+                <label className="block text-[#1A2E6C] font-semibold text-sm mb-3">Proyectos de interés (puedes elegir varios)</label>
                 {projects.length > 0 ? (
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                    gap: '8px',
-                    maxHeight: '220px',
-                    overflowY: 'auto',
-                    padding: '14px',
-                    borderRadius: '8px',
-                    border: '1px solid #D1D5DB',
-                    backgroundColor: 'white'
-                  }}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 bg-gray-50 border border-gray-200 rounded-xl">
                     {projects.map((project) => (
-                      <label key={project} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', cursor: 'pointer', color: '#374151' }}>
+                      <label key={project} className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-lg cursor-pointer hover:border-[#1A2E6C] transition-all">
                         <input
                           type="checkbox"
                           name="projects"
                           value={project}
-                          style={{ width: '16px', height: '16px', accentColor: '#E8401C', flexShrink: 0 }}
+                          className="w-5 h-5 accent-[#E8401C] flex-shrink-0 rounded"
                         />
-                        {project}
+                        <span className="text-sm font-medium text-gray-700">{project}</span>
                       </label>
                     ))}
                   </div>
                 ) : (
-                  <p style={{ color: '#9CA3AF', fontSize: '14px', padding: '12px 14px', border: '1px dashed #D1D5DB', borderRadius: '8px', backgroundColor: 'white' }}>
+                  <p className="text-gray-500 text-sm p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50">
                     Por ahora no hay proyectos disponibles. Puedes contarnos tu interés en el siguiente campo.
                   </p>
                 )}
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Descripción / Comentarios *</label>
-                <textarea required name="description" rows={4} style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical', fontSize: '15px' }} placeholder="Cuéntanos por qué te interesa participar..."></textarea>
+                <label className="block text-gray-700 font-bold text-sm mb-2">Descripción / Comentarios *</label>
+                <textarea required name="description" rows={4} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none resize-y" placeholder="Cuéntanos por qué te interesa participar..."></textarea>
               </div>
 
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #E5E7EB',
-                  backgroundColor: '#FFFFFF',
-                  color: '#1A2E6C',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                className="hover:bg-gray-50"
-              >
+              <label className="flex items-center gap-3 p-5 bg-blue-50/50 border border-blue-100 rounded-xl cursor-pointer hover:border-[#1A2E6C] transition-all">
                 <input
                   name="wants_training"
                   type="checkbox"
-                  style={{ width: '18px', height: '18px', accentColor: '#E8401C', cursor: 'pointer' }}
+                  className="w-5 h-5 accent-[#E8401C] rounded flex-shrink-0"
                 />
-                ¿Te gustaría recibir un curso de sensibilización?
+                <span className="text-[#1A2E6C] font-semibold text-sm">¿Te gustaría recibir un curso de sensibilización?</span>
               </label>
 
-              {status === 'error' && <p style={{ color: '#E8401C', fontSize: '14px', fontWeight: 500 }}>Hubo un error al enviar tu solicitud. Por favor intenta de nuevo.</p>}
+              {status === 'error' && (
+                <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 text-sm font-medium">
+                  Hubo un error al enviar tu solicitud. Por favor intenta de nuevo.
+                </div>
+              )}
 
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                style={{
-                  backgroundColor: '#E8401C',
-                  color: 'white',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  fontSize: '16px',
-                  border: 'none',
-                  cursor: status === 'loading' ? 'not-allowed' : 'pointer',
-                  opacity: status === 'loading' ? 0.7 : 1,
-                  marginTop: '12px',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseEnter={(e) => !status && (e.currentTarget.style.backgroundColor = '#C73212')}
-                onMouseLeave={(e) => !status && (e.currentTarget.style.backgroundColor = '#E8401C')}
+                className="w-full bg-gradient-to-r from-[#E8401C] to-[#c73212] text-white font-extrabold py-4 px-6 rounded-xl hover:shadow-lg hover:shadow-red-900/20 hover:-translate-y-1 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-4"
               >
-                {status === 'loading' ? 'Enviando...' : 'Enviar Registro'}
+                {status === 'loading' ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Enviando...</span>
+                  </div>
+                ) : (
+                  'Enviar Registro'
+                )}
               </button>
             </form>
           )}

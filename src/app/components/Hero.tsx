@@ -53,7 +53,7 @@ export function Hero() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl justify-center mt-4">
             <Link
-              to="/empresas"
+              to="/catalogo-eventos"
               className="group flex flex-col items-center text-center p-8 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(26,46,108,0.1)] hover:-translate-y-2 hover:border-blue-100 transition-all duration-300 relative overflow-hidden"
               style={{ textDecoration: "none" }}
             >
