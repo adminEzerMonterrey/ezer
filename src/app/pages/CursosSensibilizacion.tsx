@@ -14,7 +14,7 @@ const CURSOS: Curso[] = [
     id: 1,
     area: "Infancia Vulnerable",
     descripcion: "Conoce los riesgos que enfrentan niñas y niños en situación de vulnerabilidad y aprende cómo ser un agente de cambio en su entorno.",
-    flyerUrl: "https://drive.google.com/file/d/1cp6HlrKl_hl5sRDglyoi4lrgvKzpnH7j/preview",
+    flyerUrl: "https://drive.google.com/file/d/1cp6HlrKl_hl5sRDgIyoi4IrgvKzpnH7j/preview",
     imagen: "/curso-1.jpg",
   },
   {
@@ -28,21 +28,21 @@ const CURSOS: Curso[] = [
     id: 3,
     area: "Mujeres y Empoderamiento",
     descripcion: "Explora la importancia de la equidad de género y el empoderamiento femenino como base del desarrollo social.",
-    flyerUrl: "https://drive.google.com/file/d/13ePrkegUy7luXj65VdGRdsN9IAHkdYkR/preview",
+    flyerUrl: "https://drive.google.com/file/d/13ePrkegUy7luXj65VdGRdsN9lAHkdYkR/preview",
     imagen: "/curso-3.jpg",
   },
   {
     id: 4,
     area: "Inclusión y Discapacidad",
     descripcion: "Descubre cómo construir entornos verdaderamente inclusivos eliminando barreras físicas, sociales y actitudinales.",
-    flyerUrl: "https://drive.google.com/file/d/1KlShnCQFEQ89E7OfHfrYF4bdqsEUZ-Bc/preview",
+    flyerUrl: "https://drive.google.com/file/d/1KIShnCQfEQ89E7OfHfrYF4bdqsEUZ-Bc/preview",
     imagen: "/curso-4.jpg",
   },
   {
     id: 5,
     area: "Conciencia Ambiental",
     descripcion: "Sensibilízate sobre el impacto ambiental y aprende a promover hábitos sostenibles en tu empresa y comunidad.",
-    flyerUrl: "https://drive.google.com/file/d/1yoXKgbYTg8miDjzVtNmYeNAXx9hc822/preview",
+    flyerUrl: "https://drive.google.com/file/d/1yyoXKgbYTg8miDjzVtNmYeNAXx9hc822/preview",
     imagen: "/curso-5.jpg",
   },
   {
@@ -56,7 +56,7 @@ const CURSOS: Curso[] = [
     id: 7,
     area: "Migración y Hospitalidad",
     descripcion: "Conoce la situación de personas migrantes y refugiadas, y aprende cómo ser agente de integración y dignidad humana.",
-    flyerUrl: "https://drive.google.com/file/d/1dG9qGrKGKI56whSPLNRvHG8ZddywbDwg/preview",
+    flyerUrl: "https://drive.google.com/file/d/1dG9qGrKGKi56whSPLNRvHG8ZddywbDwg/preview",
     imagen: "/curso-7.jpg",
   },
   {
@@ -70,7 +70,7 @@ const CURSOS: Curso[] = [
     id: 9,
     area: "Derecho a la Vivienda",
     descripcion: "Reflexiona sobre el acceso digno a la vivienda y el papel que juegan empresas y comunidades en la construcción de un hogar.",
-    flyerUrl: "https://drive.google.com/file/d/1sUn97VgckRbQX5-MFmP-JymayOZHeexl/preview",
+    flyerUrl: "https://drive.google.com/file/d/1sUn97VgckRbQX5-MFmP-JymayOZHeexJ/preview",
     imagen: "/curso-9.jpg",
   },
 ];
