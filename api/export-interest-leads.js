@@ -19,27 +19,53 @@ const EXCEL_COLUMNS = [
   },
 ];
 
-function getSupabaseAdminClient(authorizationHeader = '') {
-  const supabaseUrl =
-    process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+function getSupabaseConfig() {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const shouldForwardUserAuth = false;
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
     throw new Error(
-      'La exportacion requiere SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY configuradas en el entorno del servidor.',
+      'La exportacion requiere SUPABASE_URL, SUPABASE_ANON_KEY/VITE_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY configuradas en el entorno del servidor.',
     );
   }
 
+  return { supabaseUrl, anonKey, serviceRoleKey };
+}
+
+function getBearerToken(req) {
+  const authHeader = req.headers.authorization || '';
+  return authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : '';
+}
+
+// Valida que el token pertenezca a un usuario autenticado de Supabase.
+// Lanza si el token falta o es inválido/expirado.
+async function requireAuthenticatedUser(req) {
+  const token = getBearerToken(req);
+  if (!token) {
+    const err = new Error('No autorizado: falta token de sesión.');
+    err.statusCode = 401;
+    throw err;
+  }
+
+  const { supabaseUrl, anonKey } = getSupabaseConfig();
+  const authClient = createClient(supabaseUrl, anonKey, { auth: { persistSession: false } });
+  const { data, error } = await authClient.auth.getUser(token);
+
+  if (error || !data?.user) {
+    const err = new Error('No autorizado: sesión inválida o expirada.');
+    err.statusCode = 401;
+    throw err;
+  }
+
+  return data.user;
+}
+
+function getSupabaseAdminClient() {
+  const { supabaseUrl, serviceRoleKey } = getSupabaseConfig();
+
   return createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
-    global: shouldForwardUserAuth
-      ? {
-          headers: {
-            Authorization: authorizationHeader,
-          },
-        }
-      : undefined,
   });
 }
 
@@ -84,8 +110,8 @@ function buildExportFileName() {
   return `Voluntarios - ${formattedDate}.xlsx`;
 }
 
-async function fetchInterestLeads(authorizationHeader = '') {
-  const supabase = getSupabaseAdminClient(authorizationHeader);
+async function fetchInterestLeads() {
+  const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
     .from('interest_leads')
@@ -148,13 +174,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const rawAuthorizationHeader = req.headers.authorization || '';
-    const authorizationHeader = rawAuthorizationHeader.startsWith('Bearer ')
-      ? rawAuthorizationHeader
-      : rawAuthorizationHeader
-        ? `Bearer ${rawAuthorizationHeader}`
-        : '';
-    const rows = await fetchInterestLeads(authorizationHeader);
+    // Seguridad: solo un administrador autenticado puede exportar datos personales.
+    await requireAuthenticatedUser(req);
+
+    const rows = await fetchInterestLeads();
 
     const excelRows = buildExcelRows(rows);
     const workbookBuffer = buildWorkbookBuffer(excelRows);
@@ -176,6 +199,7 @@ export default async function handler(req, res) {
     return res.status(200).send(workbookBuffer);
   } catch (error) {
     console.error('API /export-interest-leads error:', error);
-    return res.status(500).json({ message: error.message || 'Internal Server Error' });
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({ message: error.message || 'Internal Server Error' });
   }
 }

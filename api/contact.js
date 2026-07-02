@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
+import { escapeHtml } from './_utils.js';
 
 
 export default async function handler(req, res) {
@@ -68,12 +69,12 @@ export default async function handler(req, res) {
       html: `
         <h2>Nuevo Mensaje de Contacto</h2>
         <ul>
-          <li><strong>Nombre:</strong> ${name}</li>
-          <li><strong>Correo Electrónico:</strong> <a href="mailto:${email}">${email}</a></li>
-          <li><strong>Asunto:</strong> ${subject}</li>
+          <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
+          <li><strong>Correo Electrónico:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
+          <li><strong>Asunto:</strong> ${escapeHtml(subject)}</li>
         </ul>
         <p><strong>Mensaje:</strong></p>
-        <p>${message.replace(/\n/g, '<br>')}</p>
+        <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
       `,
     });
 
@@ -90,7 +91,7 @@ voluntariadocorporativo@ezer.org.mx
 ezer-eventos.vercel.app`;
 
     const userHtmlContact = `
-      <p>Estimada/o ${name}:</p>
+      <p>Estimada/o ${escapeHtml(name)}:</p>
       <p>¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que <strong>usted</strong> quiere participar.</p>
       <p>Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.</p>
       <p>Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.</p>

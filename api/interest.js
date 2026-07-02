@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
+import { escapeHtml } from './_utils.js';
 
 
 export default async function handler(req, res) {
@@ -73,18 +74,23 @@ export default async function handler(req, res) {
       ? `Recibimos tu interés — te buscaremos muy pronto`
       : `Confirmación de solicitud para evento: ${eventName}`;
 
+    // Solo permitimos URLs http/https en los enlaces de archivos (evita javascript:, data:, etc.)
+    const safeUrl = (value) => (typeof value === 'string' && /^https?:\/\//i.test(value.trim()) ? value.trim() : '');
+    const safeFlyerUrl = safeUrl(flyerUrl);
+    const safeCourseUrl = safeUrl(courseUrl);
+
     const projectsHtml = (projects && projects.length > 0)
-      ? `<li><strong>Programas de interés:</strong><ul>${projects.map(p => `<li>${p}</li>`).join('')}</ul></li>`
+      ? `<li><strong>Programas de interés:</strong><ul>${projects.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul></li>`
       : '';
 
-    const municipioHtml = municipio ? `<li><strong>Municipio:</strong> ${municipio}</li>` : '';
+    const municipioHtml = municipio ? `<li><strong>Municipio:</strong> ${escapeHtml(municipio)}</li>` : '';
     const finalComments = comments ? comments : description;
 
-    const eventFilesHtml = (flyerUrl || courseUrl) ? `
+    const eventFilesHtml = (safeFlyerUrl || safeCourseUrl) ? `
       <div style="margin-top:20px; padding:16px; background:#F8FAFC; border-radius:8px; border:1px solid #E5E7EB;">
         <p style="margin:0 0 10px; font-weight:700; color:#1A2E6C;">Archivos del evento:</p>
-        ${flyerUrl ? `<a href="${flyerUrl}" target="_blank" style="display:inline-block; margin-right:12px; padding:8px 16px; background:#1E3A8A; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📄 Ver Flyer</a>` : ''}
-        ${courseUrl ? `<a href="${courseUrl}" target="_blank" style="display:inline-block; padding:8px 16px; background:#15803D; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📚 Curso de Sensibilización</a>` : ''}
+        ${safeFlyerUrl ? `<a href="${escapeHtml(safeFlyerUrl)}" target="_blank" style="display:inline-block; margin-right:12px; padding:8px 16px; background:#1E3A8A; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📄 Ver Flyer</a>` : ''}
+        ${safeCourseUrl ? `<a href="${escapeHtml(safeCourseUrl)}" target="_blank" style="display:inline-block; padding:8px 16px; background:#15803D; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📚 Curso de Sensibilización</a>` : ''}
       </div>` : '';
 
     // 1. Mensaje para el administrador
@@ -95,18 +101,18 @@ export default async function handler(req, res) {
       text: `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\nMunicipio: ${municipio || 'No especificado'}\nProgramas de interés: ${projects ? projects.join(', ') : 'N/A'}\n¿Quiere capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nComentarios: ${finalComments}`,
       html: `
         <h2>Nuevo Prospecto de Voluntariado</h2>
-        <p><strong>Evento seleccionado:</strong> ${eventName}</p>
+        <p><strong>Evento seleccionado:</strong> ${escapeHtml(eventName)}</p>
         <ul>
-          <li><strong>Nombre:</strong> ${name}</li>
-          <li><strong>Teléfono:</strong> ${phone}</li>
-          <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
-          <li><strong>Correo Electrónico:</strong> <a href="mailto:${email}">${email}</a></li>
+          <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
+          <li><strong>Teléfono:</strong> ${escapeHtml(phone)}</li>
+          <li><strong>Organización / Empresa:</strong> ${escapeHtml(company || 'N/A')}</li>
+          <li><strong>Correo Electrónico:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
           ${municipioHtml}
           ${projectsHtml}
           <li><strong>¿Quiere capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
         </ul>
         <p><strong>Comentarios adicionales:</strong></p>
-        <p>${finalComments}</p>
+        <p>${escapeHtml(finalComments).replace(/\n/g, '<br>')}</p>
         ${eventFilesHtml}
       `,
     });
@@ -124,8 +130,8 @@ voluntariadocorporativo@ezer.org.mx
 ezer-eventos.vercel.app`;
 
     const userHtmlRegistration = `
-      <p>Estimada/o ${name}:</p>
-      <p>¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que <strong>${company || 'su empresa/asociación'}</strong> quiere participar.</p>
+      <p>Estimada/o ${escapeHtml(name)}:</p>
+      <p>¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que <strong>${escapeHtml(company || 'su empresa/asociación')}</strong> quiere participar.</p>
       <p>Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.</p>
       <p>Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.</p>
       <p>Agradecemos su confianza y sus ganas de generar impacto en la comunidad. ¡Estamos por construir algo muy valioso juntos!</p>
@@ -140,14 +146,14 @@ ezer-eventos.vercel.app`;
     const userTextCatalog = `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\n¿Quieres capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`;
 
     const userHtmlCatalog = `
-      <h2>¡Gracias por tu interés, ${name}!</h2>
-      <p>Hemos recibido correctamente tus datos para participar en el evento <strong>${eventName}</strong>.</p>
+      <h2>¡Gracias por tu interés, ${escapeHtml(name)}!</h2>
+      <p>Hemos recibido correctamente tus datos para participar en el evento <strong>${escapeHtml(eventName)}</strong>.</p>
       <p><strong>Resumen de tu solicitud:</strong></p>
       <ul>
-        <li><strong>Teléfono:</strong> ${phone}</li>
-        <li><strong>Organización / Empresa:</strong> ${company || 'N/A'}</li>
+        <li><strong>Teléfono:</strong> ${escapeHtml(phone)}</li>
+        <li><strong>Organización / Empresa:</strong> ${escapeHtml(company || 'N/A')}</li>
         <li><strong>¿Quieres capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
-        <li><strong>Tus comentarios:</strong> ${description}</li>
+        <li><strong>Tus comentarios:</strong> ${escapeHtml(description)}</li>
       </ul>
       <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles.</p>
       ${eventFilesHtml}

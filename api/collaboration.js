@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
+import { escapeHtml } from './_utils.js';
 
 
 export default async function handler(req, res) {
@@ -68,10 +69,10 @@ export default async function handler(req, res) {
         <h2>Nueva Solicitud de Colaboración</h2>
         <p>Se ha recibido una nueva solicitud para colaborar con EZER.</p>
         <ul>
-          <li><strong>Organización:</strong> ${org}</li>
-          <li><strong>Correo Electrónico:</strong> <a href="mailto:${email}">${email}</a></li>
-          <li><strong>Teléfono:</strong> ${phone || 'No proporcionado'}</li>
-          <li><strong>Documento adjunto:</strong> ${hasFile ? fileName : 'No se adjuntó archivo'}</li>
+          <li><strong>Organización:</strong> ${escapeHtml(org)}</li>
+          <li><strong>Correo Electrónico:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
+          <li><strong>Teléfono:</strong> ${escapeHtml(phone || 'No proporcionado')}</li>
+          <li><strong>Documento adjunto:</strong> ${hasFile ? escapeHtml(fileName) : 'No se adjuntó archivo'}</li>
         </ul>
         <p><em>Revisa el panel de Supabase para ver todos los detalles.</em></p>
       `,
@@ -96,10 +97,10 @@ export default async function handler(req, res) {
         <p>Hemos recibido correctamente tu solicitud de colaboración.</p>
         <p><strong>Resumen:</strong></p>
         <ul>
-          <li><strong>Organización:</strong> ${org}</li>
-          <li><strong>Correo:</strong> ${email}</li>
-          <li><strong>Teléfono:</strong> ${phone || 'No proporcionado'}</li>
-          <li><strong>Documento adjunto:</strong> ${hasFile ? 'Sí (' + fileName + ')' : 'No'}</li>
+          <li><strong>Organización:</strong> ${escapeHtml(org)}</li>
+          <li><strong>Correo:</strong> ${escapeHtml(email)}</li>
+          <li><strong>Teléfono:</strong> ${escapeHtml(phone || 'No proporcionado')}</li>
+          <li><strong>Documento adjunto:</strong> ${hasFile ? 'Sí (' + escapeHtml(fileName) + ')' : 'No'}</li>
         </ul>
         <p>Nuestro equipo revisará tu información y se pondrá en contacto contigo en las próximas <strong>48 horas</strong>.</p>
         <br>

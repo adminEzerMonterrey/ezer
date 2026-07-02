@@ -495,7 +495,7 @@ export function CollaborationForm() {
 
                 <p style={{ color: "#9CA3AF", fontSize: 12, textAlign: "center", marginTop: -4 }}>
                   Al enviar, aceptas nuestra{" "}
-                  <a href="#" style={{ color: "#1A2E6C" }} className="underline">política de privacidad</a>.
+                  <a href="/contactanos" style={{ color: "#1A2E6C" }} className="underline">política de privacidad</a>.
                 </p>
               </form>
             )}

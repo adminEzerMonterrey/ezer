@@ -39,11 +39,13 @@ export function Admin() {
   const [activeTab, setActiveTab] = useState<'eventos' | 'aliados' | 'estadisticas' | 'configuracion'>('eventos');
   const [showManualForm, setShowManualForm] = useState(false);
 
-  // Hero stats state
-  const [heroStats, setHeroStats] = useState({
-    eventos_realizados: '120+',
-    empresas_aliadas: '18',
-    voluntarios_activos: '3,200+',
+  // Hero stats state (claves alineadas con la sección "Nuestro Impacto")
+  const [heroStats, setHeroStats] = useState<Record<string, string>>({
+    impact_years: '27',
+    impact_institutions: '155',
+    impact_municipalities: '14',
+    impact_volunteers_historical: '9,184',
+    impact_volunteers_annual: '150',
   });
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsSaving, setStatsSaving] = useState(false);
@@ -301,7 +303,14 @@ export function Admin() {
     setExportError('');
 
     try {
-      const response = await fetch('/api/export-interest-leads');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Tu sesión expiró. Vuelve a iniciar sesión para exportar.');
+      }
+
+      const response = await fetch('/api/export-interest-leads', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
 
       if (!response.ok) {
         let message = 'No se pudo exportar el archivo.';
@@ -651,8 +660,12 @@ export function Admin() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <button
                       onClick={async () => {
-                        if (!newPassword || newPassword.length < 6) {
-                          alert('La contraseña debe tener al menos 6 caracteres.');
+                        if (!newPassword || newPassword.length < 8) {
+                          alert('La contraseña debe tener al menos 8 caracteres.');
+                          return;
+                        }
+                        if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+                          alert('La contraseña debe incluir al menos una letra y un número.');
                           return;
                         }
                         if (newPassword !== confirmPassword) {
