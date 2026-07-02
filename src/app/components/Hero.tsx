@@ -11,9 +11,9 @@ export function Hero() {
         <img
           src={HERO_IMAGE}
           alt="Voluntarios trabajando juntos"
-          className="w-full h-[45vh] lg:h-[50vh] object-cover object-[center_30%] block"
+          className="w-full h-[60vh] lg:h-[70vh] object-cover object-center block"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
       </div>
 
       {/* Título, párrafo y Call to Action */}
