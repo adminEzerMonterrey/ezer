@@ -17,6 +17,21 @@ export function AliadosPage() {
     if (formData.get('disp_sabados')) disponibilidad.push('Sábados');
     if (formData.get('disp_domingos')) disponibilidad.push('Domingos');
 
+    const talentos: string[] = [
+      ['talento_dj', 'DJ / Música'],
+      ['talento_musico', 'Músico / Banda'],
+      ['talento_payaso', 'Payaso / Animador'],
+      ['talento_chef', 'Chef / Cocina'],
+      ['talento_foto', 'Fotógrafo / Video'],
+      ['talento_medico', 'Médico / Salud'],
+      ['talento_psicologo', 'Psicólogo / Terapeuta'],
+      ['talento_magia', 'Mago / Show'],
+      ['talento_deporte', 'Deportes / Activación'],
+      ['talento_arte', 'Arte / Manualidades'],
+      ['talento_belleza', 'Estética / Belleza'],
+      ['talento_otro', 'Otro talento'],
+    ].filter(([name]) => formData.get(name)).map(([, label]) => label);
+
     const data = {
       nombre: formData.get('name'),
       correo: formData.get('email'),
@@ -25,6 +40,7 @@ export function AliadosPage() {
       habilidades: formData.get('skills'),
       ofreceCurso: formData.get('offers_course') === 'yes',
       grupoSize: formData.get('group_size'),
+      talentos,
       disponibilidad,
       experienciaPrevia: formData.get('experiencia'),
       comoNosConocio: formData.get('referido'),
@@ -168,9 +184,35 @@ export function AliadosPage() {
 
                   {/* SECCIÓN 2 — Talento */}
                   <div>
+                    <label className="block text-sm font-semibold text-[#1A2E6C] mb-2">¿Tienes algún talento especial que quieras compartir?</label>
+                    <p className="text-xs text-gray-500 mb-4">Selecciona todas las que apliquen. Esto nos ayuda a conectarte con los eventos que más se adaptan a lo que haces.</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {[
+                        { name: "talento_dj", label: "DJ / Música", icon: "🎧" },
+                        { name: "talento_musico", label: "Músico / Banda", icon: "🎸" },
+                        { name: "talento_payaso", label: "Payaso / Animador", icon: "🎪" },
+                        { name: "talento_chef", label: "Chef / Cocina", icon: "👨‍🍳" },
+                        { name: "talento_foto", label: "Fotógrafo / Video", icon: "📷" },
+                        { name: "talento_medico", label: "Médico / Salud", icon: "🏥" },
+                        { name: "talento_psicologo", label: "Psicólogo / Terapeuta", icon: "🧠" },
+                        { name: "talento_magia", label: "Mago / Show", icon: "🎩" },
+                        { name: "talento_deporte", label: "Deportes / Activación", icon: "⚽" },
+                        { name: "talento_arte", label: "Arte / Manualidades", icon: "🎨" },
+                        { name: "talento_belleza", label: "Estética / Belleza", icon: "💇" },
+                        { name: "talento_otro", label: "Otro talento", icon: "✨" },
+                      ].map(({ name, label, icon }) => (
+                        <label key={name} className="flex items-center gap-2.5 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:border-[#1A2E6C] hover:bg-blue-50/30 transition-all">
+                          <input type="checkbox" name={name} className="w-4 h-4 accent-[#1A2E6C] rounded flex-shrink-0" />
+                          <span className="text-sm font-medium text-gray-700 leading-tight">{icon} {label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
                     <label className={labelClass}>¿Qué habilidades o servicios ofreces? *</label>
-                    <p className="text-xs text-gray-500 mb-3">Ej: Fotografía, DJ, Payaso, Terapia, Consultoría, etc. Sé lo más descriptivo posible.</p>
-                    <textarea required name="skills" rows={4} className={inputClass + " resize-y"} placeholder="Cuento con equipo de sonido y luces..." />
+                    <p className="text-xs text-gray-500 mb-3">Descríbenos con más detalle lo que haces. Cuanto más específico, mejor podemos conectarte.</p>
+                    <textarea required name="skills" rows={3} className={inputClass + " resize-y"} placeholder="Cuento con equipo de sonido y luces, puedo tocar 3 horas seguidas..." />
                   </div>
 
                   <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
