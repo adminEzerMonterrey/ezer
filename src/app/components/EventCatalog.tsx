@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users, ArrowRight, Filter, ChevronDown, X, Heart, FileText, BookOpen } from "lucide-react";
 import { supabase } from "../../supabaseClient";
-import { EVENT_CATEGORY_FILTERS } from "../eventCategories";
+import { EVENT_CATEGORY_FILTERS, CATEGORY_COURSE_URLS } from "../eventCategories";
 import { formatSpotsRange } from "../eventSpots";
 import { NUEVO_LEON_MUNICIPALITIES } from "../municipalities";
 
@@ -76,7 +76,7 @@ export function EventCatalog() {
             cost: e.cost || "Gratuito",
             isAnnual: !!e.is_annual,
             flyer_url: e.flyer_url,
-            sensibilization_course_url: e.sensibilization_course_url,
+            sensibilization_course_url: CATEGORY_COURSE_URLS[e.objective] ?? e.sensibilization_course_url,
           };
         });
 
