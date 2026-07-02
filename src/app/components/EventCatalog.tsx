@@ -195,6 +195,8 @@ export function EventCatalog() {
                       <img
                         src={event.image}
                         alt={event.title}
+                        loading="lazy"
+                        decoding="async"
                         style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
                         className="group-hover:scale-105"
                       />
