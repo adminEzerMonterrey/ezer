@@ -53,44 +53,107 @@ export function Hero() {
             Nuestra misión es enlazar y capacitar a voluntarios que deseen servir a la comunidad, con los programas y organizaciones de beneficio social, de una manera profesional, permanente y con una visión sistémica y comunitaria.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl justify-center mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-5xl justify-center mt-4">
+            {/* Empresas */}
             <Link
               to="/catalogo-eventos"
-              className="group flex flex-col items-center text-center p-8 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(26,46,108,0.1)] hover:-translate-y-2 hover:border-blue-100 transition-all duration-300 relative overflow-hidden"
+              className="group flex flex-col p-7 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(26,46,108,0.12)] hover:-translate-y-2 hover:border-blue-100 transition-all duration-300 relative overflow-hidden"
               style={{ textDecoration: "none" }}
             >
               <div className="absolute top-0 left-0 w-full h-1.5 bg-[#1A2E6C]" />
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#1A2E6C] flex items-center justify-center mb-5 group-hover:bg-[#1A2E6C] group-hover:text-white transition-colors duration-300">
-                <Building2 size={32} />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#1A2E6C] flex items-center justify-center shrink-0 group-hover:bg-[#1A2E6C] group-hover:text-white transition-colors duration-300">
+                  <Building2 size={24} />
+                </div>
+                <div>
+                  <span className="text-[#1A2E6C] font-extrabold text-lg leading-tight block">Empresas</span>
+                  <span className="text-gray-400 text-xs font-medium">Voluntariado Corporativo</span>
+                </div>
               </div>
-              <span className="text-[#1A2E6C] font-extrabold text-xl mb-2">Empresas</span>
-              <span className="text-gray-500 text-sm font-medium leading-relaxed">Voluntariado Corporativo</span>
+              <div className="flex flex-col gap-4">
+                {[
+                  { n: "1", title: "Elige", desc: "Selecciona uno de nuestros 47 proyectos listos para ejecutarse." },
+                  { n: "2", title: "Vive", desc: "Tus colaboradores participan en un evento con sensibilización incluida." },
+                  { n: "3", title: "Impacta", desc: "Fortaleces tu cultura interna mientras una asociación recibe apoyo real." },
+                ].map((step) => (
+                  <div key={step.n} className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[#1A2E6C] text-white text-xs font-extrabold flex items-center justify-center mt-0.5">{step.n}</span>
+                    <div>
+                      <p className="text-[#1A2E6C] font-bold text-sm">{step.title}</p>
+                      <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </Link>
 
+            {/* Aliados Voluntarios */}
             <Link
               to="/aliados"
-              className="group flex flex-col items-center text-center p-8 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(245,194,0,0.15)] hover:-translate-y-2 hover:border-yellow-100 transition-all duration-300 relative overflow-hidden"
+              className="group flex flex-col p-7 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(245,194,0,0.18)] hover:-translate-y-2 hover:border-yellow-100 transition-all duration-300 relative overflow-hidden"
               style={{ textDecoration: "none" }}
             >
               <div className="absolute top-0 left-0 w-full h-1.5 bg-[#F5C200]" />
-              <div className="w-16 h-16 rounded-2xl bg-yellow-50 text-[#D97706] flex items-center justify-center mb-5 group-hover:bg-[#F5C200] group-hover:text-[#1A2E6C] transition-colors duration-300">
-                <UserPlus size={32} />
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-yellow-50 text-[#D97706] flex items-center justify-center shrink-0 group-hover:bg-[#F5C200] group-hover:text-[#1A2E6C] transition-colors duration-300">
+                  <UserPlus size={24} />
+                </div>
+                <div>
+                  <span className="text-[#1A2E6C] font-extrabold text-lg leading-tight block">Aliados Voluntarios</span>
+                  <span className="text-gray-400 text-xs font-medium">Comparte tu Talento</span>
+                </div>
               </div>
-              <span className="text-[#1A2E6C] font-extrabold text-xl mb-2">Aliados Voluntarios</span>
-              <span className="text-gray-500 text-sm font-medium leading-relaxed">Comparte tu Talento</span>
+              <p className="text-gray-500 text-xs leading-relaxed mb-4">
+                ¿Tienes una habilidad que te apasiona? Acompaña un evento de voluntariado corporativo y ponla al servicio de los demás.
+              </p>
+              <div className="flex flex-col gap-4">
+                {[
+                  { n: "1", title: "Regístrate", desc: "Cuéntanos qué sabes hacer: música, cocina, fotografía, oficios, lo que sea." },
+                  { n: "2", title: "Acompaña", desc: "Te integramos al evento donde tu talento suma más." },
+                  { n: "3", title: "Transforma", desc: "Tu habilidad se convierte en una experiencia memorable para todos." },
+                ].map((step) => (
+                  <div key={step.n} className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[#F5C200] text-[#1A2E6C] text-xs font-extrabold flex items-center justify-center mt-0.5">{step.n}</span>
+                    <div>
+                      <p className="text-[#1A2E6C] font-bold text-sm">{step.title}</p>
+                      <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </Link>
 
+            {/* Empresas Aliadas */}
             <Link
               to="/empresas-aliadas"
-              className="group flex flex-col items-center text-center p-8 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(232,64,28,0.1)] hover:-translate-y-2 hover:border-red-100 transition-all duration-300 relative overflow-hidden"
+              className="group flex flex-col p-7 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(232,64,28,0.12)] hover:-translate-y-2 hover:border-red-100 transition-all duration-300 relative overflow-hidden"
               style={{ textDecoration: "none" }}
             >
               <div className="absolute top-0 left-0 w-full h-1.5 bg-[#E8401C]" />
-              <div className="w-16 h-16 rounded-2xl bg-red-50 text-[#E8401C] flex items-center justify-center mb-5 group-hover:bg-[#E8401C] group-hover:text-white transition-colors duration-300">
-                <HeartHandshake size={32} />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#E8401C] flex items-center justify-center shrink-0 group-hover:bg-[#E8401C] group-hover:text-white transition-colors duration-300">
+                  <HeartHandshake size={24} />
+                </div>
+                <div>
+                  <span className="text-[#1A2E6C] font-extrabold text-lg leading-tight block">Empresas Aliadas</span>
+                  <span className="text-gray-400 text-xs font-medium">Apoya con un Donativo</span>
+                </div>
               </div>
-              <span className="text-[#1A2E6C] font-extrabold text-xl mb-2">Empresas Aliadas</span>
-              <span className="text-gray-500 text-sm font-medium leading-relaxed">Apoya con un Donativo</span>
+              <div className="flex flex-col gap-4">
+                {[
+                  { n: "1", title: "Dona", desc: "Aporta productos que enriquecen los eventos de voluntariado." },
+                  { n: "2", title: "Conecta", desc: "Tu marca se hace presente en causas de alto impacto social." },
+                  { n: "3", title: "Suma", desc: "Cada producto donado multiplica el alcance de cada evento." },
+                ].map((step) => (
+                  <div key={step.n} className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[#E8401C] text-white text-xs font-extrabold flex items-center justify-center mt-0.5">{step.n}</span>
+                    <div>
+                      <p className="text-[#1A2E6C] font-bold text-sm">{step.title}</p>
+                      <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </Link>
           </div>
         </div>

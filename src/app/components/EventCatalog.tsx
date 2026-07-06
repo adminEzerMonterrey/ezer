@@ -119,10 +119,10 @@ export function EventCatalog() {
             <h2
               style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2 }}
             >
-              ¿Eres empresa/grupo y quieres hacer voluntariado corporativo/grupal?
+              Voluntariado con<br />tus colaboradores
             </h2>
             <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 520 }} className="mx-auto text-base">
-              Explora las oportunidades de voluntariado y elige el que más impacte en tu comunidad.
+              Tu empresa quiere que su equipo viva la experiencia de servir. Nosotros lo hacemos fácil.
             </p>
           </div>
 

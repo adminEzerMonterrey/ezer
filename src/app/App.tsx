@@ -3,6 +3,7 @@ import { Suspense, lazy, useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { ImpactStats } from "./components/ImpactStats";
+import { WhyEzer } from "./components/WhyEzer";
 import { Footer } from "./components/Footer";
 
 // Rutas pesadas / secundarias se cargan bajo demanda (code-splitting).
@@ -15,6 +16,7 @@ const Admin = lazy(() => import("./pages/Admin").then((m) => ({ default: m.Admin
 const AliadosPage = lazy(() => import("./pages/Aliados").then((m) => ({ default: m.AliadosPage })));
 const EmpresasAliadasPage = lazy(() => import("./pages/EmpresasAliadas").then((m) => ({ default: m.EmpresasAliadasPage })));
 const CursosSensibilizacionPage = lazy(() => import("./pages/CursosSensibilizacion").then((m) => ({ default: m.CursosSensibilizacionPage })));
+const UniversidadesPage = lazy(() => import("./pages/Universidades").then((m) => ({ default: m.UniversidadesPage })));
 
 function ScrollToTop() {
   useEffect(() => {
@@ -62,6 +64,7 @@ function HomePage() {
     <AppShell>
       <Hero />
       <ImpactStats />
+      <WhyEzer />
     </AppShell>
   );
 }
@@ -131,6 +134,11 @@ export default function App() {
         } />
         <Route path="/aliados" element={<AliadosPageWrapper />} />
         <Route path="/empresas-aliadas" element={<EmpresasAliadasPageWrapper />} />
+        <Route path="/universidades" element={
+          <AppShell>
+            <UniversidadesPage />
+          </AppShell>
+        } />
         <Route path="/admin" element={
           <Suspense fallback={<RouteFallback />}>
             <Admin />

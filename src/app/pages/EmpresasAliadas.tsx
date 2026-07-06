@@ -26,11 +26,11 @@ export function EmpresasAliadasPage() {
 
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
-            Únete como <span className="text-[#F5C200]">Empresa Aliada</span>
+            Colabora con tus<br /><span className="text-[#F5C200]">productos</span>
           </h1>
 
           <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed mb-10">
-            Una Empresa Aliada es aquella organización que suma esfuerzos mediante donativos para hacer posibles nuestros eventos de impacto social. Tu apoyo es el motor que nos permite llegar más lejos.
+            Tu empresa puede sumarse aportando lo que produce: alimentos, materiales, insumos o artículos para los eventos.
           </p>
 
           <a href="#registro" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#E8401C] text-white rounded-xl font-bold text-lg hover:brightness-110 active:scale-95 transition-all duration-200 shadow-xl shadow-red-900/30">
