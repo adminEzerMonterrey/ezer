@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, BookOpen, Send, Calendar, MapPin, CheckCircle2 } from "lucide-react";
+import { X, BookOpen, Send, MapPin, CheckCircle2 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 
 interface Curso {
@@ -14,7 +14,6 @@ interface Curso {
 interface Event {
   id: number;
   title: string;
-  date: string;
   municipio: string;
 }
 
@@ -273,7 +272,7 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
     const fetchEvents = async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, name, date, municipio")
+        .select("id, name, municipio")
         .eq("objective", curso.category)
         .order("date", { ascending: true })
         .limit(10);
@@ -283,7 +282,6 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
           data.map((e: any) => ({
             id: e.id,
             title: e.name,
-            date: e.date,
             municipio: e.municipio,
           }))
         );
@@ -362,10 +360,6 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
     setSubmitted(true);
   };
 
-  const formatDate = (d: string) => {
-    const date = new Date(d);
-    return date.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
-  };
 
   return (
     <div
@@ -459,18 +453,12 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
                           <p className={`text-sm font-bold leading-snug ${selectedEventIds.includes(ev.id) ? "text-[#1A2E6C]" : "text-gray-700"}`}>
                             {ev.title}
                           </p>
-                          <div className="flex flex-wrap items-center gap-3 mt-1">
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
-                              <Calendar size={11} />
-                              {formatDate(ev.date)}
-                            </span>
-                            {ev.municipio && (
-                              <span className="flex items-center gap-1 text-xs text-gray-500">
-                                <MapPin size={11} />
-                                {ev.municipio}
-                              </span>
-                            )}
-                          </div>
+                          {ev.municipio && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <MapPin size={11} className="text-gray-400" />
+                              <span className="text-xs text-gray-500">{ev.municipio}</span>
+                            </div>
+                          )}
                         </div>
                       </label>
                     ))}
