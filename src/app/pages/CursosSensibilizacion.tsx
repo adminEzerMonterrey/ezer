@@ -114,7 +114,7 @@ export function CursosSensibilizacionPage() {
           <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             Los Cursos de Sensibilización son módulos breves diseñados para concientizar y preparar a nuestros voluntarios sobre diversas realidades sociales. Nuestro objetivo es que cada intervención se realice con empatía, respeto y el conocimiento necesario para generar un verdadero impacto positivo.
             <br /><br />
-            Te invitamos a explorar las diferentes áreas y descargar el material de tu interés antes de participar en nuestros eventos.
+            Te invitamos a explorar las diferentes áreas y consultar el material de tu interés antes de participar en nuestros eventos.
           </p>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { ImpactStats } from "./components/ImpactStats";
 import { WhyEzer } from "./components/WhyEzer";
+import { VideoSection } from "./components/VideoSection";
 import { Footer } from "./components/Footer";
 
 // Rutas pesadas / secundarias se cargan bajo demanda (code-splitting).
@@ -63,6 +64,7 @@ function HomePage() {
   return (
     <AppShell>
       <Hero />
+      <VideoSection />
       <ImpactStats />
       <WhyEzer />
     </AppShell>
