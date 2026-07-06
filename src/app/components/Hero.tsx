@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Building2, UserPlus, HeartHandshake } from "lucide-react";
 
-const HERO_IMAGE = "/hero.jpg";
+const HERO_IMAGE = "/hero.png";
 
 export function Hero() {
   return (

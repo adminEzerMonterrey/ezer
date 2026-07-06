@@ -262,7 +262,9 @@ function FlyerModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
 function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "" });
+  const [selectedEventIds, setSelectedEventIds] = useState<number[]>([]);
+  
+  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", comments: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -276,7 +278,7 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
         .select("id, name, date, municipio, spots_min, spots_max")
         .eq("objective", curso.category)
         .order("date", { ascending: true })
-        .limit(5);
+        .limit(10);
 
       if (data) {
         setEvents(
@@ -295,11 +297,25 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
     fetchEvents();
   }, [curso.category]);
 
+  const handleToggleEvent = (id: number) => {
+    setSelectedEventIds((prev) =>
+      prev.includes(id) ? prev.filter((eventId) => eventId !== id) : [...prev, id]
+    );
+  };
+
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!form.name || !form.email) { setError("Por favor completa tu nombre y correo."); return; }
     setSubmitting(true);
     setError("");
+
+    const selectedEventsNames = events
+      .filter((ev) => selectedEventIds.includes(ev.id))
+      .map((ev) => ev.title)
+      .join(", ");
+
+    // Guardar en Supabase
+    // Si la tabla no tiene las nuevas columnas y falla, podemos atraparlo y continuar
     const { error: dbErr } = await supabase.from("course_interests").insert({
       curso_id: curso.id,
       curso_area: curso.area,
@@ -308,9 +324,45 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
       correo: form.email,
       telefono: form.phone,
       empresa: form.company,
+      eventos_seleccionados: selectedEventsNames,
+      comentarios: form.comments
     });
+
+    if (dbErr) {
+      console.error("Error al guardar en BD (asegúrate de haber ejecutado el update_course_interests.sql):", dbErr);
+      // No bloquearemos el envío de correo si la inserción a BD falla por esquema viejo
+    }
+
+    // Enviar correo llamando a nuestra API Serverless
+    try {
+      const apiBase = window.location.hostname === "localhost" ? "http://localhost:3000" : "";
+      const res = await fetch(`${apiBase}/api/course-interest`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          company: form.company,
+          cursoArea: curso.area,
+          cursoCategory: curso.category,
+          eventosSeleccionados: selectedEventsNames,
+          comments: form.comments,
+          flyerUrl: curso.flyerUrl
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error enviando el correo");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Hubo un error al enviar el correo. Sin embargo tu registro pudo haber sido guardado.");
+      setSubmitting(false);
+      return;
+    }
+
     setSubmitting(false);
-    if (dbErr) { setError("Hubo un error al enviar. Intenta de nuevo."); return; }
     setSubmitted(true);
   };
 
@@ -328,7 +380,7 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
       <div
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-2xl w-full overflow-hidden flex flex-col"
-        style={{ maxWidth: 680, maxHeight: "93vh", boxShadow: "0 32px 64px -12px rgba(0,0,0,0.4)" }}
+        style={{ maxWidth: 700, maxHeight: "93vh", boxShadow: "0 32px 64px -12px rgba(0,0,0,0.4)" }}
       >
         {/* Header */}
         <div className="flex-shrink-0">
@@ -357,7 +409,9 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
               </div>
               <h4 className="text-xl font-extrabold text-[#1A2E6C]">¡Gracias por tu interés!</h4>
               <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
-                Nos pondremos en contacto contigo pronto para coordinar tu participación en un evento de <strong>{curso.area}</strong>.
+                Nos pondremos en contacto contigo pronto para coordinar tu participación en los eventos seleccionados.
+                <br /><br />
+                Acabamos de enviarte un correo con el material del curso.
               </p>
               <button
                 onClick={onClose}
@@ -367,12 +421,76 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
               </button>
             </div>
           ) : (
-            <>
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <h4 className="text-sm font-extrabold text-[#1A2E6C] uppercase tracking-wide">Tus datos</h4>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+              
+              {/* Events list */}
+              <div>
+                <h4 className="text-sm font-extrabold text-[#1A2E6C] uppercase tracking-wide mb-3">
+                  1. Elige los eventos de tu interés
+                </h4>
+                <p className="text-xs text-gray-500 mb-4">Puedes seleccionar uno o más eventos próximos para este curso.</p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {loadingEvents ? (
+                  <div className="flex items-center gap-2 text-gray-400 text-sm py-4">
+                    <div className="w-4 h-4 border-2 border-gray-200 border-t-[#1A2E6C] rounded-full animate-spin" />
+                    Cargando eventos...
+                  </div>
+                ) : events.length === 0 ? (
+                  <div className="text-center py-6 rounded-xl bg-gray-50 border border-gray-100">
+                    <p className="text-gray-400 text-sm">No hay eventos próximos para esta área por el momento.</p>
+                    <p className="text-gray-400 text-xs mt-1">De todos modos puedes enviar tu interés para considerarte.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {events.map((ev) => (
+                      <label
+                        key={ev.id}
+                        className={`cursor-pointer flex items-start gap-4 p-4 rounded-xl border transition-all duration-200 ${
+                          selectedEventIds.includes(ev.id)
+                            ? "border-[#1A2E6C] bg-blue-50/50 shadow-sm"
+                            : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="pt-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedEventIds.includes(ev.id)}
+                            onChange={() => handleToggleEvent(ev.id)}
+                            className="w-5 h-5 rounded text-[#1A2E6C] focus:ring-[#1A2E6C] border-gray-300"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <p className={`text-sm font-bold leading-snug ${selectedEventIds.includes(ev.id) ? "text-[#1A2E6C]" : "text-gray-700"}`}>
+                            {ev.title}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-3 mt-1">
+                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                              <Calendar size={11} />
+                              {formatDate(ev.date)}
+                            </span>
+                            {ev.municipio && (
+                              <span className="flex items-center gap-1 text-xs text-gray-500">
+                                <MapPin size={11} />
+                                {ev.municipio}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1 text-xs text-gray-500 shrink-0 ml-auto">
+                              <Users size={11} />
+                              {ev.spotsMin}–{ev.spotsMax} voluntarios
+                            </span>
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Tus Datos */}
+              <div className="flex flex-col gap-4">
+                <h4 className="text-sm font-extrabold text-[#1A2E6C] uppercase tracking-wide">2. Tus datos</h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-bold text-gray-600">Nombre completo *</label>
                     <input
@@ -416,6 +534,16 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
                       className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A2E6C] focus:ring-2 focus:ring-[#1A2E6C]/10 transition-all"
                     />
                   </div>
+                  <div className="flex flex-col gap-1 sm:col-span-2">
+                    <label className="text-xs font-bold text-gray-600">Comentarios adicionales</label>
+                    <textarea
+                      value={form.comments}
+                      onChange={(e) => setForm({ ...form, comments: e.target.value })}
+                      placeholder="¿Tienes alguna duda o detalle que quieras mencionar?"
+                      rows={3}
+                      className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1A2E6C] focus:ring-2 focus:ring-[#1A2E6C]/10 transition-all resize-none"
+                    />
+                  </div>
                 </div>
 
                 {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
@@ -423,64 +551,17 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#E8401C] text-white text-sm font-bold hover:bg-[#c73418] active:scale-95 transition-all duration-200 shadow-md disabled:opacity-60"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#E8401C] text-white text-sm font-bold hover:bg-[#c73418] active:scale-95 transition-all duration-200 shadow-md disabled:opacity-60 mt-2"
                 >
                   <Send size={15} />
-                  {submitting ? "Enviando..." : "Enviar mi interés"}
+                  {submitting ? "Enviando e insertando..." : "Enviar mi interés y eventos"}
                 </button>
-              </form>
-
-              {/* Events list */}
-              <div>
-                <h4 className="text-sm font-extrabold text-[#1A2E6C] uppercase tracking-wide mb-3">
-                  Próximos eventos — {curso.area}
-                </h4>
-
-                {loadingEvents ? (
-                  <div className="flex items-center gap-2 text-gray-400 text-sm py-4">
-                    <div className="w-4 h-4 border-2 border-gray-200 border-t-[#1A2E6C] rounded-full animate-spin" />
-                    Cargando eventos...
-                  </div>
-                ) : events.length === 0 ? (
-                  <div className="text-center py-6 rounded-xl bg-gray-50 border border-gray-100">
-                    <p className="text-gray-400 text-sm">No hay eventos próximos para esta área por el momento.</p>
-                    <p className="text-gray-400 text-xs mt-1">Te contactaremos cuando haya disponibilidad.</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {events.map((ev) => (
-                      <div
-                        key={ev.id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-xl border border-gray-100 bg-[#F8FAFC]"
-                      >
-                        <div>
-                          <p className="text-sm font-bold text-[#1A2E6C] leading-snug">{ev.title}</p>
-                          <div className="flex flex-wrap items-center gap-3 mt-1">
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
-                              <Calendar size={11} />
-                              {formatDate(ev.date)}
-                            </span>
-                            {ev.municipio && (
-                              <span className="flex items-center gap-1 text-xs text-gray-500">
-                                <MapPin size={11} />
-                                {ev.municipio}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
-                          <Users size={11} />
-                          {ev.spotsMin}–{ev.spotsMax} voluntarios
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
-            </>
+            </form>
           )}
         </div>
       </div>
     </div>
   );
 }
+

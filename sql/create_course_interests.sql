@@ -8,7 +8,9 @@ CREATE TABLE IF NOT EXISTS course_interests (
   nombre          TEXT NOT NULL,
   correo          TEXT NOT NULL,
   telefono        TEXT,
-  empresa         TEXT
+  empresa         TEXT,
+  eventos_seleccionados TEXT,
+  comentarios     TEXT
 );
 
 -- Habilitar RLS
