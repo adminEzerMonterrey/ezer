@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ClipboardEdit, Mail, Globe, Lightbulb } from "lucide-react";
+import { ClipboardEdit, Lightbulb } from "lucide-react";
 
 const AREAS = [
   {
@@ -94,10 +94,6 @@ export function UniversidadesPage() {
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#E8401C]/5 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1A2E6C]/10 text-[#1A2E6C] text-sm font-bold mb-6 uppercase tracking-wider">
-            Universidades
-          </div>
-
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1A2E6C] mb-6 leading-tight tracking-tight">
             Forma líderes que<br />
             <span className="text-[#E8401C]">sirven a su comunidad</span>
@@ -273,37 +269,6 @@ export function UniversidadesPage() {
                 <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6 }}>{area.items}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA BANNER */}
-      <section className="py-14 px-4 sm:px-6 lg:px-8 bg-[#1A2E6C]">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
-              ¿Tu universidad quiere sumarse?
-            </h2>
-            <p className="text-blue-200 text-base leading-relaxed max-w-lg">
-              Escríbenos y cuéntanos qué pueden aportar tus estudiantes. Te avisamos cuando haya un evento donde su talento sea bienvenido — o creamos uno juntos.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 shrink-0">
-            <div className="flex items-center gap-2 text-[#F5C200] font-semibold text-sm">
-              <Mail size={16} />
-              voluntariadocorporativo@ezer.org.mx
-            </div>
-            <div className="flex items-center gap-2 text-[#F5C200] font-semibold text-sm">
-              <Globe size={16} />
-              ezer-eventos.vercel.app
-            </div>
-            <a
-              href="#registro"
-              className="mt-2 inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#F5C200] text-[#1A2E6C] rounded-xl font-bold text-sm hover:brightness-105 active:scale-95 transition-all duration-200 shadow-lg"
-            >
-              <ClipboardEdit size={16} />
-              Inscríbete ahora
-            </a>
           </div>
         </div>
       </section>

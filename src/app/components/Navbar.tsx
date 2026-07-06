@@ -9,26 +9,27 @@ export function Navbar() {
 
   return (
     <nav style={{ backgroundColor: "#1A2E6C", fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="sticky top-0 z-50 w-full shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-[auto_1fr_auto] items-center h-24 md:h-28">
-          <div className="flex items-center gap-3">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-24 md:h-28 relative">
+          <div className="flex items-center gap-3 z-10">
             <Link to="/" className="flex items-center transition-transform duration-200 hover:scale-105 active:scale-95" style={{ textDecoration: "none" }}>
               <img
                 src="/logo-ezer-sin-fondo.png"
                 alt="Logo oficial Asociación EZER ABP"
-                style={{ height: 96, width: "auto", objectFit: "contain" }}
+                style={{ height: 80, width: "auto", objectFit: "contain" }}
+                className="md:h-24"
               />
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center justify-center gap-4 lg:gap-6">
+          <div className="hidden lg:flex flex-1 items-center justify-center gap-3 xl:gap-5 px-4">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-white font-bold transition-all duration-200 hover:text-[#F5C200] relative group text-sm lg:text-sm"
+                  className="text-white font-semibold transition-all duration-200 hover:text-[#F5C200] relative group text-[11px] xl:text-[13px] text-center whitespace-nowrap"
                 >
                   {item.label}
                   <span
@@ -42,7 +43,7 @@ export function Navbar() {
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors justify-self-end"
+            className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors z-10"
             aria-label="Toggle menu"
           >
             {menuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -53,7 +54,7 @@ export function Navbar() {
       {menuOpen && (
         <div
           style={{ backgroundColor: "#162560", borderTop: "1px solid rgba(245,194,0,0.2)" }}
-          className="md:hidden px-4 pb-6 pt-3"
+          className="lg:hidden px-4 pb-6 pt-3"
         >
           <div className="flex flex-col gap-2">
             {navItems.map((item) => (
@@ -61,7 +62,7 @@ export function Navbar() {
                 key={item.path}
                 to={item.path}
                 onClick={() => setMenuOpen(false)}
-                className="text-white font-bold py-4 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg"
+                className="text-white font-semibold py-3 px-4 rounded-lg hover:bg-white/10 transition-colors text-base"
               >
                 {item.label}
               </Link>

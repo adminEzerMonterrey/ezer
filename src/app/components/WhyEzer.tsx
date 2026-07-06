@@ -2,7 +2,7 @@ import { CheckCircle2 } from "lucide-react";
 
 const FEATURES = [
   {
-    title: "47 proyectos listos",
+    title: "45 proyectos listos",
     description: "Eventos con ficha técnica, logística y materiales resueltos.",
   },
   {
