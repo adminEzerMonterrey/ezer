@@ -1,5 +1,12 @@
 import { useEffect } from "react";
-import { ClipboardEdit, Package, Users, Receipt, Gift, MapPin, FileImage, CheckCircle2, ArrowRight } from "lucide-react";
+import {
+  ClipboardEdit, Package, Users, Receipt, Gift, MapPin, FileImage,
+  CheckCircle2, ArrowRight,
+  ShoppingBag, Coffee, Pencil, BookOpen,
+  Sparkles, UtensilsCrossed, GraduationCap, Monitor,
+  Trophy, Paintbrush, Leaf, Music, Briefcase,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 const INFO_CARDS = [
   { label: "Qué es", value: "Programa de donación en especie", icon: Package },
@@ -22,25 +29,25 @@ const LO_QUE_GANAS = [
   "Deducibilidad fiscal de tu donativo",
 ];
 
-const PRODUCTOS = [
-  "Alimentos, despensa y bebidas",
-  "Refrigerios e hidratación",
-  "Papelería, arte y manualidades",
-  "Libros y material educativo",
-  "Juguetes, regalos y artículos de fiesta",
-  "Ropa y calzado en buen estado",
-  "Kits de higiene y autocuidado",
-  "Mobiliario y utensilios de cocina",
-  "Mobiliario escolar (pupitres, pizarrones)",
-  "Cómputo, periféricos y tecnología",
-  "Material deportivo",
-  "Pintura, brochas y herramienta",
-  "Plantas, semillas, tierra y riego",
-  "Contenedores, básculas y señalización",
-  "Material sensorial y adaptado",
-  "Insumos y kits para emprendimiento",
-  "Instrumentos y equipo de sonido",
-  "Flores y detalles de celebración",
+const PRODUCTOS: { label: string; icon: LucideIcon }[] = [
+  { label: "Alimentos, despensa y bebidas",          icon: ShoppingBag },
+  { label: "Refrigerios e hidratación",              icon: Coffee },
+  { label: "Papelería, arte y manualidades",         icon: Pencil },
+  { label: "Libros y material educativo",            icon: BookOpen },
+  { label: "Juguetes, regalos y artículos de fiesta",icon: Gift },
+  { label: "Ropa y calzado en buen estado",          icon: Package },
+  { label: "Kits de higiene y autocuidado",          icon: Sparkles },
+  { label: "Mobiliario y utensilios de cocina",      icon: UtensilsCrossed },
+  { label: "Mobiliario escolar (pupitres, pizarrones)", icon: GraduationCap },
+  { label: "Cómputo, periféricos y tecnología",      icon: Monitor },
+  { label: "Material deportivo",                     icon: Trophy },
+  { label: "Pintura, brochas y herramienta",         icon: Paintbrush },
+  { label: "Plantas, semillas, tierra y riego",      icon: Leaf },
+  { label: "Contenedores, básculas y señalización",  icon: MapPin },
+  { label: "Material sensorial y adaptado",          icon: Users },
+  { label: "Insumos y kits para emprendimiento",     icon: Briefcase },
+  { label: "Instrumentos y equipo de sonido",        icon: Music },
+  { label: "Flores y detalles de celebración",       icon: Sparkles },
 ];
 
 export function EmpresasAliadasPage() {
@@ -160,52 +167,49 @@ export function EmpresasAliadasPage() {
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#1A2E6C] mb-8">
             ¿Qué producto puedes donar?
           </h2>
-          <div className="flex flex-wrap gap-3">
-            {PRODUCTOS.map((p) => (
-              <span
-                key={p}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {PRODUCTOS.map(({ label, icon: Icon }) => (
+              <div
+                key={label}
                 style={{
-                  border: "1.5px solid #1A2E6C",
-                  borderRadius: 999,
-                  padding: "8px 18px",
-                  color: "#1A2E6C",
-                  fontWeight: 700,
-                  fontSize: 13,
                   backgroundColor: "#FFFFFF",
-                  whiteSpace: "nowrap",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: 14,
+                  padding: "16px 12px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 10,
+                  textAlign: "center",
                 }}
+                className="hover:-translate-y-1 hover:shadow-md"
               >
-                {p}
-              </span>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 10,
+                    backgroundColor: "#EEF2FF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon size={20} style={{ color: "#1A2E6C" }} />
+                </div>
+                <p style={{ color: "#1A2E6C", fontWeight: 700, fontSize: 12, lineHeight: 1.35 }}>
+                  {label}
+                </p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-14 px-4 sm:px-6 lg:px-8 bg-[#1A2E6C]">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
-              ¿Tu empresa quiere ser aliada?
-            </h2>
-            <p className="text-blue-200 text-base leading-relaxed max-w-lg">
-              Regístrate y cuéntanos qué puedes donar. Nosotros te avisamos cuando haya un evento donde tu producto genere impacto, coordinamos la entrega y te entregamos tu recibo deducible y el reporte del destino de tu donación.
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 shrink-0 text-sm font-semibold text-[#F5C200]">
-            <span>voluntariadocorporativo@ezer.org.mx</span>
-            <span>ezer-eventos.vercel.app</span>
-            <a
-              href="#registro"
-              className="mt-2 inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#E8401C] text-white rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all duration-200 shadow-lg"
-            >
-              <ClipboardEdit size={16} />
-              Registrar mi empresa
-            </a>
-          </div>
-        </div>
-      </section>
+
 
       {/* FORMULARIO */}
       <section id="registro" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">

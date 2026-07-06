@@ -200,10 +200,10 @@ export function UniversidadesPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
-              { abbr: "UDEM", name: "Universidad de Monterrey" },
-              { abbr: "TEC", name: "Tecnológico de Monterrey" },
-              { abbr: "UR", name: "Universidad Regiomontana" },
-              { abbr: "UM", name: "Universidad de Montemorelos" },
+              { abbr: "UDEM", name: "Universidad de Monterrey", img: "/udem.webp" },
+              { abbr: "TEC", name: "Tecnológico de Monterrey", img: "/tec.webp" },
+              { abbr: "U-ERRE", name: "Universidad Regiomontana", img: "/u-erre.webp" },
+              { abbr: "UM", name: "Universidad de Montemorelos", img: "/montemorelos.webp" },
             ].map((u) => (
               <div
                 key={u.abbr}
@@ -215,20 +215,18 @@ export function UniversidadesPage() {
                   boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
                   transition: "transform 0.2s, box-shadow 0.2s",
                 }}
-                className="flex flex-col items-center gap-3 hover:-translate-y-1 hover:shadow-lg"
+                className="flex flex-col items-center justify-between gap-3 hover:-translate-y-1 hover:shadow-lg h-full"
               >
                 <div
                   style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 12,
-                    backgroundColor: "#EEF2FF",
+                    width: "100%",
+                    height: 64,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <span style={{ color: "#1A2E6C", fontWeight: 900, fontSize: 14 }}>{u.abbr}</span>
+                  <img src={u.img} alt={u.name} className="max-w-full max-h-full object-contain" />
                 </div>
                 <p style={{ color: "#374151", fontWeight: 700, fontSize: 13, lineHeight: 1.4, textAlign: "center" }}>
                   {u.name}
@@ -251,23 +249,27 @@ export function UniversidadesPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {AREAS.map((area) => (
-              <div
+              <a
                 key={area.title}
+                href="#registro"
                 style={{
                   border: "1px solid #E5E7EB",
                   borderRadius: 12,
                   borderLeft: `4px solid ${area.color}`,
                   backgroundColor: "#FAFAFA",
                   padding: "16px 20px",
-                  transition: "box-shadow 0.2s",
+                  transition: "box-shadow 0.2s, transform 0.2s",
+                  textDecoration: "none",
+                  display: "block",
+                  cursor: "pointer",
                 }}
-                className="hover:shadow-md"
+                className="hover:shadow-md hover:-translate-y-0.5"
               >
                 <h3 style={{ color: area.color, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
                   {area.title}
                 </h3>
                 <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6 }}>{area.items}</p>
-              </div>
+              </a>
             ))}
           </div>
         </div>

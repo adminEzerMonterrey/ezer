@@ -176,23 +176,27 @@ export function AliadosPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {CATEGORIES.map((cat) => (
-              <div
+              <a
                 key={cat.title}
+                href="#registro"
                 style={{
                   border: "1px solid #E5E7EB",
                   borderRadius: 12,
                   borderLeft: `4px solid ${cat.color}`,
                   backgroundColor: "#FAFAFA",
                   padding: "16px 20px",
-                  transition: "box-shadow 0.2s",
+                  transition: "box-shadow 0.2s, transform 0.2s",
+                  textDecoration: "none",
+                  display: "block",
+                  cursor: "pointer",
                 }}
-                className="hover:shadow-md"
+                className="hover:shadow-md hover:-translate-y-0.5"
               >
                 <h3 style={{ color: cat.color, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
                   {cat.title}
                 </h3>
                 <p style={{ color: "#6B7280", fontSize: 13, lineHeight: 1.6 }}>{cat.items}</p>
-              </div>
+              </a>
             ))}
           </div>
         </div>

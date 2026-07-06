@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, BookOpen, Send, Calendar, MapPin, Users, CheckCircle2 } from "lucide-react";
+import { X, BookOpen, Send, Calendar, MapPin, CheckCircle2 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 
 interface Curso {
@@ -16,8 +16,6 @@ interface Event {
   title: string;
   date: string;
   municipio: string;
-  spotsMin: number;
-  spotsMax: number;
 }
 
 const CURSOS: Curso[] = [
@@ -275,7 +273,7 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
     const fetchEvents = async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, name, date, municipio, spots_min, spots_max")
+        .select("id, name, date, municipio")
         .eq("objective", curso.category)
         .order("date", { ascending: true })
         .limit(10);
@@ -287,8 +285,6 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
             title: e.name,
             date: e.date,
             municipio: e.municipio,
-            spotsMin: e.spots_min ?? 0,
-            spotsMax: e.spots_max ?? 0,
           }))
         );
       }
@@ -474,10 +470,6 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
                                 {ev.municipio}
                               </span>
                             )}
-                            <span className="flex items-center gap-1 text-xs text-gray-500 shrink-0 ml-auto">
-                              <Users size={11} />
-                              {ev.spotsMin}–{ev.spotsMax} voluntarios
-                            </span>
                           </div>
                         </div>
                       </label>

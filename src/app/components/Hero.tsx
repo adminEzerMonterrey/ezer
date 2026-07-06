@@ -13,7 +13,7 @@ export function Hero() {
           alt="Voluntarios trabajando juntos"
           fetchPriority="high"
           decoding="async"
-          className="w-full h-[60vh] lg:h-[70vh] object-cover object-center block"
+          className="w-full h-auto block"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
       </div>
