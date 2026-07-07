@@ -1,5 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
+import { applyCors } from './_utils.js';
+
+// Defensa en profundidad: solo los correos en ADMIN_EMAILS pueden exportar datos
+// personales. Si no está configurado, se mantiene el requisito de autenticación.
+const isAllowedAdmin = (user) => {
+  const allow = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (allow.length === 0) return true;
+  return Boolean(user?.email && allow.includes(user.email.toLowerCase()));
+};
 
 const EXCEL_COLUMNS = [
   { key: 'name', header: 'Nombre' },
@@ -55,6 +67,12 @@ async function requireAuthenticatedUser(req) {
   if (error || !data?.user) {
     const err = new Error('No autorizado: sesión inválida o expirada.');
     err.statusCode = 401;
+    throw err;
+  }
+
+  if (!isAllowedAdmin(data.user)) {
+    const err = new Error('No autorizado: esta cuenta no tiene permisos de administrador.');
+    err.statusCode = 403;
     throw err;
   }
 
@@ -160,14 +178,7 @@ function buildWorkbookBuffer(rows) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyCors(req, res, 'GET,OPTIONS')) return;
 
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method Not Allowed' });

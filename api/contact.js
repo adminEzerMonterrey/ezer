@@ -1,27 +1,25 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
-import { escapeHtml } from './_utils.js';
+import { escapeHtml, applyCors, validateFields } from './_utils.js';
 
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyCors(req, res, 'POST,OPTIONS')) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, email, subject, message } = req.body;
-
-  if (!name || !email || !subject || !message) {
-    return res.status(400).json({ message: 'Name, email, subject, and message are required' });
+  const validation = validateFields(req.body || {}, {
+    name: { required: true, max: 200 },
+    email: { required: true, email: true, max: 254 },
+    subject: { required: true, max: 300 },
+    message: { required: true, max: 5000 },
+  });
+  if (!validation.ok) {
+    return res.status(400).json({ message: validation.error });
   }
+  const { name, email, subject, message } = validation.values;
 
   try {
     const transporter = nodemailer.createTransport({

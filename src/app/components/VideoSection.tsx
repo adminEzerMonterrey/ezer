@@ -1,6 +1,11 @@
+import { useState } from "react";
+
 const YOUTUBE_VIDEO_ID = "3-Cjru9SVAo"; // Pega aquí el ID de tu video de YouTube (ej: "dQw4w9WgXcQ")
 
 export function VideoSection() {
+  // Facade: no cargamos el iframe de YouTube (pesado) hasta que el usuario da play.
+  const [playing, setPlaying] = useState(false);
+
   return (
     <section
       style={{
@@ -54,21 +59,7 @@ export function VideoSection() {
             background: "#0f1b40",
           }}
         >
-          {YOUTUBE_VIDEO_ID ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0&modestbranding=1&color=white`}
-              title="EZER — Voluntariado Corporativo"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                border: 0,
-              }}
-            />
-          ) : (
+          {!YOUTUBE_VIDEO_ID ? (
             /* Placeholder mientras no hay video */
             <div
               style={{
@@ -88,6 +79,71 @@ export function VideoSection() {
               </svg>
               <p style={{ fontSize: 14, fontWeight: 600 }}>Video próximamente</p>
             </div>
+          ) : playing ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1&color=white`}
+              title="EZER — Voluntariado Corporativo"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }}
+            />
+          ) : (
+            /* Fachada ligera: miniatura + botón de play, sin cargar el reproductor de YouTube */
+            <button
+              type="button"
+              onClick={() => setPlaying(true)}
+              aria-label="Reproducir video de EZER"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                padding: 0,
+                border: 0,
+                cursor: "pointer",
+                background: "transparent",
+              }}
+            >
+              <img
+                src={`https://i.ytimg.com/vi/${YOUTUBE_VIDEO_ID}/hqdefault.jpg`}
+                alt="Conoce EZER en acción"
+                loading="lazy"
+                decoding="async"
+                width={1280}
+                height={720}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              {/* Capa oscura + botón play */}
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(15,27,64,0.35)",
+                  transition: "background 0.2s",
+                }}
+              >
+                <span
+                  style={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: "50%",
+                    background: "rgba(232,64,28,0.95)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="#FFFFFF">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </span>
+            </button>
           )}
         </div>
       </div>

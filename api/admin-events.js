@@ -1,4 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
+import { applyCors } from './_utils.js';
+
+// Defensa en profundidad: aunque el token sea de un usuario válido de Supabase,
+// solo los correos en ADMIN_EMAILS pueden operar el panel. Si ADMIN_EMAILS no
+// está configurado, se mantiene el comportamiento anterior (solo autenticación).
+const isAllowedAdmin = (user) => {
+  const allow = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (allow.length === 0) return true;
+  return Boolean(user?.email && allow.includes(user.email.toLowerCase()));
+};
 
 const ALLOWED_EVENT_FIELDS = [
   'name',
@@ -50,14 +63,7 @@ const sanitizeEventPayload = (payload = {}) => {
 };
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'PATCH,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyCors(req, res, 'PATCH,POST,OPTIONS')) return;
 
   if (req.method !== 'PATCH' && req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -75,6 +81,10 @@ export default async function handler(req, res) {
 
     if (userError || !userData?.user) {
       return res.status(401).json({ message: 'No autorizado: sesión inválida o expirada.' });
+    }
+
+    if (!isAllowedAdmin(userData.user)) {
+      return res.status(403).json({ message: 'No autorizado: esta cuenta no tiene permisos de administrador.' });
     }
 
     const adminClient = createClient(url, serviceRoleKey, { auth: { persistSession: false } });

@@ -1,16 +1,9 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
-import { escapeHtml } from './_utils.js';
+import { escapeHtml, applyCors, isValidEmail } from './_utils.js';
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyCors(req, res, 'POST,OPTIONS')) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -20,6 +13,10 @@ export default async function handler(req, res) {
 
   if (!name || !email || !cursoArea) {
     return res.status(400).json({ message: 'Name, email, and cursoArea are required' });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ message: 'El correo electrónico no es válido.' });
   }
 
   try {
