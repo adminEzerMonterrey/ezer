@@ -15,6 +15,7 @@ interface Event {
   id: number;
   title: string;
   municipio: string;
+  flyerUrl: string;
 }
 
 const CURSOS: Curso[] = [
@@ -272,18 +273,28 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
     const fetchEvents = async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, name, municipio")
+        .select("id, name, municipio, flyer_url")
         .eq("objective", curso.category)
         .order("date", { ascending: true })
         .limit(10);
 
       if (data) {
+        // Evitar eventos repetidos (mismo nombre y municipio) en la lista y en el correo
+        const seen = new Set<string>();
         setEvents(
-          data.map((e: any) => ({
-            id: e.id,
-            title: e.name,
-            municipio: e.municipio,
-          }))
+          data
+            .map((e: any) => ({
+              id: e.id,
+              title: e.name,
+              municipio: e.municipio,
+              flyerUrl: e.flyer_url || "",
+            }))
+            .filter((e) => {
+              const key = `${e.title}__${e.municipio || ""}`;
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            })
         );
       }
       setLoadingEvents(false);
@@ -303,10 +314,8 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
     setSubmitting(true);
     setError("");
 
-    const selectedEventsNames = events
-      .filter((ev) => selectedEventIds.includes(ev.id))
-      .map((ev) => ev.title)
-      .join(", ");
+    const selectedEvents = events.filter((ev) => selectedEventIds.includes(ev.id));
+    const selectedEventsNames = [...new Set(selectedEvents.map((ev) => ev.title))].join(", ");
 
     // Guardar en Supabase
     // Si la tabla no tiene las nuevas columnas y falla, podemos atraparlo y continuar
@@ -341,6 +350,11 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
           cursoArea: curso.area,
           cursoCategory: curso.category,
           eventosSeleccionados: selectedEventsNames,
+          eventos: selectedEvents.map((ev) => ({
+            name: ev.title,
+            municipio: ev.municipio,
+            flyerUrl: ev.flyerUrl,
+          })),
           comments: form.comments,
           flyerUrl: curso.flyerUrl
         }),

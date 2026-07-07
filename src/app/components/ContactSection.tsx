@@ -19,15 +19,17 @@ export function ContactSection() {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-12 mb-16 max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h3 className="text-[#1A2E6C] font-extrabold text-2xl md:text-3xl mb-3">
-              Envíanos un mensaje
-            </h3>
-            <p className="text-gray-500 text-lg">
-              Llena el siguiente formulario y nos pondremos en contacto contigo lo más pronto posible.
-            </p>
-          </div>
-          
+          {status !== 'success' && (
+            <div className="text-center mb-8">
+              <h3 className="text-[#1A2E6C] font-extrabold text-2xl md:text-3xl mb-3">
+                Envíanos un mensaje
+              </h3>
+              <p className="text-gray-500 text-lg">
+                Llena el siguiente formulario y nos pondremos en contacto contigo lo más pronto posible.
+              </p>
+            </div>
+          )}
+
           {status === 'success' ? (
             <div className="text-center py-12">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">

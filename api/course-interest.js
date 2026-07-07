@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, phone, company, email, cursoArea, cursoCategory, eventosSeleccionados, comments, flyerUrl } = req.body;
+  const { name, phone, company, email, cursoArea, cursoCategory, eventosSeleccionados, eventos, comments, flyerUrl } = req.body;
 
   if (!name || !email || !cursoArea) {
     return res.status(400).json({ message: 'Name, email, and cursoArea are required' });
@@ -72,8 +72,39 @@ export default async function handler(req, res) {
         <a href="${escapeHtml(safeFlyerUrl)}" target="_blank" style="display:inline-block; padding:8px 16px; background:#E8401C; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📄 Ver/Descargar Flyer</a>
       </div>` : '';
 
-    const eventsList = eventosSeleccionados ? eventosSeleccionados.split(', ').map(e => `<li>${escapeHtml(e)}</li>`).join('') : '';
-    const eventsHtml = eventsList ? `<ul>${eventsList}</ul>` : 'No seleccionó eventos específicos.';
+    // Preferimos el arreglo estructurado de eventos; la cadena solo queda como respaldo
+    let selectedEvents = Array.isArray(eventos)
+      ? eventos.filter((e) => e && e.name)
+      : [];
+    if (selectedEvents.length === 0 && eventosSeleccionados) {
+      selectedEvents = eventosSeleccionados.split(', ').map((n) => ({ name: n }));
+    }
+    // Eliminar repetidos (mismo nombre y municipio)
+    const seenEvents = new Set();
+    selectedEvents = selectedEvents.filter((e) => {
+      const key = `${e.name}__${e.municipio || ''}`;
+      if (seenEvents.has(key)) return false;
+      seenEvents.add(key);
+      return true;
+    });
+
+    const eventsHtml = selectedEvents.length > 0
+      ? `<ul>${selectedEvents.map((e) => {
+          const url = safeUrl(e.flyerUrl);
+          const label = escapeHtml(e.name) + (e.municipio ? ` — ${escapeHtml(e.municipio)}` : '');
+          return `<li>${label}${url ? ` · <a href="${escapeHtml(url)}" target="_blank">Ver flyer</a>` : ''}</li>`;
+        }).join('')}</ul>`
+      : '<p>No seleccionó eventos específicos.</p>';
+
+    // Botones con el flyer de cada evento seleccionado
+    const eventFlyers = selectedEvents
+      .map((e) => ({ name: e.name, url: safeUrl(e.flyerUrl) }))
+      .filter((e) => e.url);
+    const eventFlyersHtml = eventFlyers.length > 0 ? `
+      <div style="margin-top:20px; padding:16px; background:#F8FAFC; border-radius:8px; border:1px solid #E5E7EB;">
+        <p style="margin:0 0 10px; font-weight:700; color:#1A2E6C;">Flyers de los eventos seleccionados:</p>
+        ${eventFlyers.map((e) => `<a href="${escapeHtml(e.url)}" target="_blank" style="display:inline-block; margin:0 12px 8px 0; padding:8px 16px; background:#1E3A8A; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📄 ${escapeHtml(e.name)}</a>`).join('')}
+      </div>` : '';
 
     // Admin Email
     const adminHtml = `
@@ -89,6 +120,7 @@ export default async function handler(req, res) {
       ${eventsHtml}
       <p><strong>Comentarios:</strong></p>
       <p>${escapeHtml(comments || 'Sin comentarios')}</p>
+      ${eventFlyersHtml}
     `;
 
     const adminInfo = await transporter.sendMail({
@@ -109,9 +141,10 @@ export default async function handler(req, res) {
       <p><strong>Eventos en los que mostraste interés:</strong></p>
       ${eventsHtml}
       ${comments ? `<p><strong>Tus comentarios:</strong><br>${escapeHtml(comments)}</p>` : ''}
-      
+
       ${flyerHtml}
-      
+      ${eventFlyersHtml}
+
       <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles y coordinar la participación.</p>
       <br>
       <p>Atentamente,<br><strong>Equipo EZER</strong></p>
