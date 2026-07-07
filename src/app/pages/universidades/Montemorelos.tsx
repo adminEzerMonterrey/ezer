@@ -113,11 +113,37 @@ export function MontemorelosPage() {
   }, []);
   const [form, setForm] = useState({ nombre: "", correo: "", evento: "", area: "", descripcion: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // En producción, conectar a Supabase o Fillout
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const apiBase = window.location.hostname === "localhost" ? "http://localhost:3000" : "";
+      const res = await fetch(`${apiBase}/api/university-proposal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.nombre,
+          email: form.correo,
+          universidad: "Universidad de Montemorelos",
+          evento: form.evento,
+          area: form.area,
+          descripcion: form.descripcion,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Error enviando la propuesta");
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      setSubmitError("Hubo un error al enviar tu propuesta. Por favor intenta de nuevo.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -442,12 +468,15 @@ export function MontemorelosPage() {
                     />
                   </div>
 
+                  {submitError && <p className="text-xs text-red-500 font-semibold">{submitError}</p>}
+
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#1A2E6C] text-white text-sm font-bold hover:brightness-110 active:scale-95 transition-all duration-200 shadow-md"
+                    disabled={submitting}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#1A2E6C] text-white text-sm font-bold hover:brightness-110 active:scale-95 transition-all duration-200 shadow-md disabled:opacity-60"
                   >
                     <Send size={15} />
-                    Enviar propuesta
+                    {submitting ? "Enviando..." : "Enviar propuesta"}
                   </button>
                 </form>
               )}

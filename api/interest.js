@@ -180,7 +180,7 @@ Empresa / Organización: ${company || 'N/A'}
 Teléfono: ${phone}
 Lo que te gustaría hacer: ${finalComments}
 
-Por el momento no contamos con eventos activos en ese municipio, pero tu solicitud nos ayuda a llevar el voluntariado a más lugares. Te avisaremos en cuanto tengamos un evento disponible en ${municipioName}.
+Nos pondremos en contacto contigo muy pronto para coordinar la organización de un evento de voluntariado en ${municipioName}.
 
 ¡Gracias por tu interés en generar impacto en tu comunidad!
 
@@ -200,7 +200,7 @@ ezer-eventos.vercel.app`;
         <li><strong>Teléfono:</strong> ${escapeHtml(phone)}</li>
         <li><strong>Lo que te gustaría hacer:</strong> ${escapeHtml(finalComments).replace(/\n/g, '<br>')}</li>
       </ul>
-      <p>Por el momento no contamos con eventos activos en ese municipio, pero tu solicitud nos ayuda a llevar el voluntariado a más lugares. <strong>Te avisaremos en cuanto tengamos un evento disponible en ${escapeHtml(municipioName)}.</strong></p>
+      <p><strong>Nos pondremos en contacto contigo muy pronto para coordinar la organización de un evento de voluntariado en ${escapeHtml(municipioName)}.</strong></p>
       <p>¡Gracias por tu interés en generar impacto en tu comunidad!</p>
       <br>
       <p>Saludos cordiales,<br>

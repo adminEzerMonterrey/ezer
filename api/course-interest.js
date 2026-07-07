@@ -79,20 +79,18 @@ export default async function handler(req, res) {
     if (selectedEvents.length === 0 && eventosSeleccionados) {
       selectedEvents = eventosSeleccionados.split(', ').map((n) => ({ name: n }));
     }
-    // Eliminar repetidos (mismo nombre y municipio)
+    // Eliminar repetidos (mismo nombre)
     const seenEvents = new Set();
     selectedEvents = selectedEvents.filter((e) => {
-      const key = `${e.name}__${e.municipio || ''}`;
-      if (seenEvents.has(key)) return false;
-      seenEvents.add(key);
+      if (seenEvents.has(e.name)) return false;
+      seenEvents.add(e.name);
       return true;
     });
 
     const eventsHtml = selectedEvents.length > 0
       ? `<ul>${selectedEvents.map((e) => {
           const url = safeUrl(e.flyerUrl);
-          const label = escapeHtml(e.name) + (e.municipio ? ` — ${escapeHtml(e.municipio)}` : '');
-          return `<li>${label}${url ? ` · <a href="${escapeHtml(url)}" target="_blank">Ver flyer</a>` : ''}</li>`;
+          return `<li>${escapeHtml(e.name)}${url ? ` · <a href="${escapeHtml(url)}" target="_blank">Ver flyer</a>` : ''}</li>`;
         }).join('')}</ul>`
       : '<p>No seleccionó eventos específicos.</p>';
 
@@ -120,6 +118,7 @@ export default async function handler(req, res) {
       ${eventsHtml}
       <p><strong>Comentarios:</strong></p>
       <p>${escapeHtml(comments || 'Sin comentarios')}</p>
+      ${flyerHtml}
       ${eventFlyersHtml}
     `;
 

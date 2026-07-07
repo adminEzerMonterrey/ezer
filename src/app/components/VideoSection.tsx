@@ -1,4 +1,4 @@
-const YOUTUBE_VIDEO_ID = "ZHclwQQ-YsU"; // Pega aquí el ID de tu video de YouTube (ej: "dQw4w9WgXcQ")
+const YOUTUBE_VIDEO_ID = "3-Cjru9SVAo"; // Pega aquí el ID de tu video de YouTube (ej: "dQw4w9WgXcQ")
 
 export function VideoSection() {
   return (
