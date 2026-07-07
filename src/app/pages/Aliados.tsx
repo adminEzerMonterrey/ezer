@@ -169,7 +169,7 @@ export function AliadosPage() {
         <div className="max-w-5xl mx-auto">
           <div className="mb-10">
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#1A2E6C] mb-2">
-              ¿Qué onda buscamos? <span className="text-[#E8401C]">¡Tu talento!</span>
+              Comparte tu <span className="text-[#E8401C]">talento</span>
             </h2>
             <p className="text-gray-500 text-base">Inscríbete en la categoría que más va contigo:</p>
           </div>

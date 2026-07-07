@@ -18,6 +18,7 @@ const AliadosPage = lazy(() => import("./pages/Aliados").then((m) => ({ default:
 const EmpresasAliadasPage = lazy(() => import("./pages/EmpresasAliadas").then((m) => ({ default: m.EmpresasAliadasPage })));
 const CursosSensibilizacionPage = lazy(() => import("./pages/CursosSensibilizacion").then((m) => ({ default: m.CursosSensibilizacionPage })));
 const UniversidadesPage = lazy(() => import("./pages/Universidades").then((m) => ({ default: m.UniversidadesPage })));
+const MontemorelosPage = lazy(() => import("./pages/universidades/Montemorelos").then((m) => ({ default: m.MontemorelosPage })));
 
 function ScrollToTop() {
   useEffect(() => {
@@ -139,6 +140,11 @@ export default function App() {
         <Route path="/universidades" element={
           <AppShell>
             <UniversidadesPage />
+          </AppShell>
+        } />
+        <Route path="/universidades/montemorelos" element={
+          <AppShell>
+            <MontemorelosPage />
           </AppShell>
         } />
         <Route path="/admin" element={

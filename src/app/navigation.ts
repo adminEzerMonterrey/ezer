@@ -1,6 +1,5 @@
 export const navItems = [
   { label: "Quiénes Somos", path: "/" },
-  { label: "Registro", path: "/empresas" },
   { label: "1. Empresas Voluntarias", path: "/catalogo-eventos" },
   { label: "2. Aliados Voluntarios", path: "/aliados" },
   { label: "3. Empresas Aliadas", path: "/empresas-aliadas" },
@@ -8,5 +7,3 @@ export const navItems = [
   { label: "Cursos de Sensibilización", path: "/cursos" },
   { label: "Contáctanos", path: "/contactanos" },
 ] as const;
-
-export const registrationCta = navItems[1];

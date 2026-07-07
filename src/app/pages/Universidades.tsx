@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ClipboardEdit, Lightbulb } from "lucide-react";
 
 const AREAS = [
@@ -68,7 +69,7 @@ const STEPS = [
   { n: "1", text: "Elige cómo quieres participar: como aliado voluntario o proponiendo tu propio evento" },
   { n: "2", text: "Regístrate con tu universidad y cuéntanos qué pueden aportar tus estudiantes" },
   { n: "3", text: "EZER te conecta con el evento o la asociación ideal para tu proyecto" },
-  { n: "4", text: "¡Viváis el impacto juntos y suman horas de servicio social reales!" },
+  { n: "4", text: "¡Vivan el impacto juntos y sumen horas de servicio social reales!" },
 ];
 
 export function UniversidadesPage() {
@@ -200,39 +201,48 @@ export function UniversidadesPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
-              { abbr: "UDEM", name: "Universidad de Monterrey", img: "/udem.webp" },
-              { abbr: "TEC", name: "Tecnológico de Monterrey", img: "/tec.webp" },
-              { abbr: "U-ERRE", name: "Universidad Regiomontana", img: "/u-erre.webp" },
-              { abbr: "UM", name: "Universidad de Montemorelos", img: "/montemorelos.webp" },
-            ].map((u) => (
-              <div
-                key={u.abbr}
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid #E5E7EB",
-                  borderRadius: 14,
-                  padding: "24px 16px",
-                  boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                }}
-                className="flex flex-col items-center justify-between gap-3 hover:-translate-y-1 hover:shadow-lg h-full"
-              >
-                <div
-                  style={{
-                    width: "100%",
-                    height: 64,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <img src={u.img} alt={u.name} className="max-w-full max-h-full object-contain" />
+              { abbr: "UDEM", name: "Universidad de Monterrey", img: "/udem.webp", href: null },
+              { abbr: "TEC", name: "Tecnológico de Monterrey", img: "/tec.webp", href: null },
+              { abbr: "U-ERRE", name: "Universidad Regiomontana", img: "/u-erre.webp", href: null },
+              { abbr: "UM", name: "Universidad de Montemorelos", img: "/montemorelos.webp", href: "/universidades/montemorelos" },
+            ].map((u) => {
+              const cardStyle = {
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: 14,
+                padding: "24px 16px",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+                transition: "transform 0.2s, box-shadow 0.2s",
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                textDecoration: "none",
+              };
+              const inner = (
+                <>
+                  <div style={{ width: "100%", height: 64, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <img src={u.img} alt={u.name} className="max-w-full max-h-full object-contain" loading="lazy" decoding="async" />
+                  </div>
+                  <p style={{ color: "#374151", fontWeight: 700, fontSize: 13, lineHeight: 1.4, textAlign: "center" }}>
+                    {u.name}
+                  </p>
+                  {u.href && (
+                    <span style={{ color: "#E8401C", fontSize: 11, fontWeight: 800 }}>Ver eventos →</span>
+                  )}
+                </>
+              );
+              return u.href ? (
+                <Link key={u.abbr} to={u.href} style={cardStyle} className="hover:-translate-y-1 hover:shadow-lg h-full">
+                  {inner}
+                </Link>
+              ) : (
+                <div key={u.abbr} style={cardStyle} className="hover:-translate-y-1 hover:shadow-lg h-full">
+                  {inner}
                 </div>
-                <p style={{ color: "#374151", fontWeight: 700, fontSize: 13, lineHeight: 1.4, textAlign: "center" }}>
-                  {u.name}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

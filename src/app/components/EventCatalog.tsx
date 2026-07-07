@@ -115,13 +115,19 @@ export function EventCatalog() {
         style={{ backgroundColor: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <div className="text-center mb-10 flex flex-col items-center">
             <h2
               style={{ color: "#1A2E6C", fontWeight: 800, fontSize: "clamp(1.75rem, 4vw, 2.75rem)", lineHeight: 1.2 }}
             >
               Voluntariado con<br />tus colaboradores
             </h2>
-            <p style={{ color: "#6B7280", marginTop: 12, maxWidth: 520 }} className="mx-auto text-base">
+            <a
+              href="/empresas"
+              className="mt-6 inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#E8401C] text-white rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-red-900/20"
+            >
+              Registrar mi empresa
+            </a>
+            <p style={{ color: "#6B7280", marginTop: 16, maxWidth: 520 }} className="mx-auto text-base">
               Tu empresa quiere que su equipo viva la experiencia de servir. Nosotros lo hacemos fácil.
             </p>
           </div>
@@ -898,7 +904,7 @@ function EventDetailsModal({ event, onClose, onAction }: { event: Event, onClose
         {/* Image header */}
         <div style={{ position: 'relative', height: 260, flexShrink: 0, overflow: 'hidden' }}>
           {event.image ? (
-            <img src={event.image} alt={event.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={event.image} alt={event.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', backgroundColor: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 56, color: '#9CA3AF' }}>📸</span>
