@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Heart, BookOpen, Leaf, Music, Utensils, Dumbbell,
-  Monitor, Brain, Stethoscope, Apple,
+  Paintbrush, Brain, Stethoscope, Apple,
   Lightbulb, X, Send, ChevronLeft,
 } from "lucide-react";
 
@@ -64,13 +64,13 @@ const EVENTS = [
     carrera: "Nutrición · Enfermería",
   },
   {
-    id: 96,
-    title: "Salón de Cómputo: Equipamiento y Actualización",
+    id: 97,
+    title: "Pintemos la Escuela",
     area: "Educación",
-    icon: Monitor,
+    icon: Paintbrush,
     color: "#E8401C",
-    desc: "Instalación, actualización y puesta a punto de equipos de cómputo en escuelas públicas, para que más estudiantes tengan acceso a la tecnología.",
-    carrera: "Sistemas · Tecnología",
+    desc: "Jornada de pintura y mejora de espacios en escuelas públicas: aulas, patios y muros renovados por brigadas de estudiantes voluntarios.",
+    carrera: "Cualquier carrera",
   },
   {
     id: 113,

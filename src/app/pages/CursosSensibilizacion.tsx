@@ -311,6 +311,10 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!form.name || !form.email) { setError("Por favor completa tu nombre y correo."); return; }
+    if (events.length > 0 && selectedEventIds.length === 0) {
+      setError("Por favor selecciona al menos un evento de tu interés.");
+      return;
+    }
     setSubmitting(true);
     setError("");
 
@@ -430,9 +434,9 @@ function InterestModal({ curso, onClose }: { curso: Curso; onClose: () => void }
               {/* Events list */}
               <div>
                 <h4 className="text-sm font-extrabold text-[#1A2E6C] uppercase tracking-wide mb-3">
-                  1. Elige los eventos de tu interés
+                  1. Elige los eventos de tu interés *
                 </h4>
-                <p className="text-xs text-gray-500 mb-4">Puedes seleccionar uno o más eventos próximos para este curso.</p>
+                <p className="text-xs text-gray-500 mb-4">Selecciona al menos un evento próximo para este curso.</p>
 
                 {loadingEvents ? (
                   <div className="flex items-center gap-2 text-gray-400 text-sm py-4">
