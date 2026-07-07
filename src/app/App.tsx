@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
@@ -21,9 +21,11 @@ const UniversidadesPage = lazy(() => import("./pages/Universidades").then((m) =>
 const MontemorelosPage = lazy(() => import("./pages/universidades/Montemorelos").then((m) => ({ default: m.MontemorelosPage })));
 
 function ScrollToTop() {
+  const { pathname } = useLocation();
+
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [pathname]);
 
   return null;
 }

@@ -738,23 +738,28 @@ function InterestModal({ event, defaultWantsTraining = false, onClose }: { event
       backgroundColor: 'rgba(0,0,0,0.5)',
       zIndex: 9999,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '20px'
+      padding: '16px'
     }}>
       <div style={{
         backgroundColor: '#FFFFFF',
         borderRadius: '16px',
-        maxWidth: '500px',
+        maxWidth: '480px',
         width: '100%',
-        padding: '30px',
-        position: 'relative'
+        maxHeight: 'min(88vh, 700px)',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}>
         <button
           onClick={onClose}
-          style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
+          aria-label="Cerrar"
+          style={{ position: 'absolute', top: '12px', right: '12px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F3F4F6', border: 'none', borderRadius: '50%', cursor: 'pointer', color: '#374151', zIndex: 1, boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }}
         >
           <X size={20} />
         </button>
 
+        <div style={{ overflowY: 'auto', padding: 'clamp(20px, 5vw, 28px)' }}>
         {status === 'success' ? (
           <div className="text-center py-8">
             <div style={{ fontSize: '40px', marginBottom: '16px' }}>✨</div>
@@ -771,7 +776,7 @@ function InterestModal({ event, defaultWantsTraining = false, onClose }: { event
           </div>
         ) : (
           <>
-            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px' }}>Unirse / Me Interesa</h3>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1A2E6C', marginBottom: '8px', paddingRight: '36px' }}>Unirse / Me Interesa</h3>
             <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '20px' }}>
               Completa estos datos y la organización de Ezer se pondrá en contacto contigo.
             </p>
@@ -853,6 +858,7 @@ function InterestModal({ event, defaultWantsTraining = false, onClose }: { event
             </form>
           </>
         )}
+        </div>
       </div>
     </div>
   );

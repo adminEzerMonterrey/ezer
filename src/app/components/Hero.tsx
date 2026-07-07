@@ -6,14 +6,14 @@ const HERO_IMAGE = "/hero.png";
 export function Hero() {
   return (
     <section id="inicio" className="w-full flex flex-col bg-white">
-      {/* Imagen completa a todo el ancho */}
+      {/* Imagen a todo el ancho, con altura limitada para que el título asome y invite a hacer scroll */}
       <div className="w-full relative">
         <img
           src={HERO_IMAGE}
           alt="Voluntarios trabajando juntos"
           fetchPriority="high"
           decoding="async"
-          className="w-full h-auto block"
+          className="w-full block object-cover object-center min-h-[300px] h-[calc(100svh-200px)] md:h-[calc(100svh-240px)]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
       </div>
