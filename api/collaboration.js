@@ -79,37 +79,13 @@ export default async function handler(req, res) {
       }
     }
 
-    // 1. Correo al administrador
-    await transporter.sendMail({
-      from: `"Ezer Colaboraciones" <${process.env.SMTP_USER}>`,
-      to: adminEmail,
-      subject: `Nueva Solicitud de Colaboración: ${org}`,
-      text: `Nueva solicitud de colaboración recibida.\n\nOrganización: ${org}\nCorreo: ${email}\nTeléfono: ${phone || 'No proporcionado'}\nDocumento adjunto: ${hasFile ? fileName : 'No'}`,
-      html: `
-        <h2>Nueva Solicitud de Colaboración</h2>
-        <p>Se ha recibido una nueva solicitud para colaborar con EZER.</p>
-        <ul>
-          <li><strong>Organización:</strong> ${escapeHtml(org)}</li>
-          <li><strong>Correo Electrónico:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
-          <li><strong>Teléfono:</strong> ${escapeHtml(phone || 'No proporcionado')}</li>
-          <li><strong>Documento adjunto:</strong> ${hasFile ? escapeHtml(fileName) : 'No se adjuntó archivo'}</li>
-        </ul>
-        <p><em>Revisa el panel de Supabase para ver todos los detalles.</em></p>
-      `,
-      attachments: (hasFile && fileData && fileName) ? [
-        {
-          filename: fileName,
-          content: fileData,
-          encoding: 'base64',
-          contentType: fileType || 'application/octet-stream'
-        }
-      ] : []
-    });
-
-    // 2. Correo de confirmación al usuario
+    // Un solo correo al solicitante, con copia a voluntariado, para que la
+    // respuesta quede en el mismo hilo y no en dos conversaciones separadas.
     await transporter.sendMail({
       from: `"Ezer Colaboraciones" <${process.env.SMTP_USER}>`,
       to: email,
+      cc: adminEmail,
+      replyTo: adminEmail,
       subject: `Confirmación de solicitud de colaboración – EZER`,
       text: `Hola,\n\nHemos recibido tu solicitud de colaboración de parte de "${org}".\n\nNuestro equipo revisará tu información y se pondrá en contacto contigo en las próximas 48 horas.\n\nGracias por tu interés en colaborar con EZER.\n\nAtentamente,\nEquipo EZER`,
       html: `
@@ -126,9 +102,17 @@ export default async function handler(req, res) {
         <br>
         <p>Atentamente,<br><strong>Equipo EZER</strong></p>
       `,
+      attachments: (hasFile && fileData && fileName) ? [
+        {
+          filename: fileName,
+          content: fileData,
+          encoding: 'base64',
+          contentType: fileType || 'application/octet-stream'
+        }
+      ] : []
     });
 
-    return res.status(200).json({ message: 'Emails sent successfully' });
+    return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending collaboration email:', error);
     return res.status(500).json({ message: 'Error sending email' });

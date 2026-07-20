@@ -66,12 +66,6 @@ export default async function handler(req, res) {
     const isMunicipioRequest = requestType === 'municipio' || eventName.startsWith('Solicitud de evento en municipio');
     const municipioName = municipio || 'No especificado';
 
-    const adminSubject = isRegistration
-      ? `Nuevo Registro de Empresa: ${eventName}`
-      : isMunicipioRequest
-        ? `Solicitud de nuevo evento en ${municipioName} (municipio sin eventos)`
-        : `Nuevo Interesado en Evento del Catálogo: ${eventName}`;
-
     const userSubject = isRegistration
       ? `Recibimos tu interés — te buscaremos muy pronto`
       : isMunicipioRequest
@@ -97,55 +91,30 @@ export default async function handler(req, res) {
         ${safeCourseUrl ? `<a href="${escapeHtml(safeCourseUrl)}" target="_blank" style="display:inline-block; padding:8px 16px; background:#15803D; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📚 Curso de Sensibilización</a>` : ''}
       </div>` : '';
 
-    const adminTextDefault = `Tienes un nuevo prospecto interesado en el evento "${eventName}".\n\nNombre: ${name}\nEmpresa: ${company}\nCorreo: ${email}\nMunicipio: ${municipio || 'No especificado'}\nProgramas de interés: ${projects ? projects.join(', ') : 'N/A'}\n¿Quiere capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nComentarios: ${finalComments}`;
-
-    const adminHtmlDefault = `
-        <h2>Nuevo Prospecto de Voluntariado</h2>
-        <p><strong>Evento seleccionado:</strong> ${escapeHtml(eventName)}</p>
-        <ul>
-          <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
-          <li><strong>Teléfono:</strong> ${escapeHtml(phone)}</li>
-          <li><strong>Organización / Empresa:</strong> ${escapeHtml(company || 'N/A')}</li>
-          <li><strong>Correo Electrónico:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
-          ${municipioHtml}
-          ${projectsHtml}
-          <li><strong>¿Quiere capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
-        </ul>
-        <p><strong>Comentarios adicionales:</strong></p>
-        <p>${escapeHtml(finalComments).replace(/\n/g, '<br>')}</p>
-        ${eventFilesHtml}
-      `;
-
-    const adminTextMunicipio = `Nueva solicitud de evento en un municipio sin cobertura.\n\nUna persona pidió que Ezer organice un evento de voluntariado en ${municipioName}, donde actualmente no hay eventos disponibles.\n\nMunicipio solicitado: ${municipioName}\nNombre: ${name}\nEmpresa / Organización: ${company || 'N/A'}\nTeléfono: ${phone}\nCorreo: ${email}\n\n¿Qué le gustaría hacer?:\n${finalComments}`;
-
-    const adminHtmlMunicipio = `
-        <h2>Solicitud de evento en un municipio sin cobertura</h2>
-        <p>Una persona pidió que Ezer organice un evento de voluntariado en <strong>${escapeHtml(municipioName)}</strong>, donde actualmente no hay eventos disponibles en el catálogo.</p>
-        <ul>
-          <li><strong>Municipio solicitado:</strong> ${escapeHtml(municipioName)}</li>
-          <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
-          <li><strong>Empresa / Organización:</strong> ${escapeHtml(company || 'N/A')}</li>
-          <li><strong>Teléfono:</strong> ${escapeHtml(phone)}</li>
-          <li><strong>Correo Electrónico:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
-        </ul>
-        <p><strong>¿Qué le gustaría hacer?</strong></p>
-        <p>${escapeHtml(finalComments).replace(/\n/g, '<br>')}</p>
-      `;
-
-    // 1. Mensaje para el administrador
-    const adminInfo = await transporter.sendMail({
-      from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
-      to: adminEmail,
-      subject: adminSubject,
-      text: isMunicipioRequest ? adminTextMunicipio : adminTextDefault,
-      html: isMunicipioRequest ? adminHtmlMunicipio : adminHtmlDefault,
-    });
+    // TODO: reemplazar por el link real de Calendly del equipo de voluntariado.
+    const calendlyUrl = 'https://calendly.com/ezer-voluntariado/reunion';
+    const calendlyText = `Agenda una reunión con nuestro equipo aquí: ${calendlyUrl}`;
+    const calendlyHtml = `
+      <div style="margin-top:20px; padding:16px; background:#F8FAFC; border-radius:8px; border:1px solid #E5E7EB;">
+        <p style="margin:0 0 10px; font-weight:700; color:#1A2E6C;">Agenda una reunión con nuestro equipo:</p>
+        <a href="${calendlyUrl}" target="_blank" style="display:inline-block; padding:8px 16px; background:#E8401C; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📅 Agendar en Calendly</a>
+      </div>`;
 
     const userTextRegistration = `Estimada/o ${name}:
 ¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que ${company || 'su empresa/asociación'} quiere participar.
 Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.
 Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.
 Agradecemos su confianza y sus ganas de generar impacto en la comunidad. ¡Estamos por construir algo muy valioso juntos!
+
+Resumen de su registro:
+Teléfono: ${phone}
+Empresa/Organización: ${company || 'N/A'}
+Municipio: ${municipio || 'No especificado'}
+Programas de interés: ${projects && projects.length > 0 ? projects.join(', ') : 'N/A'}
+¿Quiere capacitación?: ${wantsTraining ? 'Sí' : 'No'}
+Comentarios: ${finalComments}
+
+${calendlyText}
 
 Saludos cordiales,
 Equipo EZER
@@ -159,6 +128,16 @@ ezer-eventos.vercel.app`;
       <p>Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.</p>
       <p>Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.</p>
       <p>Agradecemos su confianza y sus ganas de generar impacto en la comunidad. ¡Estamos por construir algo muy valioso juntos!</p>
+      <p><strong>Resumen de su registro:</strong></p>
+      <ul>
+        <li><strong>Teléfono:</strong> ${escapeHtml(phone)}</li>
+        <li><strong>Empresa/Organización:</strong> ${escapeHtml(company || 'N/A')}</li>
+        ${municipioHtml}
+        ${projectsHtml}
+        <li><strong>¿Quiere capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
+      </ul>
+      <p><strong>Comentarios:</strong> ${escapeHtml(finalComments).replace(/\n/g, '<br>')}</p>
+      ${calendlyHtml}
       <br>
       <p>Saludos cordiales,<br>
       <strong>Equipo EZER</strong><br>
@@ -207,7 +186,7 @@ ezer-eventos.vercel.app`;
       <a href="https://ezer-eventos.vercel.app">ezer-eventos.vercel.app</a></p>
     `;
 
-    const userTextCatalog = `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\n¿Quieres capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`;
+    const userTextCatalog = `Hola ${name},\n\nHemos recibido tu solicitud de interés para el evento "${eventName}".\nEstos son los datos que nos enviaste:\n\nTeléfono: ${phone}\nEmpresa: ${company}\nMunicipio: ${municipio || 'No especificado'}\nProgramas de interés: ${projects && projects.length > 0 ? projects.join(', ') : 'N/A'}\n¿Quieres capacitación?: ${wantsTraining ? 'Sí' : 'No'}\nDescripción y Motivo: ${description}\n\n${calendlyText}\n\nPronto nos pondremos en contacto contigo.\n\nSaludos,\nEquipo Ezer`;
 
     const userHtmlCatalog = `
       <h2>¡Gracias por tu interés, ${escapeHtml(name)}!</h2>
@@ -216,48 +195,52 @@ ezer-eventos.vercel.app`;
       <ul>
         <li><strong>Teléfono:</strong> ${escapeHtml(phone)}</li>
         <li><strong>Organización / Empresa:</strong> ${escapeHtml(company || 'N/A')}</li>
+        ${municipioHtml}
+        ${projectsHtml}
         <li><strong>¿Quieres capacitación?:</strong> ${wantsTraining ? 'Sí' : 'No'}</li>
         <li><strong>Tus comentarios:</strong> ${escapeHtml(description)}</li>
       </ul>
       <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles.</p>
       ${eventFilesHtml}
+      ${calendlyHtml}
       <br>
       <p>Atentamente,<br><strong>Equipo EZER</strong></p>
     `;
 
-    // 2. Mensaje de confirmación para el usuario que llenó el formulario
-    const userInfo = await transporter.sendMail({
+    // Un solo correo al interesado, con copia a voluntariado, para que la
+    // respuesta quede en el mismo hilo y no en dos conversaciones separadas.
+    const info = await transporter.sendMail({
       from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
-      to: email, 
+      to: email,
+      cc: adminEmail,
+      replyTo: adminEmail,
       subject: userSubject,
       text: isRegistration ? userTextRegistration : isMunicipioRequest ? userTextMunicipio : userTextCatalog,
       html: isRegistration ? userHtmlRegistration : isMunicipioRequest ? userHtmlMunicipio : userHtmlCatalog,
     });
 
-    console.log('Message sent to admin: %s', adminInfo.messageId);
-    console.log('Message sent to user: %s', userInfo.messageId);
+    console.log('Message sent: %s', info.messageId);
 
-    if (!isRegistration) {
-      try {
-        await fetch("https://hook.us2.make.com/gk3msgktwdcxack4cb718h5d6a5ntfsd", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                nombre: name,
-                correo: email,
-                telefono: phone,
-                empresa: company || '',
-                evento: eventName,
-                comentarios: finalComments,
-                capacitacion: wantsTraining ? 'Sí' : 'No'
-            })
-        });
-        console.log('Webhook sent to Make.com');
-      } catch (webhookErr) {
-        console.error('Error sending webhook to Make:', webhookErr);
-      }
+    try {
+      await fetch("https://hook.us2.make.com/gk3msgktwdcxack4cb718h5d6a5ntfsd", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+              tipo: isRegistration ? "registro_empresa" : "evento",
+              nombre: name,
+              correo: email,
+              telefono: phone,
+              empresa: company || '',
+              evento: eventName,
+              comentarios: finalComments,
+              capacitacion: wantsTraining ? 'Sí' : 'No'
+          })
+      });
+      console.log('Webhook sent to Make.com');
+    } catch (webhookErr) {
+      console.error('Error sending webhook to Make:', webhookErr);
     }
 
     return res.status(200).json({ message: 'Email sent successfully' });

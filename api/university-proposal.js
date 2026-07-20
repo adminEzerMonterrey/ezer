@@ -61,32 +61,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const adminSubject = `Nueva propuesta de evento universitario (${uni}): ${evento}`;
     const userSubject = `Recibimos tu propuesta de evento "${evento}" — Ezer Voluntariado`;
-
-    const adminText = `Nueva propuesta de evento de voluntariado universitario.\n\nUniversidad: ${uni}\nEvento propuesto: ${evento}\nÁrea o sector beneficiado: ${area || 'No especificada'}\n\nNombre: ${name}\nCorreo: ${email}\n\nDescripción de la idea:\n${descripcion}`;
-
-    const adminHtml = `
-      <h2>Nueva propuesta de evento universitario</h2>
-      <p>Una persona de <strong>${escapeHtml(uni)}</strong> propuso organizar un nuevo evento de voluntariado.</p>
-      <ul>
-        <li><strong>Universidad:</strong> ${escapeHtml(uni)}</li>
-        <li><strong>Evento propuesto:</strong> ${escapeHtml(evento)}</li>
-        <li><strong>Área o sector beneficiado:</strong> ${escapeHtml(area || 'No especificada')}</li>
-        <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
-        <li><strong>Correo:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
-      </ul>
-      <p><strong>Descripción de la idea:</strong></p>
-      <p>${escapeHtml(descripcion).replace(/\n/g, '<br>')}</p>
-    `;
-
-    const adminInfo = await transporter.sendMail({
-      from: `"Ezer Universidades" <${process.env.SMTP_USER}>`,
-      to: adminEmail,
-      subject: adminSubject,
-      text: adminText,
-      html: adminHtml,
-    });
 
     const userText = `Hola ${name},
 
@@ -110,6 +85,7 @@ ezer-eventos.vercel.app`;
       <p>Recibimos tu idea para organizar un evento de voluntariado desde <strong>${escapeHtml(uni)}</strong>.</p>
       <p><strong>Resumen de tu propuesta:</strong></p>
       <ul>
+        <li><strong>Universidad:</strong> ${escapeHtml(uni)}</li>
         <li><strong>Evento propuesto:</strong> ${escapeHtml(evento)}</li>
         <li><strong>Área o sector beneficiado:</strong> ${escapeHtml(area || 'No especificada')}</li>
         <li><strong>Tu idea:</strong> ${escapeHtml(descripcion).replace(/\n/g, '<br>')}</li>
@@ -123,16 +99,19 @@ ezer-eventos.vercel.app`;
       <a href="https://ezer-eventos.vercel.app">ezer-eventos.vercel.app</a></p>
     `;
 
-    const userInfo = await transporter.sendMail({
+    // Un solo correo al proponente, con copia a voluntariado, para que la
+    // respuesta quede en el mismo hilo y no en dos conversaciones separadas.
+    const info = await transporter.sendMail({
       from: `"Ezer Universidades" <${process.env.SMTP_USER}>`,
       to: email,
+      cc: adminEmail,
+      replyTo: adminEmail,
       subject: userSubject,
       text: userText,
       html: userHtml,
     });
 
-    console.log('Message sent to admin: %s', adminInfo.messageId);
-    console.log('Message sent to user: %s', userInfo.messageId);
+    console.log('Message sent: %s', info.messageId);
 
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {

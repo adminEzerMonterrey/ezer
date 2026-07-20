@@ -56,31 +56,20 @@ export default async function handler(req, res) {
       }
     }
 
-    const adminSubjectStr = `Nuevo Mensaje de Contacto: ${subject}`;
-    const userSubjectStr = `Confirmación de mensaje recibido: ${subject}`;
+    // Un solo correo al remitente, con copia a voluntariado, para que la respuesta
+    // quede en el mismo hilo y no en dos conversaciones separadas.
+    const subjectStr = `Recibimos tu mensaje: ${subject}`;
 
-    const adminInfo = await transporter.sendMail({
-      from: `"Ezer Contacto" <${process.env.SMTP_USER}>`,
-      to: adminEmail, 
-      subject: adminSubjectStr,
-      text: `Tienes un nuevo mensaje de contacto.\n\nNombre: ${name}\nCorreo: ${email}\nAsunto: ${subject}\nMensaje:\n${message}`,
-      html: `
-        <h2>Nuevo Mensaje de Contacto</h2>
-        <ul>
-          <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
-          <li><strong>Correo Electrónico:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
-          <li><strong>Asunto:</strong> ${escapeHtml(subject)}</li>
-        </ul>
-        <p><strong>Mensaje:</strong></p>
-        <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
-      `,
-    });
-
-    const userTextContact = `Estimada/o ${name}:
+    const textContact = `Estimada/o ${name}:
 ¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que usted quiere participar.
 Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.
 Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.
 Agradecemos su confianza y sus ganas de generar impacto en la comunidad. ¡Estamos por construir algo muy valioso juntos!
+
+Resumen de su mensaje:
+Asunto: ${subject}
+Mensaje:
+${message}
 
 Saludos cordiales,
 Equipo EZER
@@ -88,12 +77,17 @@ EZER A.B.P. · La Casa del Voluntario
 voluntariadocorporativo@ezer.org.mx
 ezer-eventos.vercel.app`;
 
-    const userHtmlContact = `
+    const htmlContact = `
       <p>Estimada/o ${escapeHtml(name)}:</p>
       <p>¡Gracias por su interés en el programa de Voluntariado Corporativo de EZER! Nos alegra mucho saber que <strong>usted</strong> quiere participar.</p>
       <p>Queremos confirmarle que ya recibimos su mensaje. En breve, una persona de nuestro equipo le buscará para dar seguimiento, resolver cualquier duda y comenzar a coordinar los detalles.</p>
       <p>Mientras tanto, no necesita hacer nada más: nosotros le contactaremos muy pronto.</p>
       <p>Agradecemos su confianza y sus ganas de generar impacto en la comunidad. ¡Estamos por construir algo muy valioso juntos!</p>
+      <p><strong>Resumen de su mensaje:</strong></p>
+      <ul>
+        <li><strong>Asunto:</strong> ${escapeHtml(subject)}</li>
+      </ul>
+      <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
       <br>
       <p>Saludos cordiales,<br>
       <strong>Equipo EZER</strong><br>
@@ -102,15 +96,19 @@ ezer-eventos.vercel.app`;
       <a href="https://ezer-eventos.vercel.app">ezer-eventos.vercel.app</a></p>
     `;
 
-    const userInfo = await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"Ezer Contacto" <${process.env.SMTP_USER}>`,
-      to: email, 
-      subject: `Recibimos tu interés — te buscaremos muy pronto`,
-      text: userTextContact,
-      html: userHtmlContact,
+      to: email,
+      cc: adminEmail,
+      replyTo: adminEmail,
+      subject: subjectStr,
+      text: textContact,
+      html: htmlContact,
     });
 
-    return res.status(200).json({ message: 'Emails sent successfully' });
+    console.log('Message sent: %s', info.messageId);
+
+    return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
     return res.status(500).json({ message: 'Error sending email' });

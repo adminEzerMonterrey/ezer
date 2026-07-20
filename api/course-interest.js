@@ -56,8 +56,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const adminSubject = `Nuevo Interesado en Curso de Sensibilización: ${cursoArea}`;
-    const userSubject = `Confirmación de interés en Curso: ${cursoArea}`;
+    const subject = `Confirmación de interés en Curso: ${cursoArea}`;
 
     const safeUrl = (value) => (typeof value === 'string' && /^https?:\/\//i.test(value.trim()) ? value.trim() : '');
     const safeFlyerUrl = safeUrl(flyerUrl);
@@ -101,37 +100,14 @@ export default async function handler(req, res) {
         ${eventFlyers.map((e) => `<a href="${escapeHtml(e.url)}" target="_blank" style="display:inline-block; margin:0 12px 8px 0; padding:8px 16px; background:#1E3A8A; color:#FFFFFF; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">📄 ${escapeHtml(e.name)}</a>`).join('')}
       </div>` : '';
 
-    // Admin Email
-    const adminHtml = `
-      <h2>Nuevo Interesado en Curso de Sensibilización</h2>
-      <p><strong>Curso / Área:</strong> ${escapeHtml(cursoArea)} (${escapeHtml(cursoCategory)})</p>
-      <ul>
-        <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
-        <li><strong>Teléfono:</strong> ${escapeHtml(phone || 'N/A')}</li>
-        <li><strong>Empresa/Organización:</strong> ${escapeHtml(company || 'N/A')}</li>
-        <li><strong>Correo:</strong> <a href="mailto:${encodeURIComponent(email)}">${escapeHtml(email)}</a></li>
-      </ul>
-      <p><strong>Eventos seleccionados:</strong></p>
-      ${eventsHtml}
-      <p><strong>Comentarios:</strong></p>
-      <p>${escapeHtml(comments || 'Sin comentarios')}</p>
-      ${flyerHtml}
-      ${eventFlyersHtml}
-    `;
-
-    const adminInfo = await transporter.sendMail({
-      from: `"Ezer Cursos" <${process.env.SMTP_USER}>`,
-      to: adminEmail,
-      subject: adminSubject,
-      html: adminHtml,
-    });
-
-    // User Email
-    const userHtml = `
+    // Un solo correo al interesado, con copia a voluntariado, para que la
+    // respuesta quede en el mismo hilo y no en dos conversaciones separadas.
+    const html = `
       <h2>¡Gracias por tu interés, ${escapeHtml(name)}!</h2>
       <p>Hemos recibido correctamente tu solicitud para el curso de <strong>${escapeHtml(cursoArea)}</strong>.</p>
       <p><strong>Resumen de tu solicitud:</strong></p>
       <ul>
+        <li><strong>Teléfono:</strong> ${escapeHtml(phone || 'N/A')}</li>
         <li><strong>Empresa/Organización:</strong> ${escapeHtml(company || 'N/A')}</li>
       </ul>
       <p><strong>Eventos en los que mostraste interés:</strong></p>
@@ -146,15 +122,16 @@ export default async function handler(req, res) {
       <p>Atentamente,<br><strong>Equipo EZER</strong></p>
     `;
 
-    const userInfo = await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"Ezer Cursos" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: userSubject,
-      html: userHtml,
+      cc: adminEmail,
+      replyTo: adminEmail,
+      subject,
+      html,
     });
 
-    console.log('Message sent to admin: %s', adminInfo.messageId);
-    console.log('Message sent to user: %s', userInfo.messageId);
+    console.log('Message sent: %s', info.messageId);
 
     // Mandamos también Webhook si es necesario (similar a interest.js)
     try {
