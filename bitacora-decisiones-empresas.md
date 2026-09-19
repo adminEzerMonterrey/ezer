@@ -1452,3 +1452,828 @@ tres blueprints completos de la sesión anterior, así que se reenviaron con `dl
 
 Con esto los cuatro escenarios de Empresas (`E-1` a `E-4`) quedan con la misma protección que ya
 tiene `E-2`: un error suelto se reintenta en vez de apagar el escenario completo.
+
+---
+
+### D-030 · Convención de correos internos — tag "Sistema" y lenguaje sin tecnicismos
+
+**12 de septiembre de 2026.** Regla de estilo, aplicable a todo correo interno que mande cualquier
+escenario de Make (Empresas y Asociaciones) hacia el equipo (`voluntariadocorporativo@ezer.org.mx`,
+`sistemas@encuentromundialdevalores.org`), de aquí en adelante y de forma retroactiva conforme se
+vaya tocando cada escenario.
+
+**Quién los lee.** El equipo que opera el panel incluye personas sin trasfondo técnico (señoras de
+60 años). Un correo que dice "el módulo Router no encontró bundle" o "filter bloqueado" no sirve.
+
+**Regla 1 — Tag visible de que es automático.** Todo asunto de correo interno lleva el prefijo
+`[Sistema]` antes del texto, ej. `[Sistema] Cotización enviada — Evento X`. Así se distingue de un
+correo real de una persona sin tener que abrirlo.
+
+**Regla 2 — Si es informativo, va al grano.** Un correo que solo confirma que algo pasó bien (se
+generó un documento, se envió una cotización, se recibió un pago) es corto: qué pasó, a quién o qué
+evento corresponde, y la liga si aplica. Sin explicar cómo funciona el escenario por dentro.
+
+**Regla 3 — Si es un problema, lleva pasos numerados para arreglarlo.** Un correo que avisa que algo
+no se pudo hacer (faltan datos, un candado quedó activo, un documento no se generó) no se queda en
+"revisar" — dice explícitamente, en una lista numerada, qué hacer para resolverlo, con nombres de
+campos y pantallas tal como los ve el equipo en Airtable (nunca nombres de módulos de Make ni de
+campos internos con `fld...`).
+
+**Ejemplo de informativo (Regla 2):**
+> Asunto: `[Sistema] Carpeta y documentos listos — Cemex Monterrey`
+> Ya se generó la carpeta del evento con la Cotización y el Convenio adentro. Aquí está la liga:
+> [liga a la carpeta]
+
+**Ejemplo de problema (Regla 3):**
+> Asunto: `[Sistema] Falta un dato para mandar la cotización — Cemex Monterrey`
+> No se pudo mandar la cotización de este evento. Para arreglarlo:
+> 1. Abre el evento "Cemex Monterrey" en Airtable.
+> 2. Revisa que tenga llenado el campo "Correo coordinador".
+> 3. Si ya estaba llenado, avísale a sistemas@encuentromundialdevalores.org.
+
+Esta convención aplica a los correos internos nuevos que se construyan de aquí en adelante (ej. el
+de confirmación de carpeta/documentos de `E-4`, agregado el mismo día). Los correos internos ya
+existentes en escenarios activos (`E-1` a `E-5`, `A-1` a `A-6`) se van actualizando conforme se abra
+cada escenario por otra razón, no como barrido dedicado.
+
+#### Actualización 14 de septiembre de 2026 — formato visual y siguientes pasos
+
+Pedido por el usuario al ver el primer aviso real de `E-5`. Se suma a las tres reglas de arriba:
+
+**Regla 4 — Siempre llevan "Siguientes pasos", también los informativos.** Una lista numerada que dice
+qué va a pasar después y qué le toca hacer al equipo. Si no les toca nada, se dice explícito
+("Por ahora no tienen que hacer nada"). Esto matiza la Regla 2: informativo sigue siendo corto, pero
+nunca termina sin decir qué sigue.
+
+**Regla 5 — Estructura fija, en viñetas.** En este orden:
+1. Etiqueta visible arriba: `SISTEMA · AVISO AUTOMÁTICO` (píldora azul claro).
+2. Título con ícono según el tipo: ✅ salió bien · ℹ️ aviso sin problema · ⚠️ algo no se pudo hacer.
+3. Una línea que resume qué pasó.
+4. **Detalles** en viñetas (evento, a quién, folio, total, responsable, ligas).
+5. **Siguientes pasos** numerados (en los de problema: "Siguientes pasos para arreglarlo").
+6. Opcional: una nota final en caja gris (o rosa si es problema).
+
+Cuando el correo avisa de datos faltantes, la lista de detalles muestra **qué tiene y qué le falta**
+con ✅ / ❌ por campo, en vez de pedir que revisen todo.
+
+Referencia de cómo se ve: los tres avisos internos de `E-5` (enviada, ya enviada, falta un dato).
+
+**Regla 6 — Etiqueta "Sistema" en Gmail.** Make no puede ponerle etiquetas al buzón de quien recibe.
+Se resuelve con un **filtro de Gmail** en cada buzón que recibe avisos
+(`voluntariadocorporativo@ezer.org.mx` y `sistemas@encuentromundialdevalores.org`): buscar
+`subject:"[Sistema]"` → aplicar la etiqueta **Sistema** → **sin** archivar, para que sigan llegando a
+Recibidos. Por eso el prefijo `[Sistema]` del asunto es obligatorio: es de lo que depende el filtro.
+
+---
+
+### D-031 · Editar una plantilla de Docs puede romper los marcadores sin que se note
+
+**12 de septiembre de 2026.** Al quitar la sección de datos fiscales de las plantillas de Cotización
+y Convenio, cuatro marcadores quedaron rotos y los documentos salieron con campos vacíos.
+
+**Cómo se rompieron.** Google Docs guarda el texto por párrafos. Al borrar líneas alrededor de un
+marcador quedaron saltos de línea **dentro** de él:
+
+- `{{Nombre_Evento` ⏎⏎⏎ `}}` — partido en dos párrafos
+- `{{Municipio_Evento` ⏎ `}}` — igual
+- `{{Duracion_Evento` ⏎ `}}` — igual
+- `{{Coordinador_Nombre}` en el bloque de firmas del Convenio — le faltaba una llave de cierre
+
+Make busca la cadena **completa y continua** `{{Marcador}}`. Partida o incompleta, no la encuentra,
+no reemplaza nada, y el documento sale con el hueco. **No genera error**: la ejecución se reporta
+exitosa. Por eso se detectó hasta que alguien abrió el PDF.
+
+**Cómo se diagnosticó, y cómo repetirlo.** No hace falta adivinar: un escenario desechable de dos
+módulos — `google-docs:exportADocument` en `text/plain` → escribir `{{toString(data)}}` en un campo
+de texto largo de Airtable — deja ver el texto crudo de la plantilla con todos sus marcadores. Se
+compara contra los `requests` del blueprint y salta de inmediato cuál falta, cuál sobra y cuál está
+partido. Tardó menos de cinco minutos y sirve para cualquier plantilla futura.
+
+**Lo que también apareció con ese volcado:** la tabla de INVERSIÓN de la Cotización tenía
+`{{Concepto_1}}`, `{{Importe_1}}`, `{{Concepto_2}}`, `{{Importe_2}}` — cuatro marcadores que el
+escenario **nunca había mandado**. Nadie lo había notado porque nadie había abierto una cotización
+generada hasta ese día.
+
+> **Regla:** cada vez que se edite una plantilla de Docs, correr el volcado y comparar marcadores
+> contra el blueprint **antes** de dar por buena la siguiente prueba. Un documento con un hueco no
+> falla ruidosamente: falla en silencio, frente al cliente.
+
+---
+
+### D-032 · El curso de sensibilización se cobra aparte — $30,000
+
+**12 de septiembre de 2026.** Hasta ahora el monto de la cotización era uno solo ($20,000 por
+defecto) y no estaba claro si el curso iba incluido.
+
+**Queda así:** el curso es una **partida aparte de $30,000**, y la cotización lo desglosa en dos
+renglones — la coordinación de la jornada por un lado, el curso por el otro — con el total sumado
+abajo.
+
+**Efecto en Airtable:** el campo `Monto` deja de ser el total y pasa a ser el **monto base** del
+evento (editable por el equipo). Se agregó el campo calculado `Monto total cotizacion` =
+`Monto` + $30,000 si la casilla de curso está marcada. Ese es el que aparece en la Cotización, en
+el Convenio y en los avisos internos.
+
+**Por qué un campo calculado y no una suma dentro del escenario:** `E-5` corre horas después de
+`E-4`, y otros escenarios más adelante también van a necesitar el total. Tenerlo como columna
+visible en Airtable evita que cada escenario lo recalcule por su cuenta — y evita que el equipo vea
+un número distinto al del documento que ya mandó.
+
+El precio de $30,000 es provisional, puesto por Dirección el mismo día. Cuando se fije el definitivo
+se cambia en dos lugares: la fórmula del campo y el importe del renglón en `E-4`.
+
+---
+
+### D-033 · Una búsqueda sin resultados congela el escenario — y corrige el diagnóstico de D-017
+
+**14 de septiembre de 2026.** `E-5`, `E-6` y `E-7` llevaban dos días **congelados sin avisar a
+nadie**: `E-5` no había corrido ni una vez desde el viernes aunque revisa cada hora, y `E-6` se
+saltó su corrida del sábado.
+
+**Lo que pasa.** Cuando un `Search Records` de Airtable no encuentra nada, Make **no se detiene**:
+entrega un paquete vacío y los módulos siguientes corren con todos sus campos en blanco. Se
+comprobó aislado: una búsqueda que no encontraba nada ejecutó igual el paso siguiente, con
+`id` vacío.
+
+Con eso, cada escenario fallaba en su primera corrida sin datos:
+
+| Escenario | Qué hizo con el paquete vacío | Error |
+|---|---|---|
+| `E-6` | Mandó el seguimiento sin destinatario | `Recipient address required` |
+| `E-5` | La ruta "faltan datos" lo aceptó e intentó desmarcar la casilla de un registro sin ID | Update sin ID |
+| `E-7` | Intentó guardar la constancia en una Organización sin ID | Update sin ID |
+
+El error cae en un `Break` → queda una **ejecución incompleta** → y como todos los escenarios usan
+**procesamiento secuencial**, Make no arranca ninguna ejecución nueva hasta que alguien resuelva la
+atorada. El escenario sigue marcado como activo. **No hay correo, no hay alerta, no hay nada rojo.**
+
+**Corrección a D-017.** El síntoma de D-017 — "el correo reventó con `Recipient address required`"
+— es exactamente este. Se atribuyó a los acentos, pero la fórmula acentuada de `E-5`
+(`{Enviar cotización}=TRUE()`) se probó aislada y **funcionó bien**: no marcó error ni devolvió la
+tabla entera. El arreglo de D-017 (el campo `Accion E3`) sí funcionó, pero por otra razón: los
+filtros exigen un valor concreto (`"recordar"`, `"inactivar"`) que un paquete vacío nunca trae.
+Seguir evitando acentos en las expresiones de Make no cuesta nada y se mantiene como precaución,
+pero **la regla que importa es la siguiente**.
+
+> **Regla:** en todo escenario que empiece con una búsqueda, **ningún módulo que escriba o mande
+> correo puede correr sin un filtro que exija `{{N.id}}` existe** — y si manda correo a una
+> dirección que viene de Airtable, también que ese correo exista. Esto aplica a `E-8` en adelante.
+
+**Cómo se arregló.**
+- Los tres escenarios se **reconstruyeron** (la ejecución atorada no se puede borrar por API; los
+  anteriores solo tenían corridas de prueba). IDs nuevos: `E-5` 6277432, `E-6` 6277419, `E-7` 6277439.
+- `E-5`: filtro de `id` en las tres rutas. De paso se corrigió un error de lógica: la búsqueda
+  excluía los eventos ya enviados, así que la ruta "ya se había enviado" **nunca podía ocurrir** y una
+  casilla vuelta a marcar se quedaba marcada para siempre. Ahora busca solo por la casilla.
+- `E-6`: filtro de `id` + correo antes del primer envío. La búsqueda ya no usa el valor acentuado
+  de la fase: `LEFT({Fase},2)="05"`.
+- `E-7`: los tres efectos (aviso interno, correo a la empresa, guardar constancia) pasaron a rutas
+  **independientes** de un router, cada una con su filtro — así que ninguno bloquea a otro. La
+  Organización se lee de un campo nuevo de nombre ASCII, `Organizacion ID` (lookup de
+  `Record ID org`).
+
+**Cómo detectarlo la próxima vez.** En la lista de escenarios de Make, `iswaiting: true` junto con
+`dlqCount` mayor a 0. Vale la pena revisarlo antes de cada prueba y en la revisión semanal.
+
+⚠️ **Observación sin tocar:** `A-2.2` tiene 2 ejecuciones incompletas (sin congelar, porque no usa
+procesamiento secuencial). Por la regla de no editar escenarios de Asociaciones, solo se anota.
+
+---
+
+### D-034 · La estructura de un formulario de Fillout se puede leer sin enviar nada
+
+**15 de septiembre de 2026.** Para construir `E-8` y `E-9` hacía falta saber el ID interno de cada
+pregunta de los dos formularios nuevos de Fillout. Hasta ahora eso se conseguía de una sola forma:
+poner el webhook en modo detección, pedirle al equipo un envío de prueba, y leer lo que llegó. Ese
+modo **suprime la ejecución del escenario**, así que el envío de prueba se "gasta" en aprender y hay
+que pedir otro para probar de verdad — dos vueltas con una persona en medio, cada una de un día.
+
+**Lo que se encontró.** El módulo `fillout:newSubmission` declara una RPC de interfaz,
+`rpc://fillout@1/metadata`. Se puede ejecutar directamente contra un hook ya creado y devuelve el
+árbol completo de la respuesta: `answers` con el ID y la etiqueta de cada pregunta, `urlParams` con
+los campos ocultos declarados, y los tipos de cada uno. Es lo mismo que Make muestra en el panel de
+mapeo, pero sin depender de un envío.
+
+```
+rpc_execute(appName: "fillout", appVersion: 1, rpcName: "metadata",
+            data: { __IMTCONN__: 10037398, __IMTHOOK__: <hookId>,
+                    teamId: 2499424, formId: "<formId>" })
+```
+
+> **Regla:** para cualquier formulario de Fillout nuevo, leer la estructura con esta RPC **antes**
+> de pedir pruebas. El modo detección queda solo como respaldo para lo que la RPC no describa (por
+> ejemplo, qué trae realmente un campo oculto cuando la liga no lo lleva — que fue el problema real
+> de `E-7`).
+
+**IDs que quedaron documentados así:**
+
+| Formulario | Pregunta | ID |
+|---|---|---|
+| Recibo contador (`exABLtJxJCus`) | Folio de la cotización | `53RdPpczRR7HeNoXBRtNEc` |
+| | Recibo deducible (PDF) | `fbsM1njfH7VXzzboxtvoC5` |
+| | Fecha de timbrado | `uQJnNT64gwGi1Rc9qkxyia` |
+| | ¿Ya quedó subido al SAT? | `ueq6zKqhrJw7fP7Qh4g3q5` |
+| Comprobante empresa (`kBNZmz28zBus`) | Comprobante de transferencia | `2ixnaNhHneuuutCpEGwDF3` |
+| | Fecha de la transferencia | `7tENBQnthrjszyRMW9HJkJ` |
+| | Folio de la cotización | `bqGhJwKyHrkmvBzcxJGfmK` |
+
+Los dos formularios declaran un solo parámetro de URL, `hidden_folio`. Por eso ambos escenarios
+buscan el evento con `upper(trim(ifempty(1.urlParams.hidden_folio; <la pregunta del folio>)))`:
+toman primero el oculto de la liga y, si viene vacío, el que la persona escribió a mano.
+
+---
+
+### D-035 · `E-8` y `E-9` — la etapa de dinero queda cerrada de punta a punta
+
+**15 de septiembre de 2026.** Construidos y activos: `E-8` (6288227, hook 2818277) y `E-9`
+(6288236, hook 2818278). Ambos siguen la regla de D-033 — router con `{{2.id}} exist` en cada rama y
+una rama de aviso `[Sistema]` con pasos numerados cuando el folio no existe — y el formato de correo
+interno de D-030.
+
+**`E-8` — el contador sube el recibo.** Busca el evento por folio, crea el registro en `Recibos`
+ligado a ese evento, y en ramas independientes: (a) manda el recibo a la empresa, (b) avisa al
+equipo. La rama que le manda el recibo a la empresa exige tres cosas a la vez: evento encontrado,
+`Correo coordinador` con valor, y `Recibo enviado a la empresa` **sin marcar**. Ese último es el
+candado: si el contador vuelve a subir un recibo corregido, **el archivo nuevo sí se guarda** pero
+la empresa no recibe el correo dos veces, y el aviso interno lo dice explícitamente.
+
+**Cómo se adjunta el PDF.** El recibo llega de Fillout como una URL, no como archivo. Se descarga
+con `http:ActionGetFile` (versión 3) y se adjunta al correo con `{{6.data}}`. La URL se saca con
+`{{join(map(1.answers.<id>; "url"); "")}}` en vez de `[1].url`: el `map`+`join` es el modismo que
+Make resuelve de forma confiable cuando el campo tiene un nombre que empieza con dígito y hay que
+encerrarlo en acentos graves.
+
+**`E-9` — la empresa sube su comprobante.** Busca el evento por folio, guarda el archivo en
+`Comprobante de pago`, la fecha en `Fecha de transferencia`, marca `Comprobante recibido`, le
+confirma a la empresa y avisa al equipo con los pasos para validar el depósito con el banco. **No
+toca la Fase**: confirmar el pago es una decisión humana y es tarea del Sprint 7.
+
+**Nota sobre casillas vacías.** Los filtros usan `notexist` para preguntar si una casilla está
+apagada. Funciona porque la API de Airtable **omite** las casillas sin marcar en su respuesta, así
+que en Make no llegan como `false` sino como nada. Es el mismo comportamiento del que dependía
+`Fecha de cotizacion enviada` en `E-5`.
+
+**De paso, en `E-7`:** el aviso interno de datos fiscales ahora lleva un botón para el contador con
+su liga y el folio ya precargado. Antes solo le decía que ya podía hacer el recibo, sin decirle
+dónde subirlo.
+
+**Probados el mismo día, 15-sep, con el folio `COT-20260915-PTVS`.** `E-8` corrió en 7 operaciones:
+creó `Recibo COT-20260915-PTVS` ligado al evento, con el PDF, la fecha de timbrado y la casilla del
+SAT bien puestas, mandó el recibo a la empresa y encendió el candado. `E-9` corrió en 5: guardó el
+comprobante, la fecha de transferencia y marcó `Comprobante recibido`. Ninguno de los dos necesitó
+corrección — es el primer par de escenarios del proyecto que sale bien a la primera, y la diferencia
+fue leer los identificadores reales antes de construir en vez de adivinarlos (D-034).
+
+---
+
+### D-036 · Volver a llenar el formulario de captura regresaba el evento de etapa
+
+**15 de septiembre de 2026.** Al probar el reenvío del formulario interno sobre un evento que ya
+estaba en **"05 Cotización enviada"**, el evento quedó otra vez en **"03 Captura de datos"**.
+
+**Por qué.** `E-4` escribía `Fase = "03 Captura de datos"` como valor fijo en cada envío. Tiene
+sentido la primera vez —capturar los datos de la reunión *es* la etapa 03—, pero el formulario
+también se usa para **corregir un dato** de un evento que ya avanzó, y ahí el valor fijo lo
+empujaba hacia atrás.
+
+**Por qué importaba más de lo que parece.** Nadie lo habría notado: el correo llega igual, los
+documentos no se tocan, y el candado de idempotencia funcionó bien. Pero `E-6` busca los eventos con
+`LEFT({Fase},2)="05"`, así que un evento devuelto a la 03 **deja de ser candidato al seguimiento de
+los 7 días para siempre**. Una corrección de un teléfono mal escrito habría cancelado el
+seguimiento sin que nadie se enterara.
+
+**Cómo se arregló.** La fase dejó de ser un valor fijo:
+
+```
+{{if(2.`Cotizacion Doc ID` = emptystring; "03 Captura de datos"; ifempty(2.Fase; "03 Captura de datos"))}}
+```
+
+Se reusa el candado que ya existía: si el evento todavía no tiene cotización generada, es una
+captura nueva y va a la 03; si ya la tiene, **se respeta la etapa que lleve**. El correo de
+"Formulario reenviado" ahora también dice en qué etapa se quedó el evento, para que el equipo lo vea
+sin entrar a Airtable.
+
+> **Regla:** ningún escenario escribe una etapa como valor fijo si su disparador puede ocurrir más
+> de una vez sobre el mismo registro. La etapa solo avanza; si el escenario puede repetirse, hay que
+> preguntar primero en qué etapa va.
+
+**Lo que también quedó probado de paso:** con un `record_id` que no existe, `E-4` avisa con pasos
+numerados y **no crea ni modifica nada**; el reenvío actualiza los datos del evento pero no regenera
+la carpeta, la cotización ni el convenio.
+
+---
+
+### D-037 · Junta con Ana Cristina — siete cambios al alcance
+
+**18 de septiembre de 2026.** De la reunión con Ana Cristina salieron siete ajustes. Ninguno se
+puede construir todavía: cinco esperan un archivo o una definición de ella, uno espera al abogado, y
+uno es alcance nuevo que hay que meter al plan. Se anotan aquí para que no se pierdan.
+
+| # | Cambio | Dónde pega | Estado |
+|---|---|---|---|
+| 1 | Adjuntar una presentación al correo interno de la primera reunión, lado **Empresas** | `E-2` | Espera el archivo de Ana Cristina |
+| 2 | Lo mismo, lado **Asociaciones** | `A-3` | Espera el archivo **y levantar la regla de no tocar Asociaciones** |
+| 3 | Actualizar la plantilla de **cotización** | Plantilla de Docs + marcadores de `E-4` | El usuario ya la tiene, la pasa enseguida |
+| 4 | Actualizar la plantilla de **convenio** | Plantilla de Docs + marcadores de `E-4` | **Bloqueado**: la revisa un abogado de Ana Cristina |
+| 5 | Cambios al **formulario del recibo del contador** | Formulario `exABLtJxJCus` + `E-8` | Faltan los cambios concretos |
+| 6 | Formulario de **comprobante de la empresa** | — | **Sin cambios**, quedó aprobado |
+| 7 | **Registro de voluntarios con firma** del aviso de privacidad y la carta de deslinde | Alcance nuevo | Ver abajo |
+
+**Sobre el punto 2 — choca con una regla vigente.** La regla dura del proyecto es que los
+escenarios `A-1` a `A-6` **no se editan en Make**, aunque tengan errores. Adjuntar la presentación
+al correo interno de la primera reunión de Asociaciones significa editar `A-3`. Ya existe un
+precedente: en D-019 se autorizó una excepción puntual sobre ese mismo escenario. **Hace falta que
+el usuario autorice la segunda excepción** antes de tocarlo; mientras tanto queda anotado, no hecho.
+
+**Sobre el punto 7 — es alcance nuevo, no un ajuste.** El plan ya tenía una tarea llamada "integrar
+la firma de la carta de deslinde" en el Sprint 11, pero era una tarea de **diseño** de 2.5 h: decidir
+*cómo* se firmaría. Lo que se acordó en la junta es otra cosa: **un apartado donde el voluntario se
+registra y en el mismo acto acepta el aviso de privacidad y firma la carta de deslinde.** Eso es una
+etapa nueva del sistema —la de Voluntario, que nunca se ha construido— con su propia tabla, su
+formulario y su escenario. Se estima en 11.0 h plan / 6.68 h reales, de las cuales 2.5 ya estaban
+contempladas: **el neto es +4.18 h reales.**
+
+> **Consecuencia legal que conviene atender ya.** Firmar el deslinde **en pantalla** en vez de en
+> papel el día del evento no es el mismo acto jurídico, y el aviso de privacidad pasa a ser algo que
+> el voluntario acepta en línea. Como ya hay un abogado revisando el convenio, lo barato es meterle
+> los otros dos documentos **a la misma revisión**, y preguntarle expresamente si la aceptación
+> electrónica le sirve a EZER o si de todos modos hace falta firma en papel. Si la respuesta llega
+> tarde, bloquea dos cosas en vez de una: la revisión legal ya era el mayor riesgo de fecha del
+> plan, y este cambio le sube el peso.
+
+**Dónde se colocó el punto 7.** No en el bloque E2 (23–29 sep), que ya iba a 18.5 h y no aguanta
+más. Se metió en el bloque de pruebas (7–20 oct), que es el que tiene holgura, y además es donde
+razonablemente habrá llegado la respuesta del abogado. Si llega antes, se adelanta.
+
+---
+
+### D-038 · El curso de sensibilización sube a $55,000 — aplicado el mismo día
+
+**18 de septiembre de 2026.** Nuevo precio acordado con Ana Cristina: **curso de sensibilización
+$55,000**, evento **$20,000**. Corrige el precio provisional de $30,000 que D-032 había puesto
+"de mientras". Total de un evento con curso: **$75,000**.
+
+Se aplicó en los tres lugares donde vivía el número, que es justo lo que D-032 había advertido que
+habría que tocar:
+
+1. Fórmula del campo `Monto total cotizacion` (`fldLDRqWWeIEeAlwP`) en Eventos.
+2. `E-4`, módulo 7 (cotización): el renglón `Importe_2` y el `Monto_Total`.
+3. `E-4`, módulo 8 (convenio): el `Monto_Total`.
+
+**Verificado:** el evento de prueba `Prueba Cierre Sprint 4`, con monto base de $20,000 y curso
+marcado, pasó de $50,000 a **$75,000** en cuanto se guardó la fórmula.
+
+> **Nota para la próxima vez que cambie un precio:** el número sigue viviendo en tres lugares y no
+> en uno. La razón es que `E-4` calcula el total con las respuestas del formulario, no con el campo
+> de Airtable — y no puede usar el campo, porque cuando `E-4` lee el Evento todavía no ha escrito en
+> él las respuestas de ese envío. Mientras el orden de los módulos sea ése, los tres lugares se
+> tocan juntos.
+
+---
+
+### D-039 · El coordinador de EZER se elige de una lista, no se escribe
+
+**18 de septiembre de 2026.** En el formulario interno, la pregunta *"¿Quién de EZER estará a cargo
+de este evento?"* pasa de texto libre a **lista desplegable**. Los nombres ya están registrados en
+Airtable: el campo `Responsable` (`fld7ZhFTOS4VuMU6C`) es un selector con **Mia, Adri, Ana Cris y
+Gabi**.
+
+**De los tres lados, dos ya estaban listos:** Airtable ya tiene las cuatro opciones, y `E-4` ya mapea
+la respuesta a ese campo con `typecast` encendido. **Falta solo el cambio en Fillout**, que solo lo
+puede hacer el equipo.
+
+> ⚠️ **Los cuatro nombres tienen que escribirse idénticos a los de Airtable.** Con `typecast`
+> encendido, un nombre que no coincida —"Ana Cristina" en vez de "Ana Cris", o un espacio de más—
+> **no da error: Airtable crea una opción nueva en silencio** y el selector termina con ocho nombres
+> en vez de cuatro. Es el mismo modo de falla que D-026 en el catálogo y el municipio.
+
+---
+
+### D-040 · Cotización v2 — el diseño nuevo pide cinco datos que no existían
+
+**18 de septiembre de 2026.** Llegó el diseño nuevo de la cotización (tres tableros: dos páginas del
+documento y el correo que la acompaña). Se comparó marcador por marcador contra lo que `E-4` manda
+hoy: **23 marcadores en el diseño, 18 que ya se mandaban, 0 que sobren.** Los cinco que faltaban se
+agregaron el mismo día.
+
+| Marcador nuevo | Qué se le puso | Confianza |
+|---|---|---|
+| `{{Vigencia_Cotizacion}}` | Fecha de emisión + **15 días** | Supuesto, falta confirmar |
+| `{{Dias_Pago}}` | **5** días naturales antes del evento | Supuesto, falta confirmar |
+| `{{CAUSA}}` | El primero de los beneficiarios elegidos | Supuesto, falta confirmar |
+| `{{Empresa_Razon_Social}}` | Línea en blanco | Ver el conflicto de abajo |
+| `{{Empresa_RFC}}` | Línea en blanco | Ver el conflicto de abajo |
+
+**El conflicto de secuencia.** La página 1 del diseño pide razón social y RFC de la empresa, pero
+**esos datos llegan después**: los entrega la empresa en el formulario fiscal, al que lleva el botón
+*Confirmar nuestro evento* de la página 2 de esa misma cotización. Cuando `E-4` genera el documento,
+todavía no existen.
+
+> La recomendación es **quitarlos de la cotización**: es una propuesta comercial, y los datos
+> fiscales pertenecen al recibo. Mientras Ana Cristina decide, quedan como línea en blanco
+> (`__________________`), igual que el RFC del convenio — no rompe nada y se cambia en un minuto.
+
+**Observación sobre un número del documento.** La página 1 le dice a la empresa que la asociación se
+elige *"entre nuestras 155 organizaciones aliadas"*. En Airtable hay **37 registros, ~21
+asociaciones reales**. No es un error del sistema y puede que el 155 venga de un conteo más amplio
+de Dirección, pero conviene tenerlo presente: **el motor de match del bloque E1 va a escoger entre
+~21**, y 155 es el número que la empresa lee en su cotización.
+
+**El correo también cambió y ya quedó aplicado en `E-5`.** Saludo informal, caja *EN RESUMEN*,
+botón *Confirmar nuestro evento*, nota de vigencia. De paso, el asunto pasó a
+`Su jornada de voluntariado — cotización COT-…` y los adjuntos ahora se llaman
+`Cotizacion_COT-….pdf` y `Convenio_COT-….pdf` en vez del nombre del Doc exportado.
+
+**Lo que falta y solo lo puede hacer una persona:** rehacer el Google Doc
+`1TNIdjuNAyvROXV2TXrRtlnOzVo53L9hM1SUFYvVN-k4` con el diseño y los 23 marcadores. La lista completa,
+con lo que recibe cada uno y la regla de D-031 para no partirlos, quedó en
+`Documentos/spec-plantilla-cotizacion-v2.md`.
+
+**Corrección el mismo día.** El marcador de la causa es `{{Causa}}`, no `{{CAUSA}}` — se leyó mal de
+la captura y se corrigió en `E-4` al desempacar el archivo del diseño y ver el texto literal. Google
+Docs reemplaza respetando mayúsculas, así que con el nombre mal escrito el marcador habría salido
+crudo en la cotización sin dar ningún error.
+
+**El documento ya está armado:** `Documentos/Cotizacion-EZER-plantilla.docx`, dos páginas, con el
+logo extraído del propio archivo del diseño, la paleta real (navy `#144072`, rojo `#ED1C24`, lima
+`#C8D400`) y los 23 marcadores **verificados uno por uno dentro de un solo run de XML** — que es la
+condición que D-031 exige para que Make los encuentre. Falta subirlo a Drive como Google Doc.
+
+⚠️ **Lo que un PDF no puede hacer.** El diseño pone un botón *Confirmar nuestro evento* en la página
+2. En el correo ese botón sí lleva la liga personalizada con el `record_id` del evento; **en el PDF
+no puede**, porque Make reemplaza texto visible, no destinos de hipervínculo. En el documento quedó
+como bloque rojo sin liga: decorativo, y el botón que de verdad funciona es el del correo.
+
+---
+
+### D-041 · ⚠️ La CLABE que el sistema le da a las empresas no coincide con la del estado de cuenta
+
+**18 de septiembre de 2026.** Al revisar el encabezado del estado de cuenta de Banorte aparecieron
+**dos diferencias con lo que el sistema le está diciendo hoy a las empresas**. Como se trata de a
+dónde transfiere el dinero un tercero, **no se cambió nada por cuenta propia**: queda pendiente de
+que el usuario confirme cuál es la buena.
+
+| | Lo que dice el sistema hoy | Lo que dice el estado de cuenta |
+|---|---|---|
+| CLABE | `072580001989740666` | `072580006864552592` |
+| Cuenta | — | `0686455259` |
+| Titular | EZER A.B.P. | ENCUENTRO MUNDIAL DE VALORES A.B.P. |
+| RFC | — | EMV110525FH8 |
+| Producto | — | Enlace Negocios Básica |
+
+**Las dos CLABE son válidas en forma** (18 dígitos, banco 072 Banorte, plaza 580), así que no es un
+error de captura evidente: parecen **dos cuentas distintas** de la misma institución. Una de las dos
+está mal en el lugar donde más caro sale equivocarse.
+
+**Sobre el nombre.** No es contradicción: **EZER — La Casa del Voluntario es el programa, y
+Encuentro Mundial de Valores A.B.P. es la persona moral** — lo confirma el propio dominio de correo
+del equipo, `@encuentromundialdevalores.org`. Pero entonces **el titular de la cuenta y el emisor del
+comprobante fiscal es Encuentro Mundial de Valores A.B.P.**, y hoy tanto la cotización como el correo
+del recibo dicen que quien emite es "EZER A.B.P.". Conviene alinear el texto legal con la razón
+social real antes de que salga a una empresa.
+
+**Dónde vive el dato hoy, para cambiarlo en un solo barrido cuando se confirme:**
+- `E-8`, módulo 7 — el correo que le manda el recibo a la empresa, con banco, CLABE, titular y referencia.
+- El formulario fiscal de Fillout (`u9LzXxXhVous`) — el párrafo de datos bancarios que ve la empresa.
+- `Documentos/spec-formulario-fiscal-empresas.md`.
+- La plantilla de la cotización, en la línea de "EZER A.B.P. es una Asociación de Beneficencia Privada
+  y emitirá el comprobante fiscal que corresponda conforme a su régimen".
+
+---
+
+### D-042 · El formulario de solicitud de recibo pide siete datos que el sistema ya tiene
+
+**18 de septiembre de 2026.** Llegó el formulario de Google con el que hoy se le solicita a
+contabilidad que emita un recibo o una factura. Son 15 preguntas. **Siete se pueden resolver solas en
+cuanto se conoce el folio**: empresa, RFC, constancia de situación fiscal, uso de CFDI, monto, correo
+de destino y forma de pago.
+
+> **Regla:** antes de copiar un formulario manual al sistema, revisar pregunta por pregunta cuáles ya
+> las contesta el expediente. Copiarlo tal cual convierte una automatización en un formulario largo,
+> que es el problema que se venía a resolver.
+
+**Lo que sí hay que preguntar, porque no existe en ningún lado:** si es recibo o factura, PUE o PPD,
+el concepto tal cual, la dirección fiscal, quién lo solicita (nombre, correo, teléfono) y
+observaciones. Más el monto **sin IVA**, pero solo cuando es factura — el total cotizado no sirve ahí.
+
+**Dónde quedó cada cosa.** El prompt para reconstruir el formulario de Fillout, con la advertencia de
+no recrear las preguntas existentes para no perder sus identificadores, está en
+`Documentos/prompt-fillout-recibo-v2.md`. El formulario pasa a tener dos páginas: la solicitud y, en
+una segunda página opcional, la entrega del documento ya emitido — así el mismo folio sirve para
+pedirlo y para subirlo, sin dos formularios distintos.
+
+**Observación de proceso que queda anotada:** la dirección fiscal, el "recibo o factura" y el
+"PUE/PPD" son datos **de la empresa**, no del equipo de EZER. Preguntárselos a quien solicita
+internamente obliga a ir a buscarlos con la empresa por fuera del sistema. Lo natural es moverlos al
+formulario fiscal que la empresa ya llena en `E-7`. No se hizo porque cambia un escenario en
+producción y es decisión de proceso.
+
+---
+
+### D-043 · Un .docx subido a Drive no es un Google Doc, y Make no lo puede usar
+
+**19 de septiembre de 2026.** La plantilla nueva de cotización se subió a Drive y se pasó el ID
+`1v0p5ugZnEJEVHzQjzeIxLZG5J_b767Jq`. Antes de probar se verificó con la RPC `listKeys` de
+`google-docs`, que lee los marcadores de un documento. Respondió:
+
+```
+[403] Export only supports Docs Editors files.
+```
+
+**El archivo sigue siendo un `.docx` guardado en Drive, no un Documento de Google.** Se ve en la
+propia liga: `...&rtpof=true&sd=true` — `rtpof` es *retain original format*, la marca de que Drive lo
+está mostrando sin convertirlo. El ID también lo delata: los de Google Docs son de 44 caracteres y
+éste tiene 33.
+
+`createADocumentFromTemplate` necesita un Documento de Google de verdad, porque trabaja exportando y
+reemplazando texto. Con un `.docx` **la prueba habría fallado en el módulo 7 de `E-4`**.
+
+**Cómo se convierte:** abrir el archivo en Drive y usar *Archivo → Guardar como Documentos de
+Google*. Eso crea un **archivo nuevo con un ID nuevo**, que es el que hay que poner en `E-4`. La otra
+vía es activar en Drive *Configuración → Convertir los archivos subidos al formato de Google Docs*
+antes de subirlo.
+
+> **Regla:** antes de probar un cambio de plantilla, correr `listKeys` sobre el ID. Si devuelve la
+> lista de marcadores, el documento sirve y además queda confirmado que los marcadores no quedaron
+> partidos (D-031). Si devuelve 403, ni vale la pena probar. Son dos segundos y ahorra una vuelta
+> completa de prueba.
+
+---
+
+### D-044 · El pago pasa a ser requisito para agendar, y `{{Dias_Pago}}` deja de tener sentido
+
+**19 de septiembre de 2026.** Decisión de Ana Cristina: **no hay un plazo de N días antes del
+evento — el pago es lo que destraba la definición de la fecha.** No se agenda hasta que entra.
+
+Eso deja sin uso el marcador `{{Dias_Pago}}`, que existía solo para la frase *"a más tardar N días
+naturales antes del evento"*. Se **quitó de `E-4`** y el renglón de la plantilla tiene que cambiar a
+una frase sin plazo. Quedó anotado en `Documentos/spec-plantilla-cotizacion-v2.md`.
+
+El cambio también se reflejó en los correos: tanto el de la cotización como el del recibo ahora
+dicen que **el pago es el paso que destraba la fecha**, en vez de dar un plazo.
+
+**Lo demás que se confirmó el mismo día:** vigencia de la cotización **15 días** (ya estaba así),
+`{{Causa}}` se queda como el primer beneficiario elegido, y la **CLABE correcta es
+`072580001989740666`** — la que el sistema ya tenía. La cuenta del encabezado del estado de cuenta
+(`072580006864552592`) es otra, y no se usa aquí. Con eso se cierra D-041 en su parte de CLABE;
+**queda abierta la parte del nombre**: los documentos dicen que quien emite es "EZER A.B.P." y la
+persona moral es Encuentro Mundial de Valores A.B.P.
+
+---
+
+### D-045 · Google convirtió `{{Causa}}` en `{{CAUSA}}` al importar el .docx
+
+**19 de septiembre de 2026.** Con el Doc ya convertido, la RPC `listKeys` devolvió los 23
+marcadores — y uno no coincidía con lo que `E-4` estaba mandando: el documento contiene
+**`{{CAUSA}}` en mayúsculas**, no `{{Causa}}`.
+
+**Por qué pasó.** En el `.docx` ese marcador se escribió como `{{Causa}}` pero con el formato
+*versalitas* (`w:caps` en Word), que muestra el texto en mayúsculas sin cambiar los caracteres
+guardados. **Al convertir a Documento de Google, la conversión “aplanó” el formato y escribió las
+mayúsculas de verdad en el texto.** Ningún otro marcador se vio afectado porque ninguno llevaba ese
+formato.
+
+Como Google Docs reemplaza respetando mayúsculas, el marcador habría salido crudo en la cotización
+**sin dar error**. Se corrigió mandando **los dos nombres** desde `E-4` (`CAUSA` y `Causa`): el que
+no exista en el documento simplemente no hace nada, así que la plantilla funciona con cualquiera de
+las dos versiones.
+
+> **Regla:** al generar plantillas por programa, **no usar versalitas ni mayúsculas automáticas en
+> un renglón que contenga un marcador** — el texto que se guarda y el que se ve dejan de coincidir, y
+> la conversión a Google Docs se queda con lo que se ve. Y siempre correr `listKeys` después de
+> convertir: es la única forma de ver los marcadores **como quedaron**, no como se escribieron.
+
+**Pendiente en el documento:** sigue teniendo `{{Dias_Pago}}` en la frase del plazo de pago, que ya
+no aplica (D-044). Ese marcador se quitó de `E-4`, así que **saldrá crudo hasta que se reemplace la
+frase**. Se dejó así a propósito: es preferible un marcador visible a imprimir un plazo de pago que
+Dirección ya cambió.
+
+---
+
+### D-046 · La prueba pasó, y de paso destapó que `= emptystring` no detecta un campo vacío
+
+**19 de septiembre de 2026.** Recorrido completo probado con el Doc nuevo y el formulario nuevo. Los
+tres escenarios corrieron sin errores y el número de operaciones cuadró con las rutas esperadas:
+
+| Escenario | Operaciones | Qué hizo |
+|---|---|---|
+| `E-4` | 9 | Carpeta + cotización + convenio con la plantilla nueva |
+| `E-8` (1.ª vez, solo página 1) | 5 | Creó la solicitud, avisó al equipo, **no mandó nada a la empresa** |
+| `E-8` (2.ª vez, con archivo) | 9 | **Actualizó el mismo registro**, mandó el documento y encendió el candado |
+
+**La verificación que más sirvió:** correr `listKeys` sobre la cotización **generada**. Devolvió
+*"Selected document does not have any tag"* — o sea, **ningún marcador quedó sin resolver**. Es la
+forma más rápida y confiable de comprobar una plantilla: si el documento generado no tiene tags,
+todos los marcadores encontraron su valor.
+
+> **Regla:** después de generar un documento de prueba, correr `listKeys` sobre **el generado**, no
+> solo sobre la plantilla. Cero tags = todo resuelto. Cualquier tag que aparezca es exactamente el
+> que falta mandar desde Make.
+
+**El error que destapó.** El evento de prueba se dejó con `Cotizacion Doc ID` vacío y `Fase` en
+*"05 Cotización enviada"*. Después de `E-4` la fase **siguió en 05**, cuando debía haber pasado a
+*"03 Captura de datos"*. La expresión del arreglo de D-036 era:
+
+```
+if( 2.`Cotizacion Doc ID` = emptystring ; "03 Captura de datos" ; <conservar Fase> )
+```
+
+**Airtable omite los campos vacíos en su respuesta**, así que en Make el campo no llega como cadena
+vacía sino como *inexistente* — y `inexistente = emptystring` da **falso**. Es el mismo mecanismo de
+D-033, ahora mordiendo en una comparación en vez de en un paquete vacío.
+
+**Consecuencia real:** un evento recién creado por `E-1` no tiene `Cotizacion Doc ID`, así que en su
+primera captura **la fase se habría quedado en 01 en lugar de avanzar a 03**.
+
+**Arreglo:** comparar la longitud después de normalizar, que sí trata igual el vacío y el inexistente:
+
+```
+if( length(ifempty(2.`Cotizacion Doc ID`; "")) = 0 ; "03 Captura de datos" ; ifempty(2.Fase; "03 Captura de datos") )
+```
+
+> **Regla:** en Make, **nunca comparar un campo de Airtable contra `emptystring` directamente**. Usar
+> `length(ifempty(campo; "")) = 0`, o el operador `exist` / `notexist` en un filtro, que sí distinguen
+> bien. Queda pendiente revisar con este criterio los renglones "❌ Falta / ✅ Lista" del correo de
+> *"No se pudo mandar la cotización"* de `E-5`, que usan el mismo patrón y por eso pueden marcar como
+> lista una pieza que en realidad falta.
+
+---
+
+### D-047 · El botón sale del PDF, y la casilla de "Enviar cotización" tarda hasta una hora
+
+**19 de septiembre de 2026.** Dos cosas salieron de probar el envío de la cotización.
+
+**1. El botón del PDF se quita.** Observación del usuario, y es correcta: la liga del botón
+*Confirmar nuestro evento* en la página 2 **no puede llevar el folio**, porque Make reemplaza texto
+visible y no destinos de hipervínculo. Y como el formulario fiscal **no tiene una pregunta visible de
+folio**, la empresa tampoco podría corregirlo a mano — el envío se perdería y llegaría el aviso de
+"no sabemos de qué evento". El botón que funciona es el del correo, que sí lleva `hidden_record_id`
+y `hidden_folio`. En el documento se reemplaza por texto que remite al correo.
+
+> **Regla:** un documento generado por plantilla **no puede llevar ligas personalizadas**. Todo lo
+> que dependa de identificar al destinatario va en el correo, nunca en el PDF adjunto.
+
+**2. "No pasó nada" al marcar la casilla — y no era un error.** Las tres corridas de `E-5` (dos
+manuales y una automática) terminaron en **1 operación**: la búsqueda no encontró ningún evento con
+la casilla marcada. La casilla se marcó **después** de esas tres corridas, y la siguiente automática
+habría sido una hora más tarde. Disparado a mano después, `E-5` funcionó perfecto: fase 05, fecha de
+envío, los dos PDF en Drive y la casilla apagada sola.
+
+> **Lo que sí es un problema, aunque no sea un error:** una casilla que no hace nada visible durante
+> hasta una hora **se siente descompuesta**. Quien la marca no tiene forma de saber si quedó
+> registrada. Con el equipo que va a operar esto, la reacción natural va a ser marcarla otra vez, o
+> dar por hecho que no sirve.
+
+**Por qué es una encuesta cada hora y no un disparo instantáneo:** Airtable Free no tiene acción de
+webhook ni scripting, así que no hay forma de que Airtable le avise a Make en el momento. La única
+palanca es el intervalo, y cada corrida gasta una operación aunque no encuentre nada: **60 min = 24
+ops/día, 15 min = 96, 5 min = 288.** Queda pendiente que el usuario decida el intervalo contra su
+presupuesto de operaciones de Make.
+
+---
+
+### D-048 · Barrido de `= emptystring` en `E-5` y `E-8`
+
+**19 de septiembre de 2026.** Aplicada la regla de D-046 a los dos lugares donde la comparación
+contra `emptystring` daba un resultado engañoso:
+
+- **`E-5`, correo "No se pudo mandar la cotización":** los cuatro renglones *"❌ Falta / ✅ Lista"*
+  marcaban como **lista** la pieza que en realidad faltaba, porque Airtable omite los campos vacíos.
+  El correo cuyo único trabajo es decir qué falta decía justo lo contrario.
+- **`E-8`, aviso interno:** si el evento no tiene correo del coordinador, el aviso decía *"La empresa
+  ya tiene su documento"* en vez de avisar que no se le pudo mandar.
+
+Los dos ahora usan `length(ifempty(campo; "")) = 0`. Ninguno era un error de datos —el envío real
+siempre estuvo bien protegido por los filtros, que sí usan `exist`— pero ambos **le daban al equipo
+una instrucción falsa**, que en un sistema que operan personas no técnicas vale lo mismo que un error.
+
+---
+
+### D-049 · Se levanta la regla y se reconstruye el flujo de Asociaciones completo
+
+**19 de septiembre de 2026.** Ethan levantó la regla que tenía a `A-1`…`A-6` como solo lectura desde
+el 28 de agosto: *"haz todo lo necesario, te doy luz verde para modificar los escenarios y además
+quiero que los mejores"*. Se reconstruyeron **los siete escenarios** (A-1, A-2.1, A-2.2, A-3, A-4,
+A-5, A-6), conservando disparadores, horarios y el contenido de los correos a las asociaciones.
+
+**El error sistémico: ninguno tenía guarda de búsqueda vacía.** Los cinco escenarios semanales
+(`A-1`, `A-2.1`, `A-2.2`, `A-5`, `A-6`) arrancan con un `Search Records`. Cuando no encuentra nada
+—el caso normal en cuanto se procesan todas las asociaciones— Make entrega un paquete vacío y los
+módulos siguientes corren con los campos en blanco. Como sus rutas de alerta filtran por
+*"no existe correo"*, **un paquete vacío las activa siempre**: cada lunes salía una alerta con el
+nombre de la asociación en blanco, y detrás reventaba el update con `id` vacío. Es exactamente
+D-033, que se había corregido en Empresas pero nunca en Asociaciones. Ahora los siete llevan
+`{{N.id}} exist` en cada rama.
+
+**Errores propios de cada uno:**
+
+| Escenario | Lo que estaba mal |
+|---|---|
+| `A-1` | Un `split()` **sin separador** partiendo el rollup de correos; la arquitectura que el reporte de pruebas daba por buena (buscar en la tabla Contactos) nunca se aplicó. Además, si todos los contactos tenían el correo mal escrito, el candado *Promoción en proceso* se quedaba encendido y **la asociación desaparecía de las búsquedas para siempre**. |
+| `A-2.1` | Lo mismo del `split()`, y **no tenía ruta para correos con formato inválido**: se descartaban en silencio, sin avisar y dejando el candado encendido. |
+| `A-2.2` | Sin guarda: de ahí salieron las **2 ejecuciones incompletas** que arrastraba desde julio. Además el correo le decía al equipo que cambiara el estatus a *"Nuevo"*, **un valor que no existe** en el selector. |
+| `A-3` | Campos escritos por ID pero con `useColumnId: false`, que los manda como si fueran nombres; y el vínculo a la organización se enviaba como texto en vez de arreglo. |
+| `A-4` | Lo mismo de `useColumnId`; escribía con `urlParams.record_id` en vez del registro que la búsqueda ya había validado; **sin candado de idempotencia** (un reenvío creaba otra carpeta y otro convenio); y ponía la fase en *"Disponible"*, **que no existe**. |
+| `A-5` | La ruta de "faltan datos" solo revisaba la carpeta de Drive: si faltaba el documento o el correo, **no corría ninguna ruta y la asociación se saltaba en silencio**. |
+| `A-6` | Ponía la fase en *"Activa"*, **que no existe**, y como la búsqueda excluye otra fase distinta, el registro **volvía a calificar cada lunes**: habría reenviado la felicitación en bucle para siempre. |
+
+> **Regla nueva:** cuando un escenario escribe un valor fijo en un selector de Airtable, ese valor
+> tiene que existir. Tres de los siete escribían opciones inventadas (*Activa*, *Disponible*,
+> *Nuevo*). Con `typecast: false` eso revienta; con `typecast: true` crea una opción nueva en
+> silencio (D-039). Antes de escribir una fase, verificarla contra el esquema.
+
+**Mejoras que pidió y quedaron aplicadas:** todos los correos internos llevan ahora la etiqueta
+`[Sistema]` en el asunto, la estructura visual de D-030 (banda de aviso, qué pasó, detalles, y
+*Siguientes pasos* numerados), van a `voluntariadocorporativo@` **y** a `sistemas@`, y explican
+siempre si algo quedó guardado o no. De paso se corrigió el correo `voluntariocorporativo@` —sin
+"ad"— que aparecía en el pie de tres correos que van a asociaciones reales.
+
+**Campo nuevo:** `Org Record ID` en Contactos (`fldMjxtKW1pC6f1vG`), un lookup del `Record ID org` de
+la Organización. Permite buscar los contactos de una asociación de forma exacta, sin pasar por el
+rollup de correos unidos por coma.
+
+**Estado al cerrar:** los 16 escenarios del equipo quedaron `isinvalid: false`, activos y sin
+ejecuciones en espera. `A-2.2` conserva sus 2 ejecuciones incompletas históricas: **no se pueden
+borrar por API**, hay que descartarlas a mano desde el panel de Make.
+
+**Sin probar todavía:** los siete se reconstruyeron pero no se han ejecutado. Los cinco semanales
+corren solos el **lunes 21 a las 10 y 11 de la mañana** — conviene revisar los correos ese día.
+`A-4` sigue sin ejecutarse nunca desde que existe (julio), así que su primera corrida real será
+también su primera prueba.
+
+---
+
+## D-050 · El agregador vacío marcaba como enviado un correo que nunca salió
+
+**19 de septiembre de 2026.** Al probar `A-1` con una asociación cuyo **único** contacto tenía el
+correo mal escrito, el escenario la dejó marcada como `Promoción inicial enviada = true`, con la
+fecha de hoy — **y no mandó nada**.
+
+La causa es una conducta de Make que no estaba documentada aquí: un `BasicAggregator` cuyo feeder
+**sí produjo bundles, pero todos quedaron filtrados antes de llegar**, emite de todos modos **un
+bundle vacío**. Ese bundle dispara los módulos que van después. En `A-1` y en `A-2.1` el módulo que
+iba después era justamente el que marca la bandera de "ya se envió".
+
+**Por qué importa más de lo que parece:** la asociación queda marcada como contactada sin haberlo
+sido. En `A-1` eso la saca para siempre de la búsqueda (que exige `Promoción inicial enviada =
+FALSE()`) y la mete a la de `A-2.1`. En `A-2.1` la marca como "seguimiento enviado", lo que la
+empuja a `A-2.2`, que a los 20 días **la da por "Sin respuesta"** — una asociación descartada por no
+contestar un correo que nunca recibió. Se pierde en silencio, sin error y sin aviso.
+
+**El arreglo:** se quitó el agregador de los dos escenarios y el módulo que marca la bandera se pegó
+directo a la salida del módulo de Gmail. Así el update **solo existe si hubo envío**. El costo es que
+con varios contactos válidos el update corre una vez por contacto, escribiendo el mismo valor: dos o
+tres operaciones extra a la semana, irrelevante.
+
+> **Regla:** un agregador **no** es una garantía de que algo pasó río arriba. Si un módulo solo debe
+> correr cuando una acción tuvo éxito, va **colgado de esa acción**, no después de un agregador.
+
+Se descartó la alternativa de filtrar por `length(11.array) > 0` porque depende de cómo nombre Make
+la salida del agregador, y si esa suposición falla **el camino feliz también se rompe** — el modo de
+error opuesto y peor.
+
+---
+
+## D-051 · Recorrido de pruebas del flujo de Asociaciones
+
+**19 de septiembre de 2026.** Antes de disparar nada se revisaron los 41 registros de Organizaciones
+para ver a quién alcanzaría cada búsqueda. Hallazgo que habilitó todo lo demás: **la base no tiene
+correos de asociaciones externas reales** — casi todos son `sistemas+algo@` (direcciones con "+" que
+caen en la bandeja de sistemas) o dominios inventados. Se pudo probar sin escribirle a nadie de
+fuera.
+
+Se crearon ocho organizaciones `ZZ PRUEBA 19sep` con sus contactos, una por cada camino que había que
+cubrir. Resultados:
+
+| Escenario | Caso probado | Resultado |
+|---|---|---|
+| `A-1` | Contacto bueno + contacto malo | ✅ Mandó al bueno, avisó del malo, marcó la fecha |
+| `A-1` | **Solo** contacto malo | ❌ → ✅ Aquí salió D-050. Arreglado y re-probado |
+| `A-1` | Sin contacto / sin correo | ✅ Aviso interno, bandera roja, **sin** marcar enviado |
+| `A-2.1` | Seguimiento a los 5 días | ✅ Mandó y marcó |
+| `A-2.1` | **Solo** contacto malo | ❌ → ✅ Mismo D-050. Arreglado y re-probado |
+| `A-2.2` | Pasar a "Sin respuesta" a los 20 días | ✅ Con el valor real del selector |
+| `A-5` | Convenio revisado pero sin documento | ✅ Aviso "faltan datos", no marcó nada |
+| `A-5` | Búsqueda vacía | ✅ 1 operación, no dispara nada (candado D-033) |
+| `A-6` | Convenio firmado → fase final | ✅ Valor real del selector, y **ya no reincide** |
+
+`A-6` confirma que el bucle infinito quedó cerrado: al pasar a la fase final, el registro deja de
+calificar para la búsqueda.
+
+**Lo que no se pudo probar así:** `A-3` y `A-4` no se disparan por búsqueda sino por un evento
+externo — una cita de Calendly y un envío de formulario, respectivamente. Correrlos a mano da 1
+operación y 0 transferencia. Para cerrarlos hace falta agendar una cita de prueba y mandar el
+formulario de captura.
+
+**Pendiente de decisión — el aviso se repite cada lunes.** Tres asociaciones reales
+(*Albergue Nuevo Amanecer*, *Comedor Comunitario Manos Unidas*, *Casa Cuna Divina Providencia*) no
+tienen correo de contacto. Las búsquedas **no excluyen** la bandera roja `⚠️ Contacto con problema`,
+así que cada lunes vuelven a caer y vuelven a generar su aviso. El reintento es intencional —los
+correos lo prometen— pero el aviso repetido no: son tres correos por semana indefinidos, y así es
+como se deja de leer los avisos del sistema. Opciones: avisar solo la primera vez (agregar la
+bandera a la condición del módulo de correo, sin tocar la búsqueda, para que siga reintentando en
+silencio), o mandar un solo resumen semanal con todas las pendientes.
+
+**Datos de prueba:** las ocho organizaciones `ZZ PRUEBA 19sep` y sus contactos siguen en la base,
+pero se les quitó el campo `Tipo`, que todas las búsquedas exigen. Así no generan ruido el lunes y
+los resultados se pueden revisar. Borrarlos cuando ya no hagan falta.
