@@ -2434,3 +2434,89 @@ ambos lados y no estaban contemplados en D-027.
 > pregunta real no es *«¿están bien los números?»* sino *«¿vale la pena agregar los campos que
 > faltan?»*. Preguntarle a la empresa qué **tipo de actividad** quiere es una pregunta más en el
 > formulario interno, y habilitaría el criterio de 12 puntos de D-027.
+
+---
+
+## D-056 · E-10: confirmar pago, y por qué no hay botón de "pago rechazado"
+
+**23 de septiembre de 2026.** Cierra el Sprint 7. `E-10) Confirmar Pago (Empresas)` (**6386035**),
+diario 13:00.
+
+El pago es el único punto del flujo donde **una persona tiene que ver el banco**. El sistema no puede
+saber si el dinero entró, así que `E-10` no detecta pagos: procesa la afirmación de que alguien ya lo
+verificó. El botón es el campo `Confirmar pago` (`fldAQ9XBxaTczAuQ6`) en Eventos.
+
+Al marcarlo, en este orden: **(1)** le confirma a la empresa y le pide que defina la fecha del evento,
+**(2)** recién entonces mueve la fase a *06 Pago confirmado*, sella `Fecha de pago confirmado` y apaga
+el botón, **(3)** avisa a contabilidad. El orden es deliberado, por D-050: si el correo a la empresa
+falla, no se marca nada y el botón se vuelve a intentar mañana.
+
+**Decisiones de Ethan (23-sep):**
+- El aviso de contabilidad va a `voluntariadocorporativo@`, no al contador. El contador se entera
+  cuando se le pide el recibo, que es un paso aparte.
+- **Es el sistema quien le escribe a la empresa** para definir la fecha, no el equipo a mano. El
+  correo le recuerda la fecha tentativa que ya había dado y le pide confirmarla respondiendo.
+- **Si el depósito no cuadra, no pasa nada automático.** No hay botón de rechazo: simplemente no se
+  marca, el evento se queda en fase 05 y el equipo lo resuelve por fuera. Se descartó construir un
+  camino de rechazo porque nadie lo ha pedido y sería inventar proceso.
+
+Si el evento no tiene `Correo coordinador`, **no cambia de fase**, apaga el botón y avisa al equipo
+qué llenar. Las dos rutas probadas con datos demo.
+
+---
+
+## D-057 · Sprint 8 cerrado: el semáforo necesitaba una tabla, no un texto
+
+**23 de septiembre de 2026.** La tarea *«construir el semáforo por variable»* no se podía cumplir con
+el resultado que escribía `E-11`: un bloque de texto en un campo. Para pintar un semáforo —y sobre
+todo para poder **ponerle un botón a cada opción** en el correo de la empresa (Sprint 9)— hacen falta
+los **IDs de cada asociación**, y de un texto plano no se sacan.
+
+Por eso se creó la tabla **`Sugerencias de match`** (`tblw8rF4YTrZ9PrAq`): una fila por cada
+asociación candidata de cada evento, con su `Score` y una casilla por criterio (`Cupo OK`, `Mes OK`,
+`Municipio OK`, `Turno OK`, `Evento catalogo OK`). `E-11` ahora, además del resumen en texto, escribe
+esas filas.
+
+**El problema de recalcular** se resolvió con una ruta nueva **antes** de la del match: busca las
+sugerencias viejas de ese evento (por `Evento ID`, el mismo patrón de lookup que salvó a `A-1`) y las
+borra. Las rutas de un router corren en orden, así que la limpieza siempre termina antes de que
+empiece el cálculo. Verificado: dos corridas seguidas dejan 4 filas, no 8.
+
+**Botón `Buscar asociaciones`** (`fldiXRtbyysjDg2IG`): fuerza el recálculo de un evento aunque ya
+tenga sugerencias o no esté en fase 04. Se apaga solo en las tres rutas de `E-11`.
+
+Página nueva: **Semáforo del match** (`pagjckYBIIF14E5Ob`), agrupada por evento y ordenada por score.
+
+---
+
+## D-058 · Sprint 9 arrancado: la empresa elige con un clic
+
+**23 de septiembre de 2026.** Dos escenarios nuevos, probados de punta a punta con datos demo.
+
+**`E-12) Enviar Opciones de Asociacion a la Empresa`** (**6386121**), diario 14:00. Lo dispara el
+botón `Enviar opciones a la empresa` — deliberadamente **manual**: es un correo a alguien de fuera y
+el equipo debe revisar el semáforo antes. Toma las **3 mejores** sugerencias del evento (la búsqueda
+de Airtable ordena por `Score` y limita a 3, no hay que ordenar en Make) y arma un correo con una
+tarjeta por opción: afinidad, municipio, si cabe todo el equipo, el perfil de la asociación, y un
+botón.
+
+**`E-13) Eleccion de Asociacion`** (**6386103**), webhook instantáneo
+(`hook.us2.make.com/9zgjzqjl29j31o89qrhlrz09buapfyb4?e=<evento>&a=<asociacion>`). Al clic:
+vincula la asociación al evento, marca la sugerencia como `Elegida` y avisa al equipo. Tiene tres
+rutas: elección válida, *«esta jornada ya tenía asociación»* (no pisa una decisión previa) y *«liga
+inválida»*.
+
+**Probado:** se mandaron las opciones al evento demo de Logística Sierra, se simuló el clic sobre
+Red Verde, y la asociación quedó vinculada con su sugerencia marcada. El estado se dejó limpio para
+poder repetir la demo.
+
+> ⚠️ **Lo único que quedó a medias:** el navegador de quien da clic recibe el texto plano
+> `Accepted` en vez de la página de confirmación. El módulo `gateway:WebhookRespond` **sí corre**
+> (3 operaciones) pero deja la ejecución en *warning*, y Make devuelve su respuesta por defecto. Se
+> descartó que fuera el tipo del `status`. **La acción se registra correctamente** — es solo la
+> pantalla que ve la empresa. Para cerrarlo hace falta **leer el error del módulo en el panel de
+> Make**, igual que con D-054: la API de este MCP no lo expone.
+
+**Bloqueado por terceros:** el tipo de evento de la **segunda reunión en Calendly** lo tiene que crear
+Ethan; sin eso no se puede construir el escenario de la segunda cita ni sus pruebas (dos tareas del
+Sprint 9).
