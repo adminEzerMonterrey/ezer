@@ -2277,3 +2277,95 @@ silencio), o mandar un solo resumen semanal con todas las pendientes.
 **Datos de prueba:** las ocho organizaciones `ZZ PRUEBA 19sep` y sus contactos siguen en la base,
 pero se les quitó el campo `Tipo`, que todas las búsquedas exigen. Así no generan ruido el lunes y
 los resultados se pueden revisar. Borrarlos cuando ya no hagan falta.
+
+---
+
+## D-052 · Las dos escalas del sistema no coinciden — el match no puede comparar texto
+
+**23 de septiembre de 2026.** Al preparar el motor de match salió un problema de diseño que estaba
+escondido desde que se crearon las dos tablas: **los campos que el motor tiene que cruzar usan
+vocabularios distintos.**
+
+| Lo que pide la empresa (Eventos) | Lo que ofrece la asociación (Organizaciones) |
+|---|---|
+| `Número de asistentes`: 1-5, 6-10, 11-15, 16-20, 21-25, 26-30, 31-40, 41-50, 51-75, 76-100, Más de 100 | `Voluntarios que puede recibir`: 1-10, 11-20, 21-30, 31-40, 41-50, 50+ |
+| `Duración`: Jornada Matutina, Jornada Vespertina, Jornada Completa, Más de una jornada | `Horarios disponibles`: Mañana (8am - 1pm), Tarde (3pm a 7pm) |
+
+Comparadas como cadenas, de once contra seis valores **solo coincidirían dos** (*31-40* y *41-50*), y
+del horario **ninguno**. Un motor que compare texto daría casi siempre 0%, y peor: daría 0% de forma
+silenciosa, que es el modo de falla que este proyecto ya conoce.
+
+**El arreglo son tres campos calculados en Airtable**, no lógica en Make, para que el número sea
+visible en la interfaz y reutilizable:
+
+| Campo | Tabla | Qué hace |
+|---|---|---|
+| `Voluntarios tope` (`flddIiUlg51hIY9I0`) | Eventos | Tope numérico del rango que pidió la empresa |
+| `Capacidad tope` (`flduCGeMjOO69VV8F`) | Organizaciones | Tope numérico de lo que aguanta la asociación. `50+` → 999 |
+| `Turno requerido` (`fld1ezlPxMZruYsP0`) | Eventos | Traduce la jornada al vocabulario de la asociación |
+
+Verificados contra la data demo: 25, 15 y 100 de tope, y turnos *Mañana* y *Mañana y Tarde*.
+
+> **Regla:** antes de cruzar dos campos de tablas distintas, verificar que las opciones sean
+> idénticas. Si no lo son, **la conversión va en un campo calculado de Airtable**, no en una
+> expresión de Make. Ya estaba advertido en la descripción de `Beneficiarios de interés` y de
+> `Meses de interés` —ahí sí coinciden—, pero nadie lo revisó para capacidad y horario.
+
+---
+
+## D-053 · Pesos del match y por qué la causa es un candado, no un peso
+
+**23 de septiembre de 2026.** Primera versión de la fórmula de afinidad:
+
+**Candado (elimina, no resta):** la **causa**. Si la asociación no atiende ninguno de los
+beneficiarios que pidió la empresa, no es candidata. Se probó primero como peso de 35 puntos y el
+resultado fue inservible: asociaciones con la causa equivocada seguían saliendo con 50%, porque
+sumaban cupo, mes y turno. Una sugerencia con la causa equivocada no es una sugerencia mala, es una
+sugerencia **inválida**.
+
+**Los cinco pesos, sobre 100:**
+
+| Criterio | Peso | Por qué |
+|---|---|---|
+| Cupo suficiente | 30 | Restricción física: si no caben, no hay evento |
+| Mes compatible | 25 | Restricción de calendario, igual de dura |
+| Mismo municipio | 20 | Importa, pero Nuevo León es compacto y se puede ceder |
+| Turno compatible | 15 | Se puede negociar más que el mes |
+| Evento del catálogo en común | 10 | La señal más precisa, pero la menos frecuente |
+
+**Estos pesos son una decisión de negocio, no técnica.** Cambiarlos es una línea en el módulo 5 de
+`E-10`. Quedan a confirmación de Ana Cristina.
+
+---
+
+## D-054 · E-10 construido pero NO funcional — se entrega desactivado
+
+**23 de septiembre de 2026.** El escenario `E-10) Motor de Match` (**6385406**) está construido con
+la estructura completa —búsqueda de eventos en fase 04 con candado, búsqueda de candidatas,
+puntuación, agregación, ruta de "sin candidatas" y ruta de "al evento le faltan datos"— pero
+**todavía no escribe el resultado**. Se dejó **desactivado** para que no corra a las 9:00 en ese
+estado.
+
+**Lo que sí quedó probado:**
+- Las búsquedas funcionan: devuelven los 3 eventos demo y las 6 asociaciones demo (21 KB por corrida).
+- Las cláusulas del filtro se validaron una por una con campos temporales en Airtable: las 6 dan `PASA`.
+- `REGEX_MATCH({Sector de apoyo}&"", "Comedores|Migrantes")` funciona y devuelve el texto plano
+  `Niños, Educación`, así que el candado de causa por regex es viable.
+
+**Lo que falla:** los módulos que escriben en Airtable, después del agregador. Cada corrida deja
+exactamente **3 ejecuciones incompletas, una por evento**.
+
+**Hallazgo colateral:** un `util:SetVariables` colocado **antes** de un *Search Records* de Airtable
+dentro de una ruta de router hizo que la búsqueda devolviera cero registros (transferencia de 2.6 KB
+en vez de 21 KB). Al quitarlo, la búsqueda volvió a funcionar sin tocar nada más. No se identificó la
+causa; queda como algo a evitar.
+
+> **La limitación real del entorno:** `executions_get-detail` de este MCP devuelve únicamente
+> `{"status": "WARNING"}`. **No hay forma de ver qué módulo falla ni con qué error**, así que cada
+> hipótesis cuesta una corrida completa a ciegas. Para cerrar `E-10` hay que **abrir la ejecución en
+> el panel de Make y leer el error del módulo**. Con ese mensaje el arreglo es de minutos; sin él, es
+> adivinar.
+
+**Pendiente de limpieza:** borrar a mano los campos temporales `ZZ test regex` (`fld0BucDFjZCNxdXT`)
+y `ZZ test filtro` (`fldnUjAUJWtDyWO5q`) de Organizaciones, y descartar las 12+ ejecuciones
+incompletas de `E-10` desde el panel de Make — la API no permite ninguna de las dos cosas.
