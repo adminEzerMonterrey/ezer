@@ -2397,3 +2397,40 @@ sobreestima — falla hacia el lado seguro.
 **Pendiente de limpieza a mano** (la API no lo permite): borrar los campos temporales `ZZ test regex`
 (`fld0BucDFjZCNxdXT`) y `ZZ test filtro` (`fldnUjAUJWtDyWO5q`) de Organizaciones, y descartar las 15
 ejecuciones incompletas que dejó la depuración.
+
+---
+
+## D-055 · El motor es E-11, no E-10 — y tres criterios de D-027 no se pueden calcular
+
+**23 de septiembre de 2026.** Dos correcciones al cerrar el Sprint 7.
+
+**1. Nombre.** El escenario del motor se había creado como *«E-10) Motor de Match»*, pero el plan
+reserva **E-10 para la etapa de pago** (Sprint 7) y **E-11 para el motor** (Sprint 8). Renombrado a
+**`E-11) Motor de Match (sugerir asociaciones)`** (id 6385406). El hueco de `E-10` queda libre para
+el botón de *Confirmar pago*.
+
+**2. Tres de los siete criterios de D-027 no existen en la base.** D-027 aceptó siete criterios con
+pesos por defecto (causa 25, municipio 20, voluntarios 15, mes 15, actividad 12, presupuesto 8,
+accesibilidad 5). Al construirlo se descubrió que **solo cuatro son calculables hoy**:
+
+| Criterio de D-027 | ¿Se puede calcular? |
+|---|---|
+| Causa | ✅ Sí — `Beneficiarios de interés` ↔ `Sector de apoyo`. Pasó a ser candado (D-053) |
+| Municipio | ✅ Sí, en las dos tablas |
+| Voluntarios | ✅ Sí, ya normalizado (D-052) |
+| Mes | ✅ Sí, en las dos tablas |
+| **Actividad** | ❌ **No.** `Tipo de asistencia` existe en Organizaciones, pero **Eventos no tiene campo equivalente**: a la empresa nunca se le pregunta qué tipo de trabajo quiere hacer |
+| **Presupuesto** | ❌ **No.** No existe el campo en ninguna de las dos tablas |
+| **Accesibilidad** | ❌ **No.** No existe el campo en Organizaciones |
+
+Los dos últimos estaban como tarea del Sprint 2 del plan de Asociaciones (*«Agregar campos
+Cuota/Accesibilidad»*) y **nunca se hicieron**. La misma tarea incluía *«fórmula de conversión de
+rangos de voluntarios»*, que sí quedó resuelta hoy con D-052.
+
+En su lugar el motor usa **turno** (15) y **evento del catálogo en común** (8→10), que sí existen en
+ambos lados y no estaban contemplados en D-027.
+
+> **Lo que esto significa para la decisión de pesos:** cuando se validen con Ana Cristina, la
+> pregunta real no es *«¿están bien los números?»* sino *«¿vale la pena agregar los campos que
+> faltan?»*. Preguntarle a la empresa qué **tipo de actividad** quiere es una pregunta más en el
+> formulario interno, y habilitaría el criterio de 12 puntos de D-027.
