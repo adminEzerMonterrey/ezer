@@ -2338,34 +2338,62 @@ sugerencia **inválida**.
 
 ---
 
-## D-054 · E-10 construido pero NO funcional — se entrega desactivado
+## D-054 · E-10 funciona — y el error era un campo obligatorio invisible
 
-**23 de septiembre de 2026.** El escenario `E-10) Motor de Match` (**6385406**) está construido con
-la estructura completa —búsqueda de eventos en fase 04 con candado, búsqueda de candidatas,
-puntuación, agregación, ruta de "sin candidatas" y ruta de "al evento le faltan datos"— pero
-**todavía no escribe el resultado**. Se dejó **desactivado** para que no corra a las 9:00 en ese
-estado.
+**23 de septiembre de 2026.** El escenario `E-10) Motor de Match` (**6385406**) quedó **funcionando
+y activo**, corriendo todos los días a las 09:00.
 
-**Lo que sí quedó probado:**
-- Las búsquedas funcionan: devuelven los 3 eventos demo y las 6 asociaciones demo (21 KB por corrida).
-- Las cláusulas del filtro se validaron una por una con campos temporales en Airtable: las 6 dan `PASA`.
-- `REGEX_MATCH({Sector de apoyo}&"", "Comedores|Migrantes")` funciona y devuelve el texto plano
-  `Niños, Educación`, así que el candado de causa por regex es viable.
+**La causa de todo fue una sola:** el módulo `util:SetVariables` tiene un parámetro obligatorio
+llamado **`scope`** (*Variable lifetime*, valores `roundtrip` u `execution`) que está marcado como
+**advanced**, así que **no aparece en el esquema del módulo a menos que se pida explícitamente** con
+`includeAdvancedFields: true`. Al omitirlo, Make rechaza el escenario con
+*«Validation failed for 1 parameter(s). Missing value of required parameter 'scope'»*.
 
-**Lo que falla:** los módulos que escriben en Airtable, después del agregador. Cada corrida deja
-exactamente **3 ejecuciones incompletas, una por evento**.
+Lo engañoso es **dónde** se reporta: el error aparecía sobre el módulo de Airtable *anterior* al
+`SetVariables`, no sobre el `SetVariables` mismo. Eso mandó la depuración por cuatro caminos falsos
+—la expresión de ordenamiento, `length()` sobre texto indefinido, el filtro puesto sobre el
+agregador, y un `SetVariables` supuestamente incompatible con un *Search Records*—. Ninguno era el
+problema: al agregar `"scope": "roundtrip"` todo lo demás funcionó sin cambios, incluida la cadena
+`join(slice(reverse(sort(split(...)))))` que se había descartado por sospechosa.
 
-**Hallazgo colateral:** un `util:SetVariables` colocado **antes** de un *Search Records* de Airtable
-dentro de una ruta de router hizo que la búsqueda devolviera cero registros (transferencia de 2.6 KB
-en vez de 21 KB). Al quitarlo, la búsqueda volvió a funcionar sin tocar nada más. No se identificó la
-causa; queda como algo a evitar.
+> **Regla:** antes de usar un módulo de Make por primera vez, pedir su esquema con
+> **`includeAdvancedFields: true`**. Los campos *advanced* pueden ser obligatorios, y el error que
+> producen señala al módulo equivocado.
 
-> **La limitación real del entorno:** `executions_get-detail` de este MCP devuelve únicamente
-> `{"status": "WARNING"}`. **No hay forma de ver qué módulo falla ni con qué error**, así que cada
-> hipótesis cuesta una corrida completa a ciegas. Para cerrar `E-10` hay que **abrir la ejecución en
-> el panel de Make y leer el error del módulo**. Con ese mensaje el arreglo es de minutos; sin él, es
-> adivinar.
+> **Limitación del entorno, confirmada:** `executions_get-detail` de este MCP devuelve únicamente
+> `{"status": "WARNING"}` — no expone el módulo que falla ni su mensaje. El error real solo se vio
+> cuando Ethan abrió la ejecución en el panel de Make y pasó el texto. **Para cualquier fallo de un
+> escenario, el camino corto es leer el error en el panel**, no iterar a ciegas por API.
 
-**Pendiente de limpieza:** borrar a mano los campos temporales `ZZ test regex` (`fld0BucDFjZCNxdXT`)
-y `ZZ test filtro` (`fldnUjAUJWtDyWO5q`) de Organizaciones, y descartar las 12+ ejecuciones
-incompletas de `E-10` desde el panel de Make — la API no permite ninguna de las dos cosas.
+### Las cinco rutas, verificadas
+
+| Caso probado | Resultado |
+|---|---|
+| Cementos Regios (Comedores · Monterrey · 25 vol · Marzo · matutina) | `100% · Comedor Santa Rosa` — los cinco criterios ✓ |
+| Banca Regia (Niños/Educación · Guadalupe · 15 vol · Abril · completa) | `100% · Casa Hogar Estrella` |
+| Logística Sierra (M.Ambiente/Migrantes · Apodaca · 100 vol · Octubre) | `80% · Red Verde` (municipio ✗) y `60% · Albergue Paso del Norte` (cupo 40 vs 100 ✗), **ordenadas de mayor a menor** |
+| Empresa que pide *Discapacidad*, que ninguna asociación atiende | Escribe *«Sin candidatas»* explicando por qué |
+| Evento en fase 04 sin beneficiarios ni asistentes | No escribe nada y manda el aviso de datos faltantes |
+
+Los resultados coinciden exactamente con la matriz calculada a mano antes de construirlo.
+
+### Cómo queda operando
+
+- Corre **diario a las 09:00**. En vacío cuesta **1 operación**.
+- El **candado** es el propio campo `Sugerencias de asociación`: si tiene texto, no se recalcula. Para
+  volver a calcular, el equipo **borra el texto** y al día siguiente aparece de nuevo. El mensaje lo
+  dice en la primera línea.
+- El orden se logra rellenando el porcentaje con **espacios** (no ceros) para que el orden
+  alfabético coincida con el numérico sin que se lea `080%`.
+
+### Limitación conocida de esta versión
+
+El cruce de **mes** y de **evento del catálogo** compara solo el **primer** valor que eligió la
+empresa, no todos. Si una empresa marca tres meses, se evalúa el primero. Se hizo así a propósito:
+las funciones de conjuntos de Make (`merge` / `distinct`) no se comportaron como se esperaba y no hay
+forma de inspeccionarlas desde la API. Con varios meses el motor subestima la afinidad, nunca la
+sobreestima — falla hacia el lado seguro.
+
+**Pendiente de limpieza a mano** (la API no lo permite): borrar los campos temporales `ZZ test regex`
+(`fld0BucDFjZCNxdXT`) y `ZZ test filtro` (`fldnUjAUJWtDyWO5q`) de Organizaciones, y descartar las 15
+ejecuciones incompletas que dejó la depuración.
