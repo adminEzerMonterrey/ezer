@@ -2274,6 +2274,9 @@ como se deja de leer los avisos del sistema. Opciones: avisar solo la primera ve
 bandera a la condición del módulo de correo, sin tocar la búsqueda, para que siga reintentando en
 silencio), o mandar un solo resumen semanal con todas las pendientes.
 
+> **Resuelto el 26-sep (D-060):** se tomó la primera opción — el aviso sale solo la primera vez y
+> la asociación se sigue revisando en silencio cada lunes.
+
 **Datos de prueba:** las ocho organizaciones `ZZ PRUEBA 19sep` y sus contactos siguen en la base,
 pero se les quitó el campo `Tipo`, que todas las búsquedas exigen. Así no generan ruido el lunes y
 los resultados se pueden revisar. Borrarlos cuando ya no hagan falta.
@@ -2520,3 +2523,932 @@ poder repetir la demo.
 **Bloqueado por terceros:** el tipo de evento de la **segunda reunión en Calendly** lo tiene que crear
 Ethan; sin eso no se puede construir el escenario de la segunda cita ni sus pruebas (dos tareas del
 Sprint 9).
+
+> **Actualización 26-sep:** lo del `Accepted` quedó resuelto y el tipo de evento de la segunda
+> reunión ya existe. Ver D-059.
+
+---
+
+## D-059 · Cierre de los sprints 7, 8 y 9 — lo que faltaba y lo que estaba mal
+
+**25 y 26 de septiembre de 2026.** Ethan pidió dejar los sprints 7, 8 y 9 terminados y probados a
+fondo, tomando las decisiones necesarias y documentándolas. Antes de construir lo que faltaba se
+revisó todo lo que ya se daba por hecho, escenario por escenario y contra los datos reales. Salieron
+**once problemas**, cinco de ellos serios. Todos quedaron corregidos y probados.
+
+### Resumen de hallazgos
+
+| # | Dónde | Problema | Gravedad |
+|---|---|---|---|
+| 1 | `E-13` | La elección se registraba **con solo abrir la liga**. Viola D-028: los filtros de seguridad de correo corporativo abren las ligas solos, y con tres botones el primero ganaría siempre | 🔴 Alta |
+| 2 | `E-13` | El navegador recibía `Accepted` en vez de la página. Causa: **procesamiento secuencial** | 🟠 Media |
+| 3 | `A-3` | Con la segunda reunión como tipo de evento nuevo, `A-3` la habría procesado **como si fuera una asociación**: marcar la empresa como "Reunión agendada" o crear una asociación falsa | 🔴 Alta |
+| 4 | `E-11` | El candado de **causa** solo comparaba el primer valor de cada lado: sacaba asociaciones válidas | 🔴 Alta |
+| 5 | `E-11` | Una asociación con **una jornada ya cerrada** quedaba fuera del match para siempre (`Empresa vinculada` nunca se vacía) | 🔴 Alta |
+| 6 | `E-11` | En el texto de sugerencias, **100% aparecía después de 70%** | 🟡 Baja |
+| 7 | `E-11` | Si al evento le faltaban datos, el aviso se **repetía en cada corrida** | 🟠 Media |
+| 8 | `E-11` | En el flujo real (pago → match) el motor **nunca corría solo**: solo miraba la fase 04 | 🟠 Media |
+| 9 | Airtable | Las páginas **Semáforo del match, Conectar asociación y Cobranza y comprobantes no existían**: todos los botones de los avisos internos llevaban a una página vacía | 🔴 Alta |
+| 10 | `E-10`…`E-13` | Los avisos decían `Empresa: recqTIWEJlugAP7Iv` — el ID, no el nombre | 🟡 Baja |
+| 11 | `E-10` | "Confirmar pago" marcado fuera de fase 05 se quedaba marcado para siempre, sin aviso | 🟠 Media |
+
+### 1 y 2 · `E-13`: abrir la liga ya no guarda nada, y la página sí llega
+
+**Rediseño.** El botón del correo de opciones ahora abre una **página de confirmación** con el
+nombre, municipio y perfil de la asociación y un botón *"Sí, elegir esta asociación"*. Ese botón
+manda un `POST` con `confirmar=si` al mismo webhook, y **solo entonces** se vincula la asociación.
+Abrir la liga diez veces no escribe nada — verificado en Airtable. Esto es exactamente lo que D-028
+pedía y lo que la primera versión no cumplía.
+
+**Rutas del escenario** (una variable `estado` decide cuál corre):
+
+| Estado | Qué ve la empresa | Qué se escribe |
+|---|---|---|
+| `invalida` (ID de evento o asociación que no existe, o una organización que no es asociación) | "No pudimos leer su elección" | Nada |
+| `otra` (el evento ya tenía otra asociación) | "Esta jornada ya tenía asociación: X. No cambiamos nada" | Nada |
+| `misma` (doble clic, recargar la página) | "Su elección ya estaba registrada" + siguiente paso | Nada |
+| `libre` y sin confirmar | Página de confirmación | Nada |
+| `libre` y confirmado | "¡Listo! Su jornada será con X" + siguiente paso | Asociación, `Asociacion elegida en`, sugerencia `Elegida`, aviso al equipo, correo a la empresa |
+
+**El `Accepted`.** Con `sequential: true`, Make **encola** la petición y contesta `Accepted` de
+inmediato; cuando el escenario por fin corre, el módulo *Webhook response* ya no tiene a quién
+contestarle (de ahí el *warning*). Se comprobó con tiempos: la respuesta llegó a las 05:29:58 y la
+ejecución empezó a las 05:30:00. Con `sequential: false` la página llega completa y las ejecuciones
+terminan en éxito limpio (status 1, antes 2).
+
+> **Regla:** un escenario con *Webhook response* **no puede** tener procesamiento secuencial.
+
+El precio es que dos confirmaciones simultáneas ya no se forman en fila. Se aceptó: con la página de
+confirmación, un doble envío requiere dos clics humanos en el mismo segundo, el botón se deshabilita
+al primer clic, y si pasa, la segunda cae en la ruta `misma`.
+
+**Seguridad de la liga.** Los IDs que llegan en la liga se limpian con
+`replace(…; "/[^A-Za-z0-9]/g"; emptystring)` antes de meterlos en una fórmula de Airtable; un
+intento de inyección (`e=x", TRUE()) & "`) cae en "liga inválida". Y la asociación se valida contra
+`{Tipo} = "Asociación"`: con el ID de una empresa, también "liga inválida".
+
+**Siguiente paso según el pago.** Si el evento ya tiene `Fecha de pago confirmado`, la página y el
+correo a la empresa traen el botón **Agendar la segunda reunión** con su liga personal. Si no, dicen
+que la liga llegará al confirmar el pago (así se respeta D-044: el pago destraba la fecha).
+
+### 3 · `A-3` habría tomado las segundas reuniones por reuniones de asociación
+
+El filtro de D-021 excluía **solo** el nombre exacto de la primera reunión de Empresas. Cualquier
+otro tipo de evento de Empresas —la segunda reunión ahora, el curso de sensibilización después— lo
+habría procesado como asociación. Se cambió a:
+
+```
+{{if(contains(3.name; "(Empresas)"); "empresas"; "asociaciones")}}  =  "asociaciones"
+```
+
+Sigue fallando **abierto** como pedía D-021 (cualquier nombre sin "(Empresas)" pasa), y se evitó el
+operador de filtro `text:contains` que D-021 encontró roto: aquí `contains()` es la función de IML.
+Verificado con una reserva real de la segunda reunión (`A-3` la filtró en 2 operaciones) y
+evaluando la expresión con los tres nombres de tipo de evento.
+
+> **Regla:** todo tipo de evento de Calendly del lado de Empresas debe llevar `(Empresas)` en el
+> nombre. Así `A-3` lo ignora solo, sin volver a editarlo.
+
+### 4 a 8 · `E-11`: el motor
+
+**Cruce por conjuntos.** Causa, mes y evento del catálogo ahora comparan **todos** los valores de
+ambos lados:
+
+```
+length(merge(A; B)) > length(distinct(merge(A; B)))   →   hay al menos un valor en común
+```
+
+D-054 había descartado `merge`/`distinct` pensando que no funcionaban; el problema real de ese día
+era el parámetro `scope`. Se probaron aislados antes de usarlos (con listas que sí y que no
+coinciden, y con un campo vacío). Efecto medido con el caso M1 (pide *Adultos Mayores + Vivienda
+Digna*, meses *Enero + Septiembre*):
+
+| Asociación | Lógica vieja | Lógica nueva |
+|---|---|---|
+| Manos de Mujer (*Mujeres + Vivienda Digna*) | **Excluida** (causa ✗) | **100%** |
+| Centro de Día (*Adultos Mayores*, meses sep–dic) | 45% (mes ✗) | **70%** (mes ✓) |
+
+La limitación que D-054 dejó documentada ("solo compara el primer mes") queda cerrada.
+
+**Asociaciones ocupadas.** Antes se descartaba toda asociación con `Empresa vinculada`, un rollup
+que acumula **todos** sus eventos, incluidos los cerrados: tras su primera jornada una asociación no
+se volvía a sugerir nunca. Ahora se usa `Eventos activos` (rollup nuevo en Organizaciones, suma de
+`Evento activo` de Eventos, que vale 0 en fases 09, 10, Cancelado e Inactivo). Probado: al cerrar el
+evento M5, Casa Hogar volvió a aparecer para Banca Regia.
+
+**Orden.** El truco de rellenar con espacios de D-054 no sobrevive: Make se come los espacios
+iniciales y `"100"` queda antes que `"70"` al ordenar como texto. El resumen ahora se arma desde una
+búsqueda de `Sugerencias de match` **ordenada por `Score` en Airtable**, así que además coincide
+exactamente con el semáforo.
+
+**Aviso repetido.** La ruta "faltan datos" ahora escribe un candado en `Sugerencias de asociación`
+("Faltan datos al DD/MM…"). Verificado: la segunda corrida ya no lo vuelve a mandar.
+
+**Fase 06.** El cálculo automático corre para eventos en **fase 04 o 06** sin sugerencias y sin
+asociación. La fase 04 se conserva por compatibilidad, pero el orden real del proceso (C-1) es pago →
+match, y el evento llega al match en 06 por `E-10`. Verificado de punta a punta: P1 pasó a 06 con
+`E-10` y en la siguiente corrida `E-11` le sugirió Albergue Paso del Norte al 100%, sin que nadie
+marcara nada.
+
+### 9 · Las tres páginas que no existían
+
+`list_pages_for_base` (con borradores incluidos) no devolvía `pagjckYBIIF14E5Ob`,
+`pagFKs0XOZ9pjjqAW` ni `pag5lYsOSaNjuBihG`: los IDs de los correos no correspondían a nada. Eso
+dejaba sin hacer tres tareas del Sprint 8. Se crearon y publicaron en **Empresas — Panel**:
+
+| Página | ID | Qué tiene |
+|---|---|---|
+| **Cobranza y comprobantes** | `pagIuANfpnWl9lxkR` | Eventos en fase 05/06, pestañas "Por confirmar pago" / "Pago confirmado", comprobante, fecha de transferencia y la casilla **Confirmar pago** editable |
+| **Conectar asociación (match)** | `pagpGwbZ2FsdFuIGK` | Eventos en fase 04/06/07, pestañas "Sin asociación" / "Con asociación", lo que pidió la empresa, la casilla **Buscar asociaciones** (el botón del Sprint 8), las sugerencias, **Enviar opciones a la empresa**, la asociación, su fecha de elección y la segunda reunión |
+| **Semáforo del match** | `pagODgSS0pf6tiBKZ` | `Sugerencias de match` agrupadas por evento, ordenadas por score, con una columna ✓/✗ por criterio y filtro por evento |
+
+Todos los correos internos de `E-9` a `E-14` apuntan ya a estos IDs.
+
+### 10 · Make ve los vínculos de Airtable como IDs
+
+Verificado en el banco de pruebas: `{{join(1.Organización; ", ")}}` devuelve `recqTIWEJlugAP7Iv`.
+Se crearon dos campos de consulta en Eventos, **`Empresa nombre`** y **`Asociacion asignada nombre`**,
+y todos los correos tocados en este cierre los usan.
+
+> **Regla:** para mostrar el nombre de algo vinculado, crear un campo de consulta (lookup) con
+> nombre ASCII y usar ese. Un campo de vínculo solo sirve para escribir y para contar.
+
+### `""` no borra un campo de Airtable desde Make
+
+Al probar la cancelación de la segunda reunión, `E-14` mandó `""` para vaciar la fecha y el campo
+**no cambió** (el módulo omite los valores vacíos). La palabra reservada **`{{erase}}`** sí lo vacía
+— probado aislado. Las casillas con `false` sí funcionan, por eso no había salido antes.
+
+> **Regla:** para vaciar un campo de texto, fecha o vínculo desde Make, usar `{{erase}}`, nunca
+> `""`.
+
+### La segunda reunión (Sprint 9)
+
+- **Tipo de evento creado desde Make** (`calendly:createEventType`, no hizo falta esperar a Ethan):
+  *Segunda Reunión Ezer Voluntariado (Empresas)*, 60 min, Google Meet, en español.
+  `https://calendly.com/voluntariadocorporativo-ezer/segunda-reunion-ezer-voluntariado-empresas`.
+  Calendly limita el nombre a 55 caracteres.
+- **`Liga segunda reunion`** (fórmula en Eventos): la liga con `utm_content=<ID del evento>` y el
+  nombre y correo del coordinador precargados. La mandan `E-13` y `E-10`; el equipo también la puede
+  copiar desde el panel.
+- **`E-14) Segunda Reunion Agendada (Empresas)`** (6410235, webhook de Calendly propio 2860363 con
+  `invitee.created` **e** `invitee.canceled`). Empareja por `utm_content` y, si no viene, por
+  `Correo coordinador` en un evento que ya tenga asociación. Guarda `Fecha segunda reunion`, confirma
+  a la empresa y avisa al equipo. Si la empresa **cancela**, borra la fecha solo si es la que estaba
+  guardada y avisa con la liga para reagendar. Si **reprograma**, ignora la cancelación porque la
+  reserva nueva ya actualiza la fecha.
+- Numeración: el plan le daba a este sprint `E-11/E-12/E-13`, pero `E-12` y `E-13` ya se usaron para
+  el envío y el clic. La segunda reunión queda como **`E-14`**, y los escenarios de los sprints 10 a
+  12 se recorren un número (`E-15` en adelante).
+
+### Guardas nuevas en `E-10`, `E-12` y `E-9`
+
+- **`E-10`**: tercera ruta para "Confirmar pago" fuera de fase 05. Apaga la casilla y explica por
+  qué, distinguiendo si el pago ya estaba confirmado. El correo a la empresa ya no dice "nosotros
+  elegimos la asociación": explica que recibirán opciones para elegir, y si el evento ya tiene
+  asociación trae el botón de la segunda reunión. **Se conservó la decisión de Ethan del 23-sep**:
+  el correo sigue pidiendo confirmar la fecha tentativa respondiendo.
+- **`E-12`**: si el evento **ya tiene asociación** no le manda opciones a la empresa (se habría
+  topado con "ya tenía asociación") y avisa al equipo. El correo explica que el botón abre una
+  página para confirmar.
+- **`E-9`**: el aviso interno decía "Empresa:" con el nombre del coordinador; ahora trae ambos, dice
+  qué casilla marcar y lleva a Cobranza. Si el folio no existe, el aviso incluye **la liga para
+  descargar el comprobante**, que antes se perdía. Se quitó el procesamiento secuencial (no hay
+  carrera posible) para que una ejecución atorada no congele los comprobantes siguientes (D-033).
+  El folio se limpia con `/[^A-Z0-9-]/g`.
+
+### Frecuencia: cada hora en horario laboral
+
+`E-10`, `E-11` y `E-12` pasaron de **una vez al día** a **cada hora, lunes a viernes de 8:00 a
+20:00**. Una casilla que tarda hasta 24 horas en hacer algo se siente descompuesta (D-047). En vacío
+cada corrida cuesta 1 operación: ~860 operaciones al mes entre los tres, sobre un tope de 10,000 (el
+ciclo actual va en ~1,900).
+
+### Pruebas
+
+Datos de prueba: empresa `ZZ PRUEBA 26sep · Constructora Norte S.A.` y eventos `ZZ PRUEBA 26sep ·
+M1…M6, P1, P4, P5, C1`, todos con correos `sistemas+prueba.*@`. Las reservas de Calendly se hicieron
+con el API de Calendly desde Make y se cancelaron al terminar.
+
+| Escenario | Caso | Resultado |
+|---|---|---|
+| `E-13` | ID inexistente / sin parámetros / inyección / ID de una empresa | ✅ "Liga inválida", nada escrito |
+| `E-13` | Abrir la liga dos veces | ✅ Página de confirmación, **nada escrito** |
+| `E-13` | Confirmar sin pago | ✅ Vincula, sella, marca sugerencia, 2 correos (11 ops); "le llegará la liga al confirmar el pago" |
+| `E-13` | Confirmar con pago | ✅ Igual + botón de Calendly con su liga personal |
+| `E-13` | Doble clic / otra asociación después | ✅ "Ya estaba registrada" / "ya tenía asociación", nada escrito |
+| `E-13` | Datos solo en el cuerpo del POST | ✅ Los lee por el respaldo `ee`/`aa` |
+| `E-14` | Reserva con liga personal | ✅ Fecha guardada, 2 correos (7 ops); `A-3` y `E-2` la ignoraron |
+| `E-14` | Reserva sin liga (por correo del coordinador) | ✅ Encontró el evento |
+| `E-14` | Cancelación | ❌→✅ `""` no borraba; con `{{erase}}` sí |
+| `E-14` | Reserva sin expediente | ✅ Solo aviso al equipo (5 ops) |
+| `E-11` | Causa múltiple (M1) | ✅ 100% y 70%, en ese orden |
+| `E-11` | Faltan datos (M2) | ✅ Aviso una sola vez |
+| `E-11` | Sin candidatas (M3) | ✅ Texto y aviso |
+| `E-11` | Con asociación (M5) / sin pago (M6) | ✅ No se calculan |
+| `E-11` | Botón Buscar asociaciones | ✅ Recalcula sin duplicar filas y se apaga |
+| `E-11` | Asociación con jornada cerrada | ✅ Vuelve a ser candidata |
+| `E-11` | Corrida en vacío | ✅ 1 operación |
+| `E-12` | Cuatro eventos en una corrida (envío, ya con asociación, sin sugerencias, sin correo) | ✅ 15 ops, cada uno por su ruta, sin mezclar opciones |
+| `E-10` | Cinco eventos (normal, con asociación, sin correo, ya confirmado, fase 03) | ✅ 13 ops, cada uno por su ruta |
+| `E-10`→`E-11` | Pago confirmado sin tocar nada más | ✅ El motor lo tomó solo en la siguiente corrida |
+| `E-9` | Folio inexistente (repetición de la ejecución del 15-sep) | ✅ Aviso, nada escrito |
+| `E-9` | Limpieza del folio (minúsculas, espacios, comillas) | ✅ Encuentra el evento |
+| Cadena completa | M1: opciones → confirmación → segunda reunión | ✅ |
+
+**Lo que no se pudo probar aquí:** la ruta buena de `E-9` con un envío de Fillout de verdad. Make
+transforma el envío con un formato propio que no se pudo reproducir a mano (dos intentos cayeron en
+"folio no encontrado"). Esa ruta no cambió de lógica y ya se probó con un envío real el 15-sep
+(D-035); falta **un envío real** con el folio `COT-20260926-ZJAC` para cerrarla.
+
+### Decisiones que se tomaron sin consultar (para revisión)
+
+1. `E-13` con página de confirmación, no un clic directo (D-028).
+2. `E-13` sin procesamiento secuencial.
+3. La liga de la segunda reunión solo se manda con el pago confirmado (D-044).
+4. Una asociación se descarta del match **solo mientras** tenga una jornada pendiente.
+5. `E-10`, `E-11` y `E-12` cada hora de lunes a viernes, 8–20.
+6. Segunda reunión de **60 minutos**, en español, por Google Meet.
+7. Numeración `E-14` para la segunda reunión.
+8. El motor también corre en fase 06.
+
+### Pendientes que solo se pueden hacer a mano
+
+- **Descartar la ejecución incompleta de `E-14`** (la del intento con `""`) en el panel de Make.
+- **Ocultar** el tipo de evento de la segunda reunión en Calendly ("secret") para que no aparezca
+  en la página pública; la API no lo permite. No es grave: si alguien reserva desde ahí, `E-14`
+  avisa "sin expediente".
+- Borrar el escenario temporal `ZZ Banco de pruebas IML` y los registros `ZZ PRUEBA 26sep` cuando
+  ya no hagan falta.
+
+---
+
+## D-060 · Auditoría de los 20 escenarios — lo que se corrigió y lo que falta
+
+**26 de septiembre de 2026.** Con los sprints 7–9 cerrados (D-059), Ethan pidió usar el resto de la
+sesión en probar todos los sprints y reportar qué falta en cada uno. Se revisaron los **20 escenarios
+activos** (`E-1`…`E-14`, `A-1`…`A-6`) blueprint por blueprint, contra los datos reales de Airtable,
+las preguntas y opciones reales de los cinco formularios de Fillout y los tipos de evento de Calendly.
+Salieron **27 problemas** (uno era la decisión pendiente de D-051); todos quedaron corregidos y, salvo los que dependen de un envío real de
+Fillout, probados. El reporte por sprint está en `Documentos/reporte-pruebas-sprints.html`.
+
+Ningún escenario tiene ejecuciones fallidas desde el 12-sep (revisado uno por uno). `A-4` **nunca ha
+corrido** desde que se construyó: por eso sus errores no habían salido.
+
+### Resumen de hallazgos
+
+| # | Dónde | Problema | Gravedad |
+|---|---|---|---|
+| 1 | `E-2` | Con dos eventos de la misma empresa en fase 01, emparejaba **por correo aunque la liga traía el ID del evento**: podía agendar el evento equivocado | 🔴 Alta |
+| 2 | `E-2` | Una reserva nueva **regresaba a 02** un evento que ya iba más adelante | 🔴 Alta |
+| 3 | `E-2` | "Emparejado por" comparaba contra `emptystring` | 🟡 Baja |
+| 4 | `E-5` | El ❌/✅ del aviso "faltan datos" volvió a comparar contra `emptystring`: el arreglo de D-048 se había perdido | 🟠 Media |
+| 5 | `E-5` | Las fechas del correo **a la empresa** salían en inglés | 🟠 Media |
+| 6 | `E-5` | El candado `Cotizacion en proceso de envio` se encendía pero **nunca se revisaba** | 🟠 Media |
+| 7 | `E-6` | Le decía *"no hemos tenido noticias suyas"* a empresas que **ya habían mandado sus datos fiscales**; y con `= 7` un día sin corrida se saltaba el seguimiento para siempre | 🔴 Alta |
+| 8 | `E-7` | Procesamiento secuencial (una ejecución atorada congelaba los siguientes formularios); el aviso "no encontrado" perdía la liga del archivo | 🟠 Media |
+| 9 | `A-4` | Leía el municipio de una pregunta **que no existe** en el formulario | 🔴 Alta |
+| 10 | `A-3` | `formatDate(…; "es")` daba nombres **en inglés y hora UTC** en tres correos (a la asociación y al equipo) | 🔴 Alta |
+| 11 | `A-5` | La línea "Empresa asignada" del aviso interno salía siempre "—" | 🟡 Baja |
+| 12 | `A-6` | El correo **a la asociación** decía *"Ya los vinculamos con la empresa aliada"* en vez del nombre de la empresa | 🟠 Media |
+| 13 | `A-5`, `A-6` | Mandaban a la lista cruda de correos del rollup: **un correo mal escrito hacía fallar el envío** y el convenio quedaba con el candado encendido | 🔴 Alta |
+| 14 | `A-2.2` | Las instrucciones para reactivar una asociación olvidaban desmarcar "Seguimiento 5 días enviado" | 🟡 Baja |
+| 15 | `E-3` | Un registro **sin correo**, o uno que `E-3` no vio entre el día 5 y el 19, se quedaba en 01 **para siempre** sin que nadie se enterara | 🟠 Media |
+| 16 | `E-3` | El recordatorio decía "30 minutos"; la reunión dura **45** (verificado en la API de Calendly) | 🟡 Baja |
+| 17 | `E-3` | Filtros sin `{{1.id}} exist` (regla de D-033) | 🟡 Baja |
+| 18 | `E-1` | Procesamiento secuencial: una sola ejecución atorada **congelaba todos los registros nuevos** | 🟠 Media |
+| 19 | `E-1` | Todos los eventos nuevos se llamaban igual ("Registro general") | 🟡 Baja |
+| 20 | `E-4` | La fecha estimada llegaba a la cotización y al convenio en formato `2026-10-15` | 🟠 Media |
+| 21 | `E-4` | El formulario ofrece **"Carmen"** y Airtable tiene **"El Carmen"**: con *typecast* se crearía una opción nueva y el match por municipio fallaría | 🟠 Media |
+| 22 | `A-4` | Los eventos del catálogo llegan **con el número al frente** ("1 - Niños, …"): se crearían 45 opciones nuevas y el criterio de catálogo del match **nunca coincidiría** | 🔴 Alta |
+| 23 | `A-4` | La opción **"Todos"** de meses se guardaría como un mes más | 🔴 Alta |
+| 24 | `A-4` | Reenviar el formulario **regresaba la fase** a "Registrada sin asignación": el lunes siguiente `A-6` le volvía a mandar *"¡Ya están activos!"* a la asociación | 🔴 Alta |
+| 25 | `A-4` | `contacto_id` sin respaldo si no venía en la liga | 🟡 Baja |
+| 26 | `A-1`, `A-2.1` | Pendiente de D-051: las asociaciones **sin correo** generaban el mismo aviso **cada lunes, para siempre** | 🟠 Media |
+| 27 | `E-8` | El correo del recibo **a la empresa** decía *"agendamos el evento y les confirmamos la asociación"*: desde D-059 la empresa recibe opciones y elige | 🟡 Baja |
+
+### Cómo se corrigió cada uno
+
+**`E-2` (1–3).** La búsqueda ahora deja que la liga mande:
+`IF(utm != "", RECORD_ID() = utm, AND(<correo coincide>, OR(LEFT({Fase},2)="01", {Fase}="Inactivo")))`.
+La fase solo pasa a 02 si venía de 01 o Inactivo. Probado con dos reservas reales.
+
+**`E-5` (4–6).** ❌/✅ con `length(ifempty(…; "")) = 0`; fechas del correo con el mapeo a español;
+el filtro de envío exige el candado apagado y hay una **ruta 15, "Candado de envío atorado"**, que
+avisa al equipo si la casilla de envío está marcada con el candado encendido. Las cuatro rutas se
+probaron, más un envío real; `listKeys` confirmó que no quedan marcadores sin reemplazar.
+
+**`E-6` / `E-7` (7–8).** Campo nuevo en Eventos, **`Datos fiscales recibidos en`**, que `E-7` sella
+cuando la empresa manda el formulario fiscal de ese evento. Fórmula de `E-6`:
+`AND(LEFT({Fase},2)="05", {Dias desde cotizacion enviada}>=7, NOT({Seguimiento cotizacion enviado}),
+{Datos fiscales recibidos en}=BLANK(), NOT({Comprobante recibido}), LEN(ARRAYJOIN({Recibos}))=0)`.
+`E-6` y `E-7` sin procesamiento secuencial. Probado.
+
+**`A-4` municipio (9).** El ID correcto es `wTUyGp3kTg7DsjHYWG2619` (sale del RPC `metadata`, D-034).
+
+**`A-3` fechas (10).** Día y mes con `get(split("lunes,…"; ","); formatDate(d; "E"; "America/Monterrey"))`
+y la hora con `formatDate(d; "HH:mm"; "America/Monterrey")`. Reserva de regresión: 7 operaciones, bien.
+
+**`A-5`, `A-6` correos (11–13).** Dos campos nuevos:
+
+- **`Correo válido`** (Contactos, fórmula): repite el correo solo si pasa
+  `^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$`.
+- **`Correos válidos de contacto`** (Organizaciones, rollup): `ARRAYJOIN(ARRAYCOMPACT(values), ",")`.
+
+`A-5` y `A-6` mandan a `split(Correos válidos de contacto; ",")` y deciden la ruta con ese campo. Si
+una asociación solo tiene correos rotos, el aviso interno lo dice y muestra el correo mal escrito.
+`A-1` y `A-2.1` no se tocaron: ya iban contacto por contacto con la misma expresión regular.
+
+**`E-3` (15–17).** `Accion E3` ahora da `recordar` desde el día 5 **sin tope**, `avisar sin correo`
+(aviso interno una sola vez, marca la casilla para que a los 20 días se inactive normal) o
+`inactivar`. Ya no hay registros que se queden en 01 sin que nadie lo sepa. El aviso de inactivación
+dice si hubo recordatorio o no había correo, y recuerda que si la empresa agenda después, `E-2` la
+retoma (busca también en Inactivo).
+
+**`E-1` (18–19).** Sin procesamiento secuencial. Riesgo aceptado: si dos registros llegan en el mismo
+segundo, el turno Mia/Adri puede repetirse. El nombre del evento es ahora
+`"<evento> · <empresa>"`, p. ej. *Registro general · Constructora Norte*. Probado con un registro
+sin empresa: 11 operaciones, organización con el nombre de la persona, evento bien nombrado.
+
+**`E-4` (20–21).** `Fecha_Estimada` como `DD/MM/AAAA` partiendo el texto, sin `formatDate`, para que
+la zona horaria no la recorra un día; si viene vacía, "Por definir". "Carmen" se traduce a "El Carmen"
+antes de guardar. `E-4` **conserva** el procesamiento secuencial a propósito: protege contra un doble
+envío del formulario, que duplicaría carpeta y documentos.
+
+**`A-4` (22–25).** Catálogo con `split(replace(join(…; ";;"); "/\d+ - /g"; ""); ";;")` y meses con la
+expansión de "Todos", las dos idénticas a `E-4`. La fase solo pasa a "Registrada sin asignación" si
+la asociación **todavía no tiene convenio**; si ya lo tiene, se queda donde iba y el aviso de
+"formulario reenviado" lo dice. `contacto_id` cae a la respuesta oculta `xd7g` si no viene en la liga.
+
+**`A-1`, `A-2.1` — aviso una sola vez (26, cierra la decisión pendiente de D-051).** Se tomó la
+primera opción que D-051 proponía: la ruta "sin correo" solo manda el aviso si la bandera
+`⚠️ Contacto con problema` está apagada (`{{if(2.`⚠️ Contacto con problema`; "si"; "no")}} = "no"`).
+La búsqueda **no** cambió, así que la asociación se sigue revisando cada lunes en silencio y, en
+cuanto alguien le agrega un correo, recibe la invitación y la ruta buena apaga la bandera. Solo se
+aplicó a la ruta "sin correo": en las rutas por contacto el aviso va seguido de la escritura que
+apaga el candado de envío, y filtrarlo dejaría el candado encendido. Probado: las tres asociaciones
+reales sin correo ya no generan aviso (1 operación); una asociación nueva sin correo recibe el aviso
+la primera vez (3 operaciones) y la segunda corrida es silenciosa (1 operación).
+
+**`E-8` (27).** Solo texto: *"En cuanto nos llegue su comprobante, les mandamos las opciones de
+asociación beneficiaria para que ustedes elijan, y con eso agendamos juntos la fecha del evento."* El
+aviso interno dice lo mismo y nombra la casilla **Confirmar pago**. La línea *Titular: EZER A.B.P.* no
+se tocó: depende de la decisión pendiente sobre la razón social (D-041, D-044).
+
+### Verificación de opciones: formulario contra Airtable
+
+Se leyó la definición pública de cada formulario (solo lectura) y se comparó cada pregunta de
+opciones con el campo de Airtable al que llega con *typecast*:
+
+| Formulario | Pregunta | Resultado |
+|---|---|---|
+| Captura Asociación (`kHq663qYssus`) | Días, horarios, tipo de asistencia, cupo, municipio | ✅ Idénticas |
+| | Eventos del catálogo | ❌→✅ Traían número; ahora se limpia |
+| | Meses | ❌→✅ Traía "Todos"; ahora se expande |
+| Captura Empresa (`tPVivQZG99us`) | Voluntarios, duración, responsable, beneficiarios | ✅ Idénticas |
+| | Catálogo (ya se limpiaba) y meses (ya se expandía) | ✅ |
+| | Municipio | ❌→✅ "Carmen"; ahora se traduce |
+| Calendly Asociaciones | Sector (9 opciones) | ✅ Idénticas; las 3 preguntas son obligatorias, así que leer por posición es seguro |
+
+### Reglas nuevas
+
+> **`join()` sobre un rollup devuelve vacío.** Make recibe el rollup como texto: `X[1]` devuelve el
+> texto completo y `join(X; ", ")` devuelve `""`. Sobre un **lookup** `join` sí funciona. Para
+> mostrar un rollup, usar `X[1]`.
+
+> **Para escribirle a los contactos de una asociación**, usar `Correos válidos de contacto` con
+> `split(…; ",")`, nunca el rollup crudo `Correo del contacto principal`.
+
+> **Toda pregunta de opciones de Fillout que llegue a un selector con *typecast* debe tener las
+> mismas opciones que Airtable.** Si el formulario agrega algo (numeración, "Todos"), se limpia en
+> Make. Comprobarlo cada vez que se edite un formulario.
+
+> **`formatDate` sin tercer parámetro usa la zona del escenario (−06:00)**; el tercer parámetro es
+> zona horaria, no idioma. Para nombres en español, `get(split("enero,…"; ","); formatDate(d; "M"))`.
+
+> Los operadores `&` (y), `+` (concatenar texto), `map()` y `remove()` funcionan en IML (probados).
+
+### Pruebas de hoy
+
+| Escenario | Caso | Resultado |
+|---|---|---|
+| `A-5` | Asociación con un correo válido y uno roto | ✅ PDF, Drive, correo solo al válido, fase "Convenio enviado", candado apagado (7 ops) |
+| `A-5` | Asociación con solo un correo roto | ✅ Aviso interno, nada escrito |
+| `A-6` | Las dos anteriores con convenio firmado | ✅ Felicitación con el nombre real de la empresa / aviso interno; ambas activadas |
+| `E-1` | Registro sin empresa | ✅ 11 ops, evento "Registro general · ZZ PRUEBA 26sep E1c Sin Empresa", Adri |
+| Banco IML | `join` sobre rollup y lookup, `&`, `+`, `split` de correos, fecha DD/MM, limpieza de catálogo, "Todos", fase de `A-4` | ✅ Todos |
+| Calendly | Duración de las dos primeras reuniones | ✅ 45 min |
+| `A-1` | Tres asociaciones reales sin correo, ya avisadas | ✅ Sin aviso (1 op) |
+| `A-1` | Asociación nueva sin correo, dos corridas | ✅ Aviso la primera (3 ops), silencio la segunda (1 op) |
+| `A-2.1`, `A-2.2` | Corrida con los cambios | ✅ 1 op cada una, sin avisos repetidos |
+| Todos | Ejecuciones fallidas desde el 12-sep | ✅ Ninguna |
+
+Se sumaron a las del mismo día antes de este bloque: `E-1` por los dos caminos y la alternancia de
+turno, `E-2` con dos reservas reales tras el arreglo, las cuatro rutas de `E-5` y un envío real,
+`E-6`, la regresión de `A-3`, y las rutas "no encontrado" de `E-7` y `E-9` repitiendo ejecuciones
+viejas.
+
+### Lo que no se pudo probar
+
+La ruta buena de **`E-7`, `E-8`, `E-9` y todo `A-4`** solo se prueba con un envío real de Fillout: Make
+transforma el envío con un formato propio (D-059) y el intento de llenarlos con el navegador
+automatizado **quedó bloqueado por permisos al tratar de enviar un formulario**, y no se forzó. Los
+cambios de hoy a `E-4` se probaron en el banco de pruebas, no con un envío real.
+
+### Decisiones tomadas sin consultar (para revisión)
+
+1. `E-1` sin procesamiento secuencial; `E-4` lo conserva.
+2. Nombre de evento `"<evento> · <empresa>"`.
+3. `E-3` manda el recordatorio desde el día 5 sin tope y avisa al equipo si no hay correo.
+4. `A-5` y `A-6` solo le escriben a correos bien escritos.
+5. Fecha estimada como `DD/MM/AAAA` en cotización y convenio.
+6. "Carmen" se guarda como "El Carmen".
+7. Reenviar el formulario de `A-4` ya no cambia la fase de una asociación que ya tiene convenio.
+8. El aviso de "asociación sin correo" sale una sola vez (D-051, opción 1).
+
+### Pendientes nuevos que solo se pueden hacer a mano
+
+- **Fillout, los cinco formularios:** poner el idioma en **español** (hoy dicen *Submit*, *Drag & drop*)
+  y el formato de fecha en **DD/MM/AAAA** en los tres que tienen fecha (`E-4`, `E-8`, `E-9`). Con el
+  formato actual, una empresa que escribe `05/10/2026` pensando en el 5 de octubre registra el
+  **10 de mayo**.
+- **Fillout `tPVivQZG99us`:** cambiar la opción "Carmen" por "El Carmen" (Make ya lo corrige, pero
+  así el formulario y Airtable quedan iguales).
+- **Calendly, reunión de Empresas:** la única pregunta sigue en inglés (*"Please share anything that
+  will help prepare for our meeting."*).
+- **Envíos reales de Fillout** para cerrar `A-4`, `E-7`, `E-8` y `E-9` (ver el reporte).
+- **Borrar los datos `ZZ PRUEBA`** antes del **1 de octubre**: ese día `E-3` les mandaría el
+  recordatorio de agenda a los registros de prueba. La lista exacta está en el reporte.
+
+---
+
+## D-061 · Sprints 11, 12 y 13: del evento al cierre, y la prueba de punta a punta
+
+**26 de septiembre de 2026.** Ethan pidió construir y probar los sprints 11, 12 y 13 y sumarlos al
+reporte de pruebas. Quedaron **siete escenarios nuevos** (`E-19` a `E-25`), dos páginas nuevas en el
+panel, el correo del contador en Config, el barrido de manejadores de error y un **recorrido de punta
+a punta** con un evento nuevo, desde el registro en el sitio hasta la reactivación a los 5 meses.
+El Sprint 10 (curso, ficha técnica, Calendar, materiales y registro de voluntarios) **no se pidió y
+no se construyó**.
+
+### Numeración
+
+El plan le daba al Sprint 11 `E-18 a E-21` y al 12 `E-22 a E-27`, empalmados con el Sprint 10
+(`E-15 a E-18`). Para que el Sprint 10 conserve sus números cuando se construya, los nuevos arrancan
+en **`E-19`**:
+
+| Escenario | ID Make | Qué hace | Cuándo corre |
+|---|---|---|---|
+| `E-19` Recordatorios 7/3/1 días | 6415761 | Correo a la empresa (copia a voluntariado), a la asociación y checklist interno | Diario 08:00 |
+| `E-20` Día del evento | 6415791 | Crea la carpeta de fotos (pública de solo lectura) y manda el aviso del día con los 3 QR de feedback | Diario 07:30 |
+| `E-21` Feedback web | 6415807 | Página propia (webhook 2862083) con el formulario de empresa, asociación o participante | Al abrir la liga o el QR |
+| `E-22` Día siguiente | 6415826 | El correo único de feedback + fotos a la empresa (D-009) y el de la asociación; pasa a 09 | Diario 10:00 |
+| `E-23` Cierre | 6415837 | Reporte de impacto con la foto destacada adjunta; pasa a 10 Cerrado | Diario 10:30 |
+| `E-24` Reactivación | 6415844 | A los 5 meses del cierre invita a la empresa a otra jornada | Diario 11:00 |
+| `E-25` Cancelaciones | 6415861 | Casillas *Cancelar evento* y *Asociacion cancelo* (correos #15 y #16) | Cada hora, L–V 8–20 |
+
+### Sprint 11 — deslinde, acompañante, llamada y recordatorios
+
+- **Deslinde (decisión).** Mientras el abogado no diga si la firma electrónica le sirve a EZER, la
+  carta se firma **en papel el día del evento**. El acompañante marca **Deslindes firmados
+  recibidos** al tener todas. En **Config** hay una celda nueva, **Liga carta de deslinde**: vacía, el
+  recordatorio de 7 días avisa que se firmará al llegar; con liga, el recordatorio la incluye para que
+  la traigan firmada. **No poner ahí el borrador.** La firma en línea queda para el registro de
+  voluntarios (alcance nuevo, ver la memoria de `registro-voluntarios-firma`).
+- **Acompañante:** campo **Acompanante EZER** (puede ser distinto del Responsable). Si faltan 7 días o
+  menos y está vacío, el checklist de `E-19` lo marca con ❌.
+- **Llamada de confirmación (C-7):** casilla **Llamada de confirmacion hecha**, **Llamada hecha por**,
+  **Notas de la llamada** y **Llamada registrada en** (fecha y hora automáticas). Con la cuenta
+  compartida (D-005) Airtable no sabe quién marcó, por eso se pide el nombre.
+- **Recordatorios por ventanas, no por día exacto:** 7 = faltan 4 a 7 días, 3 = faltan 2 a 3,
+  1 = faltan 0 a 1. Si un día no corre Make, el recordatorio sale al día siguiente en lugar de
+  perderse. Un recordatorio cuya ventana ya pasó **no se manda** (un "3" pendiente no sale el día del
+  evento; verificado en el blueprint).
+- **Reprogramar = cambiar la Fecha confirmada.** `Fecha de recordatorios` guarda para qué fecha se
+  mandaron; si la fecha cambia, `Recordatorios pendientes` vuelve a contar y salen para la fecha
+  nueva. `E-19` también apaga **Aviso del dia enviado**, para que `E-20` vuelva a avisar el día nuevo
+  (la API no permite borrar campos, así que se resolvió escribiendo `false`).
+- **Lugar:** si **Lugar del evento** está vacío se usa la dirección de la asociación, y el checklist
+  lo advierte con ⚠️.
+
+### Sprint 12 — feedback, fotos, cierre, reactivación, cancelaciones y panel
+
+- **Feedback con página propia, no con Fillout (decisión).** Una liga por evento y tipo
+  (`?e=<evento>&t=empresa|asociacion|participante`), con su QR. Abrirla no guarda nada; solo el botón
+  Enviar. Acepta respuestas de eventos en fase **06 a 10**; cualquier otra fase, un tipo inválido o un
+  ID manipulado muestran *"Esta encuesta no está disponible"*. El texto se limpia antes de guardarse y
+  se escapa (`<` → `&lt;`) en el aviso interno. Una calificación baja llega al equipo marcada como
+  alerta. Se prefirió a Fillout porque con Fillout no se puede probar un envío sin una
+  persona (D-059) y porque cada evento necesita su liga y su QR.
+- **Fotos:** la carpeta se crea **el día del evento** dentro de la carpeta del evento, compartida como
+  "cualquiera con la liga puede ver". Las fotos las sube el equipo con la cuenta de voluntariado.
+- **Día siguiente (`E-22`):** si ya hay fotos, manda; si la carpeta está vacía espera **hasta 2
+  días** y luego manda de todos modos con la liga de la carpeta. Un solo correo a la empresa
+  (feedback + fotos + liga para reenviar a sus voluntarios), como pide D-009.
+- **Cierre (`E-23`):** necesita **Voluntarios asistentes** y **Horas por voluntario**. Cierra en
+  cuanto la empresa contesta su encuesta, o a los 7 días del correo de feedback aunque no conteste.
+  Si a los 2 días faltan las cifras, se las pide al equipo **una sola vez**. La **Foto destacada** va
+  como archivo adjunto (las ligas de Airtable caducan).
+- **Reactivación (`E-24`):** a los 5 meses del cierre. Si la empresa ya organiza otra jornada, no le
+  escribe, pero marca la casilla para no volver a revisarla.
+- **Cancelaciones (`E-25`):**
+  - *La empresa cancela:* pasa a **Cancelado**, sella **Cancelado en**, confirma a la empresa y, si
+    había asociación, le avisa con cuidado (correo #15).
+  - *La asociación se baja:* se quita del evento, se anota en **Asociaciones que cancelaron**, se
+    marca **Buscar asociaciones** y le avisa a la empresa que buscamos reemplazo (correo #16). La fase
+    no cambia. `E-11` ya **no vuelve a sugerir** a esa asociación para ese evento (filtro nuevo en su
+    módulo 4). A la asociación que se bajó **no se le escribe**: eso lo hace el equipo por teléfono.
+  - *Casos inválidos* (evento ya realizado, cerrado o cancelado; o "asociación canceló" sin asociación):
+    no cambia nada, apaga la casilla y le explica al equipo por qué.
+- **Panel:** páginas nuevas **Logística y cierre del evento** (`paghsKCLgkCoFHaxk`) y **Feedback de los
+  eventos** (`pag6RH2M9EAHzMf2P`), publicadas, con el filtro por Responsable arriba (D-005).
+
+### Sprint 13 — cierre general
+
+- **Correo del contador en Config.** `E-7` y `E-8` lo leen de la celda **Correo del contador**; para
+  cambiarlo ya no hay que tocar Make. Hoy sigue el provisional `ethan.rivera@udem.edu`.
+- **Barrido de manejadores de error**, los 28 escenarios activos: todos los módulos que escriben o mandan
+  tienen manejador y guarda `{{id}} exist` (D-033). Una sola corrección: **`E-2` tenía el
+  procesamiento secuencial encendido**; se apagó para que una ejecución atorada no congele las
+  reservas siguientes. `E-4` y `E-5` lo **conservan a propósito** (un doble envío duplicaría
+  documentos o cotizaciones). Hallazgos aceptados, sin cambio:
+  - `E-6` manda el correo antes de marcar la casilla: si fallara el aviso interno, la empresa podría
+    recibir el recordatorio dos veces. Se prefirió eso a arriesgar que no lo reciba nunca.
+  - `E-2` solo escucha reservas nuevas: si la empresa **cancela la primera reunión**, nadie se entera
+    por el sistema. Pendiente para una versión siguiente.
+  - `E-14` conserva una ejecución incompleta vieja (ya reportada en D-059): se descarta a mano.
+- **Liga del formulario de captura.** Al escribir el manual salió que el equipo tenía que **armar a
+  mano** la liga del formulario interno (`tPVivQZG99us?record_id=<ID>`): el aviso de `E-2` solo
+  decía "hay que llenar el formulario". Campo nuevo **Liga formulario de captura** (fórmula) y botón
+  *📝 Llenar formulario de captura* en el aviso "📅 Reunión agendada". Probado con una reserva real
+  (6 ops); la fase de un evento ya cerrado no cambió.
+
+### Prueba de punta a punta (26-sep, 23:17–23:27)
+
+Evento **`rec0Bqk031hjZOnDG`** *"ZZ E2E 26sep · Pintemos la Escuela (Grupo Prueba Integral)"*, empresa
+`recVyu2zXxZhiAuwO`, asociación nueva `recGixIVej0CvEvWv` con perfil a la medida. Todos los correos
+externos fueron a `sistemas+e2e@` y `sistemas+e2e.asoc@`.
+
+| # | Paso | Cómo se disparó | Resultado |
+|---|---|---|---|
+| 1 | `E-1` Registro | POST al webhook, igual que el sitio | ✅ Organización, contacto y evento en 01; responsable Mia; folio `COT-20260926-ONDG` (11 ops) |
+| 2 | `E-2` 1ª reunión | Reserva real en Calendly con la liga personal | ✅ Fase 02 y fecha de reunión |
+| 3 | `E-4` Captura | **Simulado**: mismos campos que el formulario + carpeta y documentos con las mismas plantillas, desde el banco de pruebas | ✅ Carpeta, cotización y convenio |
+| 4 | `E-5` Cotización | Casilla *Enviar cotización* | ✅ Fase 05, dos PDF en Drive, correo con adjuntos (9 ops) |
+| 5 | `E-7`, `E-9` | **Simulados**: datos fiscales y comprobante escritos a mano | — |
+| 6 | `E-10` Pago | Casilla *Confirmar pago* | ✅ Fase 06 y fecha (4 ops) |
+| 7 | `E-11` Match | Corrida | ✅ Asociación E2E al 100%, una DEMO al 25% (16 ops) |
+| 8 | `E-12` Opciones | Casilla *Enviar opciones* | ✅ Correo con botones y fecha (7 ops) |
+| 9 | `E-13` Elección | GET (solo página) y POST del botón | ✅ La página no escribe; el POST asignó la asociación con sello |
+| 10 | `E-14` 2ª reunión | Reserva real con la liga personal | ✅ Fecha guardada; `E-2` no tocó la 1ª reunión |
+| 11 | `E-19` | Fecha confirmada a 7 días, luego a 1 día | ✅ Recordatorio 7 (fase 08) y recordatorio 1 |
+| 12 | `E-20` | Fecha = hoy | ✅ Carpeta de fotos pública y aviso del día (9 ops) |
+| 13 | `E-21` | Tres POST del formulario | ✅ Tres feedbacks, promedio 4.7 |
+| 14 | `E-22` | Fecha = ayer, una foto en la carpeta | ✅ Correo de feedback + fotos, fase 09 (14 ops) |
+| 15 | `E-23` | Cifras de impacto y foto destacada | ✅ 10 Cerrado, 140 horas, foto adjunta (19 ops) |
+| 16 | `E-24` | Fecha de cierre movida 5 meses atrás | ✅ Correo de reactivación y candado (5 ops) |
+
+Las dos citas de Calendly se cancelaron al terminar. El turno de responsable en Config se regresó a
+**Adri**, que es como estaba.
+
+### Pruebas por escenario (antes del recorrido)
+
+| Escenario | Casos | Resultado |
+|---|---|---|
+| `E-19` | Matriz R1–R12: 7 días completo, 5 días sin datos, 3 sin llamada, 1 con llamada, es hoy, reprogramado, fuera de ventana, fase 05, cancelado, 7 ya enviado, ya pasó, sin correo ni asociación | ✅ 46 ops la primera corrida; la segunda solo revisó, sin repetir envíos (18 ops) |
+| `E-20` | R5 es hoy | ✅ Carpeta abre sin sesión; QR es una imagen real (9 ops) |
+| `E-21` | Sin parámetros, tipo inválido, fase 05, inyección, sin estrellas, las tres encuestas, `<b>` en comentario, calificación 2 con valor raro en "repetir" | ✅ Todas; a 390 px el formulario se lee bien |
+| `E-22` | F1 carpeta vacía ayer (espera), F2 con fotos, F3 vacía hace 2 días (manda), F4 cancelado, F5 ya enviado, R11 | ✅ 29 ops, cada uno por su regla |
+| `E-23` | CE2 7 días sin encuesta (cierra), CE3 sin cifras (pide datos una vez), CE4 esperando encuesta, R5 con foto | ✅ 26 y 13 ops |
+| `E-24` | RA1 con otra jornada (omite), RA2 a los 5 meses (manda), RA3 a los 2 meses (excluido) | ✅ 7 ops |
+| `E-25` | CA1 la empresa cancela con asociación y pago; M1 la asociación se baja; CE2 cancelar un evento cerrado; R12 "asociación canceló" sin asociación | ✅ 20 ops; `E-11` recalculó M1 sin la asociación que se bajó |
+| `E-7` | Repetición de una ejecución vieja, leyendo el contador de Config | ✅ 4 ops |
+
+### Limpieza
+
+Los escenarios diarios corren **también en fin de semana**. Para que el domingo 27 no tomaran los datos
+de prueba, los **33 eventos `ZZ PRUEBA 26sep` activos** se pasaron a **Cancelado** con una nota en
+*Motivo de cancelacion* (ningún escenario busca esa fase). Excepciones: el evento de `E-4`
+(`rec9XfKFJFVXAnjP1`, fase 02) y C1 (`recAABdGhWyDAzJAc`, fase 05, con su seguimiento marcado como
+enviado), que siguen listos para las pruebas reales de Fillout. La asociación del E2E quedó en
+*Sin respuesta* para que el motor no la sugiera a eventos reales. **Se dejaron para revisión: hay que
+borrarlos después de las pruebas de Fillout.**
+
+### Decisiones tomadas sin consultar (para revisión)
+
+1. Numeración `E-19` a `E-25`; `E-15` a `E-18` quedan para el Sprint 10.
+2. Deslinde en papel el día del evento hasta que opine el abogado; liga opcional en Config.
+3. Feedback con página propia de Make en lugar de tres formularios de Fillout.
+4. Recordatorios por ventanas (4–7, 2–3, 0–1 días) y reprogramación automática al cambiar la fecha.
+5. El recordatorio a la empresa lleva copia a voluntariado.
+6. Carpeta de fotos creada el día del evento, pública de solo lectura.
+7. `E-22` espera fotos hasta 2 días.
+8. `E-23` cierra con la encuesta de la empresa o a los 7 días; pide las cifras una sola vez.
+9. `E-24` no le escribe a una empresa con otra jornada en curso.
+10. A la asociación que se baja no se le escribe; `E-11` la excluye solo de ese evento.
+11. Correo del contador leído de Config.
+12. `E-2` sin procesamiento secuencial; `E-4` y `E-5` lo conservan.
+13. Datos de prueba neutralizados como Cancelado en lugar de borrados.
+14. Campo *Liga formulario de captura* y botón en el aviso de `E-2`.
+
+### Pendientes nuevos
+
+- **Sprint 10** completo (no se pidió).
+- **`E-2`: cancelación de la primera reunión** sin manejar.
+- **Envíos reales de Fillout** para `A-4`, `E-4`, `E-7`, `E-8` y `E-9` (sin cambios desde D-060).
+- **Correo real del contador** en Config.
+- **Abogado:** deslinde y firma electrónica.
+- **Sesión de capacitación** con el equipo (guía lista en `Documentos/`).
+
+---
+
+## D-062 · Envíos reales de Fillout: E-7 no encontraba el evento, y limpieza de pruebas
+
+**9 de octubre de 2026.** Ethan hizo los cinco envíos reales pendientes desde D-059/D-060. A-4, E-4,
+E-8 y E-9 quedaron bien a la primera (El Carmen, meses completos, recibo ligado, comprobante con fecha
+08/10 leída como 8 de octubre). **Con E-9 se cierra el Sprint 9.**
+
+**E-7 falló, y el fallo era de producción.** El primer envío cayó en "no sabemos de qué evento".
+La RPC `fillout/metadata` (D-034) muestra que el formulario fiscal `u9LzXxXhVous` declara sus
+parámetros de URL como **`record_id`** y **`folio`**, no `hidden_record_id` / `hidden_folio`. El
+botón *Confirmar nuestro evento* del correo de E-5 mandaba los nombres `hidden_…`: **toda empresa real
+que llenara sus datos fiscales desde el correo habría caído en el aviso de error.** Con la liga
+`?record_id=…&folio=…` el segundo envío corrió completo y selló *Datos fiscales recibidos en*.
+
+**Corrección.** El botón de E-5 ahora manda los dos juegos (`record_id`, `folio`, `hidden_record_id`,
+`hidden_folio`): funciona con lo que declare el formulario hoy y si alguien lo cambia. E-7 ya leía
+`urlParams.record_id`, no se tocó. E-6 no lleva liga.
+
+> **Regla:** antes de armar una liga a un formulario de Fillout, leer con la RPC `metadata` el nombre
+> exacto de sus `urlParams`. El nombre del campo oculto (`answers.hidden_x`) no es el nombre del
+> parámetro de la URL.
+
+**Limpieza.** Borrados de Airtable: 39 eventos `ZZ PRUEBA 26sep` / `ZZ E2E` / `Registro…` de prueba,
+3 sugerencias de match, 6 feedbacks, el recibo `COT-20260926-ZJAC`, 10 organizaciones y 8 contactos de
+prueba. Se conservan los registros `DEMO ·` y el evento de Grupo Industrial Regiomontano (agosto).
+Queda a mano: borrar el escenario `ZZ Banco de pruebas IML` (6410147) — el borrado por API fue
+bloqueado por permisos —, el campo `ZZ borrar - diagnostico plantillas` (la API no borra campos), el
+recibo huérfano `COT-20260915-PTVS` (prueba del 15-sep, sin evento) si se confirma que es de prueba,
+y las carpetas de Drive y la tarea de Google Tasks del reporte.
+
+---
+
+## D-063 · Sprint 10: ficha técnica, calendario, materiales y registro de voluntarios
+
+**11 de octubre de 2026.** Ethan pidió construir el Sprint 10 decidiendo yo las dudas. Quedaron
+**cuatro escenarios nuevos** con los números reservados en D-061, una tabla nueva y 14 campos en
+Eventos. Todos activos y probados con el evento `recbyI1qwm12V7WlN` *"ZZ PRUEBA S10"* (correos a
+`sistemas+s10@` y `sistemas+s10.asoc@`).
+
+| Escenario | ID Make | Qué hace | Cuándo corre |
+|---|---|---|---|
+| `E-15` Ficha técnica | 6593916 | Casilla **Generar ficha tecnica** → Google Doc en la carpeta del evento + correo a la empresa (con la liga de registro), a la asociación y al equipo. Si faltan datos, apaga la casilla y avisa qué falta. Pasa 06 → **07 Curso** | Cada hora, L–V 8–20 |
+| `E-16` Calendario | 6593927 | Manda invitación **.ics** (evento + curso, si aplica) a empresa, asociación y sistemas@. Si cambian fecha, horario, lugar o curso, manda la actualizada (mismo UID, SEQUENCE+1); si el evento se cancela, manda la cancelación | Cada hora, L–V 8–20 |
+| `E-17` Materiales | 6593934 | Recordatorio de **Materiales** a empresa y asociación, con cuántos voluntarios van registrados, una vez entre 10 y 1 días antes | Diario 09:00 |
+| `E-18` Registro de voluntarios | 6593949 | Página propia (webhook 2922096) por evento: nombre, celular, correo, menor + tutor, contacto de emergencia, salud y aceptación de datos. Guarda en la tabla **Voluntarios** | Al abrir la liga |
+
+### Decisiones tomadas sin consultar (para revisión)
+
+1. **Curso de sensibilización sin Calendly.** El plan decía "tipo de evento y agendado"; C-6 dice que
+   la fecha del curso se acuerda **en la segunda reunión**. Un tercer tipo de Calendly habría pedido a
+   la empresa agendar otra vez algo ya acordado. Se capturan **Fecha del curso** y **Lugar del curso**
+   en Airtable y salen en la ficha y en la invitación de calendario (2 h por defecto).
+2. **Calendar por invitación .ics, no por el módulo de Google Calendar.** La conexión de Google de
+   Make no tiene permiso de Calendar (403 *insufficient scopes*) y reautorizarla exige que Ethan entre
+   con OAuth. El .ics llega como invitación normal (botón "Sí / Agregar"), sirve para Outlook también
+   y se actualiza o cancela solo. Si más adelante se quiere el evento en un calendario de EZER, basta
+   reautorizar la conexión con Calendar y añadir un módulo a `E-16`.
+3. **Horario leído del texto** de *Horario del evento* (`9:00 a 13:00`). Si no tiene dos horas
+   reconocibles, la invitación es de **día completo** en lugar de fallar.
+4. **Ficha técnica como Google Doc generado desde HTML**, no desde plantilla con marcadores: no hay
+   plantilla aprobada y D-031 mostró lo frágiles que son los marcadores. Se puede editar en Drive.
+   Volver a marcar la casilla crea una versión nueva.
+5. **Fase 07.** `E-15` pasa el evento de **06 Pago confirmado** a **07 Curso** (la fase existía sin
+   uso). En otras fases no la toca. `E-19` lo sigue pasando a 08.
+6. **Registro de voluntarios con página propia**, igual que el feedback (D-061), no con Fillout.
+   **La carta de deslinde se sigue firmando en papel** (D-061): el formulario solo pide aceptar el
+   uso de datos; la firma electrónica espera al abogado. Se pide tutor si es menor.
+7. **Materiales:** una sola vez, ventana de 10 a 1 días; si la fecha cambia, `E-16` reabre el
+   candado y sale otra vez para la fecha nueva. Si *Materiales* está vacío no se manda nada y la
+   ficha avisa al equipo.
+8. `E-15` y `E-16` corren cada hora en horario laboral, como `E-25`.
+
+### Pruebas (11-oct)
+
+| Caso | Resultado |
+|---|---|
+| `E-15` datos completos, con curso | ✅ Doc creado, fase 06 → 07, casilla apagada, 3 correos (9 ops) |
+| `E-15` evento cancelado | ✅ No crea Doc, apaga la casilla, avisa al equipo (6 ops) |
+| `E-16` primera invitación | ✅ Versión 1, firma guardada (8 ops) |
+| `E-16` fecha cambiada 19 → 20-oct | ✅ Versión 2 "Actualizada", candado de materiales reabierto |
+| `E-16` evento cancelado | ✅ Invitación de cancelación, *Calendario enviado para* = CANCELADO |
+| `E-17` a 9 días | ✅ 3 correos, candado puesto (6 ops) |
+| `E-18` liga con ID falso / formulario / envío incompleto / menor sin tutor / completo con `<b>` en el nombre | ✅ Los cinco; el nombre se muestra escapado |
+
+**Falta que Ethan revise en el buzón** (`sistemas+s10@…`) que el `.ics` se ve como invitación en
+Gmail y que la hora sale 9:00–13:00. Después borrar: evento `recbyI1qwm12V7WlN`, organizaciones
+`recI3JHkbMysNzdsa` y `rec6xthwnwfkgDV61`, contacto `recMrDrQygoVdxFHR`, voluntario
+`reczumjgy4uPY7Yp9` y el Doc de la ficha en Drive.
+
+### Pendiente fuera del sprint
+
+- Agregar al panel de Logística los campos nuevos (Minuto a minuto, Materiales, Fecha del curso,
+  Generar ficha tecnica, Voluntarios registrados) y una vista de la tabla Voluntarios por evento.
+- Manual y guía de capacitación: sección de ficha técnica y registro de voluntarios.
+
+---
+
+## D-064 · Ajustes pedidos por Ana Cristina (11-oct)
+
+**11 de octubre de 2026.** Ocho cambios. Ethan pidió decidir y explicar al final.
+
+### 1 · Pestaña "Proyectos" en el sitio
+Menú desplegable **Proyectos** con Empresas Voluntarias (`/catalogo-eventos`), Universidades y Aliados
+Voluntarios, más una página `/proyectos` con las tres tarjetas (para celular y para quien da clic en
+la pestaña). Esas tres salen del primer nivel del menú; *Empresas Aliadas*, *Cursos* y *Contáctanos*
+se quedan. El pie de página sigue listando todo. Archivos: `navigation.ts`, `Navbar.tsx`,
+`Footer.tsx`, `App.tsx`, `pages/Proyectos.tsx`. Probado en 1440 y 390 px. **Falta publicar** (commit
++ push para que Vercel lo despliegue).
+
+### 2 · CC al responsable y asunto con formato
+Campos nuevos en Eventos: **Correo responsable** (provisional `voluntariadocorporativo+nombre@ezer.org.mx`
+— llega al buzón compartido y se filtra por persona; se cambia en la fórmula, sin tocar Make) y
+**Asunto interno**: `[Empresa] 05/10 - Responsable - Empresa - Folio - Evento`. Cada correo interno
+de E-1 a E-25 lleva `Asunto interno - motivo` y CC al responsable. Los avisos sin evento (p. ej.
+"agendaron sin registro") llevan `[Empresa] - motivo` sin CC.
+
+### 3 · Tag de Empresa
+Internos: `[Empresa]` al inicio del asunto y badge "EMPRESA · SISTEMA". Externos: el encabezado dice
+"VOLUNTARIADO CORPORATIVO · EMPRESAS" (se agregó a los que no lo tenían en E-6 a E-10). El asunto de
+los correos externos no se tocó: a la empresa no le aporta y se ve raro.
+
+### 4 · Paso a paso en cada correo interno
+Campo fórmula **Pasos siguiente fase** (HTML por fase 01–10 con ligas al registro, al formulario de
+captura, a los Docs, a la carpeta de Drive, a Cobranza y al Semáforo). Todos los correos internos lo
+incluyen al final. Editar instrucciones = editar la fórmula.
+
+### 5 · Cuota de recuperación sin IVA
+En todos los correos con monto (E-5, E-7, E-8, E-9, E-10): "cuota de recuperación … (sin IVA)" en lugar
+de aportación/total a cobrar, y en los externos un párrafo: EZER no cobra; es cuota de recuperación,
+no costo ni aportación, sin IVA. **Pendiente:** las plantillas de Google Docs de cotización y
+convenio (E-4) siguen con "$ X MXN" y posiblemente "aportación"; hay que editarlas a mano.
+
+### 6 · Comprobante de pago
+E-9 ya iba a voluntariado; ahora además CC al responsable.
+
+### 7 · Brief en el Semáforo
+Cinco consultas nuevas en *Sugerencias de match* (causa, capacidad, horarios, recursos, ya colaboró) y
+fórmula **Brief**: afinidad, a quién atiende, municipio, cupo, horario, si ya colaboró, en qué coincide
+y en qué no, perfil (280 car.) y recursos. Página nueva **Semáforo del match** `pagN7asdayHCUwx3N`
+con el Brief, agrupada por evento y filtro por evento. La página vieja `pagODgSS0pf6tiBKZ` **hay que
+borrarla a mano** (la API no me dejó).
+
+### 8 · EZER elige la asociación
+- Casilla renombrada: *Enviar opciones a la empresa* → **Avisar asociacion a la empresa**.
+- **E-12** rediseñado ("Avisar Asociación Asignada"): exige *Asociación asignada*; manda a la empresa
+  "Ya tenemos asociación para su jornada" con el nombre y el botón para agendar la segunda reunión.
+  Sin asociación, avisa al equipo y no escribe a la empresa.
+- **E-13** (clic de la empresa) **desactivado**.
+- Textos de E-8, E-10, E-11 y E-25 que decían "para que ustedes elijan" actualizados.
+
+### Detalles técnicos
+- Los módulos Update/Create de Airtable con `useColumnId: true` devuelven campos por ID: para leer las
+  fórmulas nuevas se agregó un `GetRecord` después de ellos en E-1, E-2, E-3, E-4, E-9, E-10, E-11,
+  E-12, E-14, E-15 y E-17 (+1 operación por corrida en esas rutas).
+- Donde el correo sale antes del cambio de fase (E-5, E-22, E-23, E-25), el asunto y los pasos muestran
+  la fase anterior. Se aceptó para no reordenar módulos sensibles (E-5 conserva el orden por D-060).
+- Probado: E-12 (5 ops) y E-15 (10 ops) con el evento de prueba. Los demás escenarios no se
+  ejecutaron (mandarían correos reales); se validaron con Make (`isinvalid: false`, activos).
+
+---
+
+## D-065 · Asociaciones Sprint 2: directorio real importado y recorrido A-1→A-6
+
+**11 de octubre de 2026 (noche).** Ethan pidió arrancar el Sprint 2 de Asociaciones decidiendo yo.
+
+### Migración del Directorio 2026
+- Fuente: los 9 CSV `DIRECTORIO 2026 - *.csv` (carpeta EZER). Se importaron **NIÑOS, MUJERES, ADULTOS
+  MAYORES, PERS C_CAP. DIFERENTES, JÓVENES y AT. MÚLTIPLE**. **No** se importaron: RESUMEN (es un
+  índice), UNIVERSIDADES (son del proyecto Universidades, no asociaciones) e INST. FORÁNEAS (fuera de NL).
+- Resultado: **114 asociaciones** y **158 contactos** con correo. Excluidas 11: de baja / cerradas /
+  "ya no existe" (6), EZER misma (Encuentro Mundial de Valores), un municipio, una duplicada que "se pasó
+  a At. Múltiple", Best Buddies (CDMX) y Promotora Super Chicos (inactiva).
+- Normalización: municipio a la lista oficial (alias y errores de dedo: "GUADALJUPE", "MTY", "San Pedro
+  GG"); causa por categoría del archivo (Jóvenes → **Educación**); en At. Múltiple se infiere de palabras
+  clave (migrante, reforestación, comedor…). **9 quedaron sin causa** y hay que capturarla a mano.
+  Las filas que eran **sedes** (renglón con solo un municipio) se agregaron como nota a su asociación.
+  Las notas de seguimiento del directorio ("no contestan", "cerrado temporalmente") van en *Notas
+  adicionales*; vale leerlas antes de invitar.
+- **Decisión clave — fase nueva "Directorio por invitar".** A-1 solo escribe a la fase *Asociación Sin
+  Reunión* y corre los lunes 11:00. Con la fase nueva **nadie recibe correos** hasta que el equipo cambie
+  la fase de cada una a *Asociación Sin Reunión* (después de revisar sus datos). E-11 tampoco las propone
+  en el match porque no tienen *Voluntarios que puede recibir* (Capacidad tope = 0) — entran al match
+  cuando llenen su perfil (A-4). Verificado leyendo las fórmulas de A-1…A-6 y E-11.
+- Campo nuevo **Origen** = "Directorio 2026 · categoría" para filtrarlas o deshacer la carga.
+- ⚠️ Hay correos repetidos entre sedes de una misma asociación (Zihuame ×3, Arcoíris ×2, ARENA ×2) y
+  uno que el directorio trae cruzado (*Un Paso hacia la Luz* tiene el correo de Danzarte). A-3 empareja
+  reservas de Calendly **por correo**, así que con un correo repetido puede actualizar la sede
+  equivocada (riesgo ya anotado en julio). Revisar antes de invitarlas.
+- Lección: el detector de sedes confundió "FUNDACIÓN SAMUEL **GARCÍA**" con el municipio García; se
+  corrigió a mano creándola aparte.
+
+### Campos "Cuota" y "Accesibilidad"
+- **Cuota que solicita** (moneda) y **Accesibilidad** (opciones: silla de ruedas, baños accesibles,
+  estacionamiento, transporte público, techado) en Organizaciones. Todavía no los usa el match; quedan
+  listos para los criterios de presupuesto y accesibilidad de D-027. Habría que agregarlos al
+  formulario de perfil (A-4 / Sprint 3).
+- La "fórmula de conversión de rangos" ya existía (Capacidad tope, D-052).
+
+### Recorrido A-1→A-6 (asociaciones `ZZ PRUEBA S2A Uno/Dos`, correos `sistemas+s2a.*`)
+| Paso | Cómo | Resultado |
+|---|---|---|
+| A-1 promoción | Corrida manual | ✅ Las dos invitadas, fecha sellada (13 ops) |
+| A-2.1 seguimiento 5 días | Fecha de promoción movida a −6 días | ✅ Seguimiento marcado |
+| A-2.2 inactivar a 20 días | Fecha −22 días + seguimiento | ✅ Pasó a *Sin respuesta* |
+| A-6 activación | *Convenio firmado* en Dos | ✅ *Registrada con empresa asignada* (3 ops) |
+| A-3 reunión | **Falta:** reserva real en Calendly con `sistemas+s2a.uno@…` | ⏳ Ethan |
+| A-4 captura | **Falta:** envío real del formulario (liga abajo) | ⏳ Ethan |
+| A-5 convenio | Depende de A-4 (genera el Doc del convenio) | ⏳ después de A-4 |
+
+Ligas para Ethan:
+- Calendly (Asociaciones): `https://calendly.com/voluntariadocorporativo-ezer/reunion-de-voluntariado-corporativo-clone` (agendar con el correo `sistemas+s2a.uno@encuentromundialdevalores.org`).
+- Fillout A-4: `https://forms.fillout.com/t/kHq663qYssus?record_id=recXG4rAMxbnAc9tP&contacto_id=recpGvo2m3T8MgcWg`.
+
+El reporte final de pruebas de Asociaciones se cierra después de A-3/A-4/A-5.
+
+## D-066 · Cierre del flujo de Asociaciones (Sprints 1–5)
+
+**12 de octubre de 2026.** Ethan pidió cerrar todos los sprints de Asociaciones decidiendo yo, con
+rapidez. Además se publicó la pestaña Proyectos de la web (commit `ed6ff99`, D-064).
+
+### Sprint 2 — recorrido A-1→A-6 completo
+- **A-5 ✅** con `ZZ PRUEBA S2A Uno`: se le puso un Doc de convenio de prueba, carpeta, evento
+  `ZZ PRUEBA S10` (empresa) y *Convenio revisado*. A-5 exportó el PDF, lo subió a Drive, mandó el
+  convenio a `sistemas+s2a.uno@` y pasó la fase a *Convenio enviado* (ejecución `b24c12d2…`).
+- **A-4:** no se volvió a llenar el Fillout. El llenado desde el navegador fue bloqueado por el
+  clasificador de permisos, y A-4 ya había pasado con envío real el 9-oct (D-062). **A-3** quedó
+  probado de punta a punta en el Sprint 1. Se da por cerrado el recorrido.
+
+### Sprint 3 — Perfil de asociación: `A-7` y `A-7.1`
+| Escenario | ID | Qué hace | Cuándo |
+|---|---|---|---|
+| `A-7` Perfil (página) | 6604756 · webhook 2925624 | Página propia por asociación (`?o=recID`): a quién atienden, meses, días, horario, cupo, tipo de ayuda, accesibilidad, cuota, recursos y actividad deseada. Muestra marcado lo que ya teníamos. Valida en el navegador y en el servidor. Guarda en Organizaciones, sella **Perfil actualizado en** y avisa al equipo. **No cambia la fase.** | Al abrir la liga |
+| `A-7.1` Invitación | 6605704 | Casilla **Enviar formulario de perfil** → correo con la liga, apaga la casilla, sella **Perfil solicitado en**. A los 7 días sin perfil, **un solo** recordatorio. Sin correo válido → aviso interno y apaga la casilla. | Diario 09:30 |
+
+Campos nuevos en Organizaciones: `Liga perfil` (fórmula), `Perfil actualizado en`, `Enviar formulario
+de perfil`, `Perfil solicitado en`, `Recordatorio de perfil enviado`.
+
+Pruebas: liga inválida, formulario vacío, envío incompleto (marca error), envío completo (todos los
+campos guardados, `<b>` sin interpretar, Capacidad tope = 20), recarga con datos marcados; A-7.1 con
+invitación, recordatorio a 8 días y asociación sin correo (7 ops); segunda corrida = 1 op (candado).
+
+**Decisiones:**
+1. **Página de Make y no Fillout nuevo.** Mismo patrón que E-18/E-21; se construye y prueba por API
+   sin editar Fillout a mano, y precarga lo que ya sabemos del directorio.
+2. **No se usa el formulario de A-4 para el directorio:** A-4 genera el convenio y mueve la fase; a una
+   asociación que no ha tenido reunión no le toca convenio.
+3. **El perfil no cambia la fase.** Llenarlo basta para que E-11 la proponga (Capacidad tope > 0), como
+   ya se había previsto en D-065. El equipo decide cuándo invitarla a reunión.
+4. **El envío es con casilla, no masivo.** No mandé el formulario a las 114 asociaciones reales: hay
+   correos repetidos y cruzados en el directorio (D-065) y notas de "no contestan". Para enviarlo,
+   filtrar *Directorio por invitar*, revisar el contacto y marcar la casilla (se puede marcar en lote).
+5. **Recordatorio único a los 7 días**, como el seguimiento de A-2.1.
+6. **Cuota vacía = 0** ("no pide cuota"). La pregunta de actividad deseada va a *Notas sobre eventos de
+   interés* para no pisar las notas del directorio en *Notas adicionales*.
+
+### Sprint 4 — Recordatorios y feedback del lado Asociaciones
+Ya existía, construido en los Sprints 10–12 de Empresas, y está probado (D-061, D-063). **No se hizo un
+A-8** que lo duplicara:
+| Necesidad del Bloque 8 | Dónde vive |
+|---|---|
+| Ficha técnica a la asociación | `E-15` |
+| Invitación de calendario | `E-16` |
+| Recordatorio de materiales (10 a 1 días antes) | `E-17` |
+| QR de feedback de la asociación el día del evento | `E-20` |
+| Formulario de feedback de la asociación (calificación, ¿repetirían?, comentarios) | `E-21` (tipo *asociación*) |
+| Correo del día siguiente a la asociación con su liga | `E-22` |
+| Vínculo con el feedback de la empresa | Tabla Feedback, ligada al mismo Evento |
+
+Decisión de contenido: se quedan las preguntas que ya usa E-21 (las mismas tres para los tres tipos),
+para poder comparar empresa y asociación en el mismo reporte de E-23.
+
+### Sprint 5 — Mapeo Organizaciones ↔ Eventos que usa el match (E-11)
+| Criterio | Eventos (lo que pide la empresa) | Organizaciones (lo que ofrece la asociación) | Cómo se compara |
+|---|---|---|---|
+| Causa (candado) | `Beneficiarios de interés` | `Sector de apoyo` | Al menos una en común o no es candidata |
+| Cupo (30) | `Voluntarios tope` ← `Número de asistentes` | `Capacidad tope` ← `Voluntarios que puede recibir` | Capacidad ≥ voluntarios |
+| Mes (25) | `Meses de interés` / fecha | `Meses disponibles` | Mes en común |
+| Municipio (20) | Municipio del evento | `Municipio` | Igual |
+| Turno (15) | `Turno requerido` ← `Duración` | `Horarios disponibles` | Turno en común |
+| Catálogo (10) | Evento del catálogo | `Eventos de interés` | En común |
+| Fuera del match (datos listos) | — | `Accesibilidad`, `Cuota que solicita`, `Tipo de asistencia` | Los llena A-7; entran al match cuando Eventos tenga el campo equivalente |
+
+Excluidas del match: Capacidad tope = 0 (sin perfil), asociaciones con evento activo, las que se
+bajaron del evento (`Eventos donde se bajo`).
+
+### Queda a mano (la API no lo permite)
+- Borrar campos obsoletos de Organizaciones: `Empresa esperando (¿obsoleto?)`, `Correo del contacto
+  principal (obsoleto - sin separador)`, `Nombre del contacto principal (obsoleto - sin separador)`.
+  Antes de borrarlos, buscar su nombre en los blueprints de Make (A-5 usa el rollup vigente
+  `Correo del contacto principal`, no el obsoleto).
+- Borrar `ZZ PRUEBA S2A Uno/Dos` junto con los datos de `ZZ PRUEBA S10` cuando Ethan revise el `.ics`.

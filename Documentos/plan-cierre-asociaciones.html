@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Plan de Cierre — Flujo de Asociaciones (SCRUM, equipo de 1)</title>
+<style>
+  @page { size: letter; margin: 2cm 1.8cm; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: #1a1a1a;
+    font-size: 12px;
+    line-height: 1.5;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 22px; margin-bottom: 2px; }
+  .subtitle { color: #555; font-size: 12px; margin-bottom: 24px; }
+  h2 {
+    font-size: 16px;
+    margin-top: 36px;
+    padding: 8px 12px;
+    background: #eef2f7;
+    border-left: 4px solid #2c5aa0;
+    page-break-after: avoid;
+  }
+  h3 { font-size: 13.5px; margin-top: 18px; color: #2c5aa0; }
+  .meta { font-size: 11px; color: #444; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; page-break-inside: avoid; }
+  th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; font-size: 11px; }
+  th { background: #f5f5f5; font-weight: 600; }
+  td.num, th.num { text-align: right; width: 56px; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .badge.risk { background: #fdecea; color: #c0392b; }
+  .sprint {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    page-break-inside: avoid;
+  }
+  .sprint-titulo { font-weight: 700; font-size: 13.5px; margin-bottom: 2px; color: #2c5aa0; }
+  .sprint-fechas { font-size: 10.5px; color: #666; margin-bottom: 6px; }
+  .sprint-objetivo { margin-bottom: 8px; }
+  .sprint-objetivo .label { color: #555; font-weight: 600; }
+  .totales { text-align: right; font-weight: 700; background: #fafafa; }
+  .callout { background: #fff8e1; padding: 10px 12px; border-radius: 6px; border-left: 4px solid #b8860b; margin-bottom: 14px; }
+  .callout.good { background: #e6f4ea; border-left-color: #1a7f37; }
+  footer { margin-top: 40px; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 8px; }
+  ul { margin: 4px 0 0 18px; padding: 0; }
+
+  /* Gantt */
+  .gantt-wrap { page-break-inside: avoid; }
+  .gantt {
+    display: grid;
+    grid-template-columns: 230px repeat(5, 1fr) 90px;
+    border: 1px solid #ccc;
+    font-size: 10px;
+  }
+  .gantt .cell {
+    border-right: 1px solid #e2e2e2;
+    border-bottom: 1px solid #e2e2e2;
+    padding: 6px 6px;
+    display: flex;
+    align-items: center;
+  }
+  .gantt .head { background: #f5f5f5; font-weight: 600; justify-content: center; text-align: center; }
+  .gantt .row-label { font-weight: 600; color: #2c5aa0; }
+  .gantt .hrs { justify-content: flex-end; color: #555; }
+  .gantt .bar {
+    margin: 3px 2px;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+  }
+  .s1 .bar { background: #2c5aa0; }
+  .s2 .bar { background: #3f7fbf; }
+  .s3 .bar { background: #4f9d69; }
+  .s4 .bar { background: #b8860b; }
+  .s5 .bar { background: #7a5cb0; }
+  .gantt .empty { background: #fcfcfc; }
+</style>
+</head>
+<body>
+
+<h1>Plan de Cierre — Flujo de Asociaciones</h1>
+<div class="subtitle">Metodología SCRUM adaptada a equipo de 1 persona, acelerado con IA · Basado en Plan-Asociaciones-EZER.pdf (Bloques 1–8) y Reporte-Pruebas-Asociaciones.pdf</div>
+<div class="meta">
+  Elaborado: 11 de septiembre de 2026<br>
+  Capacidad: 5 horas/semana &nbsp;·&nbsp; Inicio: 11 de septiembre de 2026 &nbsp;·&nbsp; Entrega estimada: <strong>16 de octubre de 2026</strong>
+</div>
+
+<div class="callout">
+  <strong>Punto de partida:</strong> los escenarios <code>A-1</code> a <code>A-6</code> ya están construidos (candado, error handlers, campo "Empresa vinculada"), pero el recorrido de pruebas end-to-end quedó pausado a la mitad y hay 3 hallazgos documentados sin corregir. Además, la base real de asociaciones (~21 registros reales de 37) no tiene los campos que necesita el motor de match de Empresas — <strong>un motor de match sobre una base vacía devuelve 0% para todas</strong> — y el Bloque 8 (Recordatorios y Feedback) del diseño original nunca se construyó del lado de Asociaciones. Este plan cierra esos tres frentes.
+</div>
+
+<h2>Metodología</h2>
+<div class="meta">
+  <ul>
+    <li><strong>Sprints de 1 semana</strong>, con equipo de una sola persona más este asistente como pair de desarrollo.</li>
+    <li><strong>Horas plan vs. horas reales:</strong> cada tarea se estima primero sin IA ("h plan") y luego se aplica un factor de aceleración por tipo de trabajo ("h real"), con los mismos factores ya validados en el re-baseline del flujo de Empresas (2-sep-2026):</li>
+  </ul>
+  <table style="margin-top:6px;">
+    <tr><th>Tipo</th><th class="num">Factor</th><th>Razón</th></tr>
+    <tr><td>Automatización</td><td class="num">0.30</td><td>Es donde la skill de Make construye por API</td></tr>
+    <tr><td>Configuración</td><td class="num">0.70</td><td>Fillout/Airtable: clics humanos, la IA ayuda poco</td></tr>
+    <tr><td>Pruebas</td><td class="num">0.55</td><td>El <em>replay</em> ayuda, pero verificar sigue siendo humano</td></tr>
+    <tr><td>Diseño</td><td class="num">1.00</td><td>Criterio humano, no baja</td></tr>
+    <tr><td>Datos</td><td class="num">0.70</td><td>Migración/limpieza: similar a Configuración</td></tr>
+    <tr><td>Documentación</td><td class="num">0.50</td><td>La IA redacta bien a partir de decisiones ya tomadas</td></tr>
+    <tr><td>Gestión</td><td class="num">1.00</td><td>Coordinación y espera de respuestas humanas, no se acelera</td></tr>
+  </table>
+</div>
+
+<h2>Plan de sprints</h2>
+
+<div class="sprint">
+  <div class="sprint-titulo">✅ Sprint 1 — Cierre de pruebas A-1 a A-6</div>
+  <div class="sprint-fechas">11–17 de septiembre de 2026 · 1 semana</div>
+  <div class="sprint-objetivo"><span class="label">Objetivo:</span> terminar el recorrido de pruebas que quedó pausado y corregir los 3 hallazgos ya documentados en el Reporte de Pruebas, para declarar A-1 a A-6 estables.</div>
+  <table>
+    <tr><th>Tarea</th><th style="width:110px">Tipo</th><th class="num">h plan</th><th class="num">h real</th></tr>
+    <tr><td>Probar A-3 (Reunión Agendada) end-to-end, las 3 rutas del Router</td><td>Pruebas</td><td class="num">3.0</td><td class="num">1.65</td></tr>
+    <tr><td>Re-probar A4-4 (contacto_id vacío)</td><td>Pruebas</td><td class="num">1.0</td><td class="num">0.55</td></tr>
+    <tr><td>Re-probar A4-5 (idempotencia del reenvío)</td><td>Pruebas</td><td class="num">1.5</td><td class="num">0.83</td></tr>
+    <tr><td>Aplicar patrón multi-contacto a A-2.1 (fix del riesgo de dedupe por correo)</td><td>Automatización</td><td class="num">3.0</td><td class="num">0.90</td></tr>
+    <tr><td>Aislar caso "correo de contacto vacío puro" en A-5</td><td>Pruebas</td><td class="num">1.0</td><td class="num">0.55</td></tr>
+    <tr><td>Agregar campo "Convenio firmado" a la vista de interfaz</td><td>Configuración</td><td class="num">1.0</td><td class="num">0.70</td></tr>
+    <tr><td>Borrar campos obsoletos y reordenar la opción "Disponible"</td><td>Datos</td><td class="num">0.5</td><td class="num">0.35</td></tr>
+    <tr class="totales"><td colspan="2">Total Sprint 1</td><td class="num">11.0</td><td class="num">5.53</td></tr>
+  </table>
+</div>
+
+<div class="sprint">
+  <div class="sprint-titulo">✅ Sprint 2 — Recorrido final + datos reales</div>
+  <div class="sprint-fechas">18–24 de septiembre de 2026 · 1 semana</div>
+  <div class="sprint-objetivo"><span class="label">Objetivo:</span> cerrar formalmente las pruebas de Asociaciones y arrancar la migración de datos reales, condición para que el motor de match de Empresas no dependa de una base vacía.</div>
+  <table>
+    <tr><th>Tarea</th><th style="width:110px">Tipo</th><th class="num">h plan</th><th class="num">h real</th></tr>
+    <tr><td>✅ Recorrido end-to-end completo A-1→A-6 con los fixes aplicados</td><td>Pruebas</td><td class="num">2.0</td><td class="num">1.10</td></tr>
+    <tr><td>Cerrar el Reporte de Pruebas de Asociaciones como versión final</td><td>Documentación</td><td class="num">0.5</td><td class="num">0.25</td></tr>
+    <tr><td>✅ Migrar los 9 CSV de asociaciones reales a Airtable (deduplicar, normalizar Municipio/Causa)</td><td>Datos</td><td class="num">2.5</td><td class="num">1.75</td></tr>
+    <tr><td>✅ Agregar campos "Cuota" y "Accesibilidad" + fórmula de conversión de rangos de voluntarios</td><td>Diseño</td><td class="num">1.0</td><td class="num">1.00</td></tr>
+    <tr class="totales"><td colspan="2">Total Sprint 2</td><td class="num">6.0</td><td class="num">4.10</td></tr>
+  </table>
+  <div class="meta"><strong>Cerrado 12-oct (D-066).</strong> 114 asociaciones reales y 158 contactos en fase <em>Directorio por invitar</em>. Recorrido A-1→A-6 completo: A-5 probado con <code>ZZ PRUEBA S2A Uno</code>; A-4 con envío real del 9-oct (D-062); A-3 en el Sprint 1.</div>
+</div>
+
+<div class="sprint">
+  <div class="sprint-titulo">✅ Sprint 3 — Formulario de Perfil de Asociación <span class="badge risk">riesgo de espera</span></div>
+  <div class="sprint-fechas">25 de septiembre – 1 de octubre de 2026 · 1 semana</div>
+  <div class="sprint-objetivo"><span class="label">Objetivo:</span> que las ~21 asociaciones reales capturen sus propios datos de match, vía un Fillout nuevo y el escenario que los recibe.</div>
+  <table>
+    <tr><th>Tarea</th><th style="width:110px">Tipo</th><th class="num">h plan</th><th class="num">h real</th></tr>
+    <tr><td>Construir el Fillout "Perfil de Asociación" (7 criterios de match)</td><td>Configuración</td><td class="num">2.0</td><td class="num">1.40</td></tr>
+    <tr><td>Escenario A-7: recibir el Fillout, actualizar la Organización, candado de idempotencia</td><td>Automatización</td><td class="num">1.5</td><td class="num">0.45</td></tr>
+    <tr><td>Enviar el formulario a las 21 asociaciones + seguimiento a quien no responda</td><td>Gestión</td><td class="num">1.5</td><td class="num">1.50</td></tr>
+    <tr><td>Pruebas del formulario y del escenario A-7</td><td>Pruebas</td><td class="num">1.0</td><td class="num">0.55</td></tr>
+    <tr class="totales"><td colspan="2">Total Sprint 3</td><td class="num">6.0</td><td class="num">3.90</td></tr>
+  </table><div class="meta"><strong>Cerrado 12-oct (D-066).</strong> En lugar de un Fillout se construyó <code>A-7</code> (página de perfil, webhook propio, precarga los datos) y <code>A-7.1</code> (invitación con casilla + un recordatorio a 7 días). Probados 7 casos. El envío a las 114 asociaciones queda en manos del equipo: revisar el contacto y marcar <em>Enviar formulario de perfil</em>.</div>
+  <div class="meta">⚠️ La fecha de este sprint no la marcan las horas sino cuánto tarden las asociaciones reales en responder el formulario (mismo riesgo señalado en D-027 para Empresas).</div>
+</div>
+
+<div class="sprint">
+  <div class="sprint-titulo">✅ Sprint 4 — Bloque 8: Recordatorios y Feedback (lado Asociaciones) <span class="badge risk">riesgo de contenido</span></div>
+  <div class="sprint-fechas">2–8 de octubre de 2026 · 1 semana</div>
+  <div class="sprint-objetivo"><span class="label">Objetivo:</span> cerrar el último bloque del diseño original (Plan-Asociaciones-EZER.pdf), que hoy solo existe del lado de Empresas.</div>
+  <table>
+    <tr><th>Tarea</th><th style="width:110px">Tipo</th><th class="num">h plan</th><th class="num">h real</th></tr>
+    <tr><td>Definir el alcance del Bloque 8 para Asociaciones (qué se pregunta, cuándo, cómo se vincula al feedback de Empresas)</td><td>Diseño</td><td class="num">1.0</td><td class="num">1.00</td></tr>
+    <tr><td>Construir el Fillout de feedback de la asociación + QR</td><td>Configuración</td><td class="num">1.5</td><td class="num">1.05</td></tr>
+    <tr><td>Escenario A-8: correo al día siguiente del evento con la liga de feedback (patrón D-009)</td><td>Automatización</td><td class="num">1.5</td><td class="num">0.45</td></tr>
+    <tr><td>Candado y error handlers de A-8</td><td>Automatización</td><td class="num">0.5</td><td class="num">0.15</td></tr>
+    <tr><td>Pruebas del Bloque 8</td><td>Pruebas</td><td class="num">1.0</td><td class="num">0.55</td></tr>
+    <tr class="totales"><td colspan="2">Total Sprint 4</td><td class="num">5.5</td><td class="num">3.20</td></tr>
+  </table><div class="meta"><strong>Cerrado 12-oct (D-066).</strong> Ya existía del lado de Empresas y está probado: ficha (E-15), calendario (E-16), materiales (E-17), QR (E-20), formulario de feedback de la asociación (E-21) y correo del día siguiente (E-22). No se duplicó con un A-8.</div>
+  <div class="meta">⚠️ La primera tarea es una decisión de contenido, no de programación — puede requerir delegar a Ana Cristina/Dirección, como ya pasó en Empresas.</div>
+</div>
+
+<div class="sprint">
+  <div class="sprint-titulo">✅ Sprint 5 — Cierre y documentación</div>
+  <div class="sprint-fechas">9–15 de octubre de 2026 · 1 semana</div>
+  <div class="sprint-objetivo"><span class="label">Objetivo:</span> dejar el flujo documentado y verificado de punta a punta, con un acta de entrega clara sobre lo que queda fuera de alcance (la elección automática con candado, D-028, que vive del lado de Empresas).</div>
+  <table>
+    <tr><th>Tarea</th><th style="width:110px">Tipo</th><th class="num">h plan</th><th class="num">h real</th></tr>
+    <tr><td>Documentar el mapeo de campos Organizaciones↔Eventos usado por el match</td><td>Documentación</td><td class="num">0.75</td><td class="num">0.38</td></tr>
+    <tr><td>Recorrido end-to-end final A-1 a A-8 ampliado</td><td>Pruebas</td><td class="num">2.0</td><td class="num">1.10</td></tr>
+    <tr><td>Acta de cierre del flujo de Asociaciones</td><td>Documentación</td><td class="num">0.75</td><td class="num">0.38</td></tr>
+    <tr class="totales"><td colspan="2">Total Sprint 5</td><td class="num">3.5</td><td class="num">1.85</td></tr>
+  </table><div class="meta"><strong>Cerrado 12-oct (D-066).</strong> Mapeo Organizaciones↔Eventos documentado en la bitácora; acta en <code>Documentos/acta-cierre-asociaciones.html</code>.</div>
+</div>
+
+<h2>Totales y fecha de entrega</h2>
+<table>
+  <tr><th>Sprint</th><th>Fechas</th><th class="num">h plan</th><th class="num">h real</th></tr>
+  <tr><td>1 — Cierre de pruebas A-1 a A-6</td><td>11–17 sep</td><td class="num">11.0</td><td class="num">5.53</td></tr>
+  <tr><td>2 — Recorrido final + datos reales</td><td>18–24 sep</td><td class="num">6.0</td><td class="num">4.10</td></tr>
+  <tr><td>3 — Formulario de Perfil de Asociación</td><td>25 sep–1 oct</td><td class="num">6.0</td><td class="num">3.90</td></tr>
+  <tr><td>4 — Bloque 8: Recordatorios y Feedback</td><td>2–8 oct</td><td class="num">5.5</td><td class="num">3.20</td></tr>
+  <tr><td>5 — Cierre y documentación</td><td>9–15 oct</td><td class="num">3.5</td><td class="num">1.85</td></tr>
+  <tr class="totales"><td colspan="2">Total</td><td class="num">32.0</td><td class="num">18.58</td></tr>
+</table>
+<div class="callout good">
+  Capacidad disponible: 5 h/semana × 5 semanas = 25 h → colchón de <strong>≈6.4 h (25%)</strong> para absorber los dos riesgos señalados (espera de respuestas de las asociaciones y decisiones de contenido pendientes de Dirección).<br><br>
+  <strong>Fecha de entrega estimada: viernes 16 de octubre de 2026.</strong>
+</div>
+
+<h2>Gantt — calendario de entrega</h2>
+<div class="gantt-wrap">
+  <div class="gantt">
+    <div class="cell head">Sprint</div>
+    <div class="cell head">11–17 sep</div>
+    <div class="cell head">18–24 sep</div>
+    <div class="cell head">25 sep–1 oct</div>
+    <div class="cell head">2–8 oct</div>
+    <div class="cell head">9–15 oct</div>
+    <div class="cell head">h real</div>
+
+    <div class="cell row-label">1. Cierre de pruebas A-1 a A-6</div>
+    <div class="cell s1"><div class="bar">S1</div></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell hrs">5.53</div>
+
+    <div class="cell row-label">2. Recorrido final + datos reales</div>
+    <div class="cell empty"></div>
+    <div class="cell s2"><div class="bar">S2</div></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell hrs">4.10</div>
+
+    <div class="cell row-label">3. Formulario de Perfil de Asociación</div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell s3"><div class="bar">S3</div></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell hrs">3.90</div>
+
+    <div class="cell row-label">4. Bloque 8: Recordatorios y Feedback</div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell s4"><div class="bar">S4</div></div>
+    <div class="cell empty"></div>
+    <div class="cell hrs">3.20</div>
+
+    <div class="cell row-label">5. Cierre y documentación</div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell empty"></div>
+    <div class="cell s5"><div class="bar">S5 ➜ Entrega</div></div>
+    <div class="cell hrs">1.85</div>
+  </div>
+</div>
+<p style="font-size:10.5px; color:#555; margin-top:8px;">Hito: <strong>16 de octubre de 2026</strong> — cierre del Sprint 5 y entrega del flujo de Asociaciones completo (A-1 a A-8 + datos reales de match).</p>
+
+<h2>Riesgos que pueden mover la fecha</h2>
+<div class="meta">
+  <ul>
+    <li><strong>Sprint 3 depende de terceros:</strong> las horas de trabajo no determinan cuándo cierra el sprint, sino cuánto tarden las ~21 asociaciones reales en llenar el formulario de perfil. Si no responden a tiempo, el motor de match de Empresas queda con datos parciales sin bloquear el resto del plan.</li>
+    <li><strong>Sprint 4 depende de una decisión de contenido:</strong> definir qué pregunta el feedback de Asociaciones y cómo se vincula al de Empresas puede requerir delegación a Ana Cristina/Dirección, igual que ya pasó con las plantillas y el motor de match de Empresas.</li>
+    <li><strong>Fuera de alcance de este plan:</strong> la elección automática de asociación con candado (correo → confirmación → candado, D-028) y el motor de puntuación en sí viven en el baseline de Empresas (Sprints E-6/E-11); este plan solo deja los datos de Asociaciones listos para alimentarlos.</li>
+  </ul>
+</div>
+
+<footer>
+  Plan de Cierre — Flujo de Asociaciones · EZER · Generado el 11 de septiembre de 2026
+</footer>
+
+</body>
+</html>

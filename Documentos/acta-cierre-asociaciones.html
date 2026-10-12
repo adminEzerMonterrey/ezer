@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acta de cierre — Asociaciones</title>
+<style>
+  body{margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#1A2E6C;line-height:1.55}
+  .page{max-width:820px;margin:0 auto;padding:36px 28px}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:18px;margin:28px 0 8px;border-bottom:3px solid #C8D400;padding-bottom:4px}
+  .sub{color:#64748B;margin:0 0 20px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 12px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid #E5E7EB;vertical-align:top}
+  th{background:#F1F5F9}
+  code{background:#F1F5F9;padding:1px 5px;border-radius:4px;font-size:13px}
+  .ok{color:#1A6134;font-weight:700}
+  .firma{display:flex;gap:40px;margin-top:48px}
+  .firma div{flex:1;border-top:1px solid #1A2E6C;padding-top:6px;font-size:13px}
+  @media (max-width:600px){.firma{flex-direction:column}}
+</style>
+</head>
+<body><div class="page">
+<h1>Acta de cierre del flujo de Asociaciones</h1>
+<p class="sub">EZER A.B.P. — Voluntariado Corporativo · 12 de octubre de 2026 · Detalle técnico en la bitácora, D-065 y D-066</p>
+
+<h2>1. Qué se entrega</h2>
+<table>
+<tr><th>Escenario</th><th>Qué hace</th><th>Estado</th></tr>
+<tr><td><code>A-1</code></td><td>Invitación a asociaciones nuevas (fase <em>Asociación Sin Reunión</em>)</td><td class="ok">Probado</td></tr>
+<tr><td><code>A-2.1</code> / <code>A-2.2</code></td><td>Seguimiento a 5 días e inactivación a 20 días</td><td class="ok">Probado</td></tr>
+<tr><td><code>A-3</code></td><td>Reunión agendada en Calendly</td><td class="ok">Probado</td></tr>
+<tr><td><code>A-4</code></td><td>Captura de datos tras la reunión y generación del convenio</td><td class="ok">Probado (envío real 9-oct)</td></tr>
+<tr><td><code>A-5</code></td><td>Envío del convenio en PDF cuando se marca <em>Convenio revisado</em></td><td class="ok">Probado</td></tr>
+<tr><td><code>A-6</code></td><td>Activación al marcar <em>Convenio firmado</em></td><td class="ok">Probado</td></tr>
+<tr><td><code>A-7</code></td><td>Página de perfil de la asociación (datos para el match)</td><td class="ok">Probado</td></tr>
+<tr><td><code>A-7.1</code></td><td>Invitación al perfil con casilla y un recordatorio a los 7 días</td><td class="ok">Probado</td></tr>
+<tr><td><code>E-15</code>…<code>E-22</code></td><td>Lado de la asociación en cada evento: ficha, calendario, materiales, QR y feedback</td><td class="ok">Probado</td></tr>
+</table>
+<p>Datos: 114 asociaciones reales y 158 contactos del Directorio 2026 cargados en la fase <em>Directorio por invitar</em>. Mientras sigan en esa fase no reciben ningún correo.</p>
+
+<h2>2. Cómo se usa (equipo de EZER)</h2>
+<ol>
+  <li><strong>Pedirles el perfil:</strong> en Organizaciones filtren <em>Directorio por invitar</em> y revisen el contacto. Antes de invitar, lean las <em>Notas adicionales</em> y fíjense si hay correos repetidos. Después marquen <em>Enviar formulario de perfil</em>. El sistema manda la invitación a las 9:30 y, si no responden, un recordatorio a los 7 días.</li>
+  <li><strong>Cuando llenan el perfil</strong> les llega un aviso con el resumen, y la asociación ya entra en las sugerencias del match de Empresas.</li>
+  <li><strong>Invitarlas a reunión:</strong> cambien la fase a <em>Asociación Sin Reunión</em>. A-1 las invita el lunes siguiente, y de ahí sigue el flujo A-2 a A-6.</li>
+</ol>
+
+<h2>3. Pendientes fuera del sistema</h2>
+<ul>
+  <li>Capturar a mano la causa de las 9 asociaciones del directorio que quedaron sin causa.</li>
+  <li>Revisar los correos repetidos o cruzados del directorio (Zihuame, Arcoíris, ARENA, Un Paso hacia la Luz) antes de invitarlas.</li>
+  <li>Borrar a mano en Airtable tres campos marcados como obsoletos (la API no permite borrarlos).</li>
+  <li>Presentación para la primera reunión con asociaciones: falta que la entregue Ana Cristina.</li>
+  <li>Accesibilidad, cuota y tipo de ayuda ya se capturan, pero el match todavía no los usa, porque a la empresa no se le pregunta por ellos.</li>
+</ul>
+
+<div class="firma"><div>Entrega — Ethan Rivera, Sistemas</div><div>Recibe — Ana Cristina, Voluntariado Corporativo</div></div>
+</div></body></html>
