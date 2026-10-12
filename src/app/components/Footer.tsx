@@ -67,7 +67,7 @@ export function Footer() {
               Navegación
             </h4>
             <ul className="flex flex-col gap-3">
-              {[...navItems, { label: "Acceso Administrador", path: "/admin" }].map((link) => (
+              {[...navItems.flatMap((i) => [i, ...(i.children ?? [])]), { label: "Acceso Administrador", path: "/admin" }].map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
