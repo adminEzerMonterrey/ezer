@@ -207,11 +207,10 @@ ezer-eventos.vercel.app`;
       <p>Atentamente,<br><strong>Equipo EZER</strong></p>
     `;
 
-    // Un solo correo al interesado, con copia a voluntariado, para que la
-    // respuesta quede en el mismo hilo y no en dos conversaciones separadas.
-    // Si el correo falla (p. ej. contraseña SMTP vencida), el registro igual
-    // debe llegar a Make: E-1 es quien da de alta a la empresa en Airtable.
-    try {
+    // A las empresas les escribe E-1 (bienvenida con Calendly y archivos del
+    // evento); este correo solo sale para personas y solicitudes que E-1 no
+    // atiende. Si falla (p. ej. contraseña SMTP vencida), el webhook igual sale.
+    if (!isCompanySubmission) try {
       const info = await transporter.sendMail({
         from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
         to: email,
@@ -240,7 +239,9 @@ ezer-eventos.vercel.app`;
               empresa: company || '',
               evento: eventName,
               comentarios: finalComments,
-              capacitacion: wantsTraining ? 'Sí' : 'No'
+              capacitacion: wantsTraining ? 'Sí' : 'No',
+              flyer: safeFlyerUrl,
+              curso: safeCourseUrl
           })
       });
       console.log('Webhook sent to Make.com');
