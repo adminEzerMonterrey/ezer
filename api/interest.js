@@ -68,6 +68,10 @@ export default async function handler(req, res) {
     // persona y empresa comparten el mismo formulario (D-026): solo el
     // selector explícito de registrantType distingue una de otra.
     const isCompanySubmission = isRegistration || registrantType === 'empresa';
+    // Las personas individuales siguen el mismo flujo de E-1 que las empresas:
+    // su nombre ocupa el lugar de la empresa.
+    const isIndividual = registrantType === 'individual';
+    const goesToE1 = isCompanySubmission || isIndividual;
     const municipioName = municipio || 'No especificado';
 
     const userSubject = isRegistration
@@ -207,10 +211,9 @@ ezer-eventos.vercel.app`;
       <p>Atentamente,<br><strong>Equipo EZER</strong></p>
     `;
 
-    // A las empresas les escribe E-1 (bienvenida con Calendly y archivos del
-    // evento); este correo solo sale para personas y solicitudes que E-1 no
-    // atiende. Si falla (p. ej. contraseña SMTP vencida), el webhook igual sale.
-    if (!isCompanySubmission) try {
+    // A empresas y personas les escribe E-1 (bienvenida con Calendly y archivos
+    // del evento); este correo solo sale para solicitudes que E-1 no atiende. Si falla (p. ej. contraseña SMTP vencida), el webhook igual sale.
+    if (!goesToE1) try {
       const info = await transporter.sendMail({
         from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
         to: email,
@@ -232,11 +235,12 @@ ezer-eventos.vercel.app`;
               "Content-Type": "application/json"
           },
           body: JSON.stringify({
-              tipo: isCompanySubmission ? "registro_empresa" : "evento",
+              tipo: goesToE1 ? "registro_empresa" : "evento",
+              persona: isIndividual ? 'Sí' : 'No',
               nombre: name,
               correo: email,
               telefono: phone,
-              empresa: company || '',
+              empresa: isIndividual ? '' : (company || ''),
               evento: eventName,
               comentarios: finalComments,
               capacitacion: wantsTraining ? 'Sí' : 'No',
