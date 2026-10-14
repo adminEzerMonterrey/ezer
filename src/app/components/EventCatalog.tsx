@@ -508,8 +508,8 @@ function RequestEventModal({ defaultMunicipio, onClose }: { defaultMunicipio: st
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>¿Qué te gustaría hacer? *</label>
-                <textarea required name="description" rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical' }} placeholder="Cuéntanos qué tipo de evento o proyecto te interesa..."></textarea>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>¿Qué te gustaría hacer? <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(opcional)</span></label>
+                <textarea name="description" rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical' }} placeholder="Cuéntanos qué tipo de evento o proyecto te interesa..."></textarea>
               </div>
 
               {status === 'error' && <p style={{ color: '#E8401C', fontSize: '13px' }}>Hubo un error al enviar tu solicitud. Por favor intenta de nuevo.</p>}
@@ -849,8 +849,8 @@ function InterestModal({ event, defaultWantsTraining = false, onClose }: { event
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Descripción / Comentarios *</label>
-                <textarea required name="description" rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical' }} placeholder="Cuenta por qué te interesa participar..."></textarea>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#4B5563', marginBottom: '4px' }}>Descripción / Comentarios <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(opcional)</span></label>
+                <textarea name="description" rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', resize: 'vertical' }} placeholder="Cuenta por qué te interesa participar..."></textarea>
               </div>
 
               <label

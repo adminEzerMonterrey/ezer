@@ -173,8 +173,8 @@ export function CompanyRegistration() {
               </div>
 
               <div>
-                <label className="block text-gray-700 font-bold text-sm mb-2">Descripción / Comentarios *</label>
-                <textarea required name="description" rows={4} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none resize-y" placeholder="Cuéntanos por qué te interesa participar..."></textarea>
+                <label className="block text-gray-700 font-bold text-sm mb-2">Descripción / Comentarios <span className="font-normal text-gray-400">(opcional)</span></label>
+                <textarea name="description" rows={4} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-[#1A2E6C]/20 focus:border-[#1A2E6C] transition-all outline-none resize-y" placeholder="Cuéntanos por qué te interesa participar..."></textarea>
               </div>
 
               <label className="flex items-center gap-3 p-5 bg-blue-50/50 border border-blue-100 rounded-xl cursor-pointer hover:border-[#1A2E6C] transition-all">
