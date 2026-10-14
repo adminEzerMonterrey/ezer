@@ -209,17 +209,22 @@ ezer-eventos.vercel.app`;
 
     // Un solo correo al interesado, con copia a voluntariado, para que la
     // respuesta quede en el mismo hilo y no en dos conversaciones separadas.
-    const info = await transporter.sendMail({
-      from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
-      to: email,
-      cc: adminEmail,
-      replyTo: adminEmail,
-      subject: userSubject,
-      text: isRegistration ? userTextRegistration : isMunicipioRequest ? userTextMunicipio : userTextCatalog,
-      html: isRegistration ? userHtmlRegistration : isMunicipioRequest ? userHtmlMunicipio : userHtmlCatalog,
-    });
-
-    console.log('Message sent: %s', info.messageId);
+    // Si el correo falla (p. ej. contraseña SMTP vencida), el registro igual
+    // debe llegar a Make: E-1 es quien da de alta a la empresa en Airtable.
+    try {
+      const info = await transporter.sendMail({
+        from: `"Ezer Eventos" <${process.env.SMTP_USER}>`,
+        to: email,
+        cc: adminEmail,
+        replyTo: adminEmail,
+        subject: userSubject,
+        text: isRegistration ? userTextRegistration : isMunicipioRequest ? userTextMunicipio : userTextCatalog,
+        html: isRegistration ? userHtmlRegistration : isMunicipioRequest ? userHtmlMunicipio : userHtmlCatalog,
+      });
+      console.log('Message sent: %s', info.messageId);
+    } catch (mailErr) {
+      console.error('Error sending email:', mailErr);
+    }
 
     try {
       await fetch("https://hook.us2.make.com/gk3msgktwdcxack4cb718h5d6a5ntfsd", {

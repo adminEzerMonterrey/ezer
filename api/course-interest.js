@@ -122,16 +122,21 @@ export default async function handler(req, res) {
       <p>Atentamente,<br><strong>Equipo EZER</strong></p>
     `;
 
-    const info = await transporter.sendMail({
-      from: `"Ezer Cursos" <${process.env.SMTP_USER}>`,
-      to: email,
-      cc: adminEmail,
-      replyTo: adminEmail,
-      subject,
-      html,
-    });
-
-    console.log('Message sent: %s', info.messageId);
+    // Si el correo falla (p. ej. contraseña SMTP vencida), el webhook a Make
+    // igual debe salir.
+    try {
+      const info = await transporter.sendMail({
+        from: `"Ezer Cursos" <${process.env.SMTP_USER}>`,
+        to: email,
+        cc: adminEmail,
+        replyTo: adminEmail,
+        subject,
+        html,
+      });
+      console.log('Message sent: %s', info.messageId);
+    } catch (mailErr) {
+      console.error('Error sending email:', mailErr);
+    }
 
     // Mandamos también Webhook si es necesario (similar a interest.js)
     try {
