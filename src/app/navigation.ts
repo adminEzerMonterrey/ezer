@@ -24,7 +24,7 @@ export const proyectos: readonly NavLink[] = [
 export const navItems: readonly NavItem[] = [
   { label: "Quiénes Somos", path: "/" },
   { label: "Proyectos", path: "/catalogo-eventos" },
-  { label: "1. Empresas Voluntarias", path: "/empresas" },
+  { label: "1. Empresas Voluntarias", path: "/catalogo-eventos" },
   { label: "2. Universidades", path: "/universidades" },
   { label: "3. Aliados Voluntarios", path: "/aliados" },
   { label: "Empresas Aliadas", path: "/empresas-aliadas" },
