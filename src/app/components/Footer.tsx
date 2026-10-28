@@ -68,7 +68,7 @@ export function Footer() {
             </h4>
             <ul className="flex flex-col gap-3">
               {[...navItems.flatMap((i) => [i, ...(i.children ?? [])]), { label: "Acceso Administrador", path: "/admin" }].map((link) => (
-                <li key={link.path}>
+                <li key={link.label}>
                   <Link
                     to={link.path}
                     style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, transition: "color 0.2s" }}

@@ -36,7 +36,7 @@ export function Navbar() {
               if (!item.children) {
                 return (
                   <Link
-                    key={item.path}
+                    key={item.label}
                     to={item.path}
                     className="text-white font-semibold transition-all duration-200 hover:text-[#F5C200] relative group text-[11px] xl:text-[13px] text-center whitespace-nowrap"
                   >
@@ -48,7 +48,7 @@ export function Navbar() {
               const open = openGroup === item.path;
               return (
                 <div
-                  key={item.path}
+                  key={item.label}
                   className="relative"
                   onMouseEnter={() => setOpenGroup(item.path)}
                   onMouseLeave={() => setOpenGroup(null)}
@@ -114,7 +114,7 @@ export function Navbar() {
         >
           <div className="flex flex-col gap-2">
             {navItems.map((item) => (
-              <div key={item.path}>
+              <div key={item.label}>
                 <Link
                   to={item.path}
                   onClick={() => setMenuOpen(false)}
