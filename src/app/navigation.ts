@@ -1,7 +1,7 @@
 export type NavLink = { label: string; path: string; description?: string };
 export type NavItem = NavLink & { children?: readonly NavLink[] };
 
-// Los tres proyectos que EZER desarrolla hoy. Se usan en el menú "Proyectos" y en /proyectos.
+// Los tres proyectos que EZER desarrolla hoy. Se muestran en /proyectos.
 export const proyectos: readonly NavLink[] = [
   {
     label: "Empresas Voluntarias",
@@ -20,9 +20,13 @@ export const proyectos: readonly NavLink[] = [
   },
 ];
 
+// Menú plano: "Proyectos" lleva a los eventos y los tres proyectos van enumerados a la vista.
 export const navItems: readonly NavItem[] = [
   { label: "Quiénes Somos", path: "/" },
-  { label: "Proyectos", path: "/proyectos", children: proyectos },
+  { label: "Proyectos", path: "/catalogo-eventos" },
+  { label: "1. Empresas Voluntarias", path: "/empresas" },
+  { label: "2. Universidades", path: "/universidades" },
+  { label: "3. Aliados Voluntarios", path: "/aliados" },
   { label: "Empresas Aliadas", path: "/empresas-aliadas" },
   { label: "Cursos de Sensibilización", path: "/cursos" },
   { label: "Contáctanos", path: "/contactanos" },
