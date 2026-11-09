@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -8,6 +7,8 @@ import {
   CalendarDays,
   Lightbulb,
   ArrowLeft,
+  X,
+  CheckCircle2,
 } from "lucide-react";
 
 // ⚠️ Datos de ejemplo para mostrar la sección. Reemplazar con los distritos,
@@ -471,8 +472,145 @@ function ClubDetalle({ club, distrito, onBack }: { club: Club; distrito: Distrit
   );
 }
 
+type Proyecto = (typeof BANCO_PROYECTOS)[number];
+
+function AdoptarModal({ proyecto, onClose }: { proyecto: Proyecto; onClose: () => void }) {
+  const clubes = DISTRITOS.flatMap((d) => d.clubes.map((c) => `${c.nombre} (${d.nombre})`));
+  const [f, setF] = useState({
+    nombre: "", cargo: "", email: "", telefono: "", club: "", otroClub: "",
+    participacion: "Voluntarios y donativo", voluntarios: "", fecha: "", comentarios: "",
+  });
+  const [estado, setEstado] = useState<"idle" | "enviando" | "ok" | "error">("idle");
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setF({ ...f, [k]: e.target.value });
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const enviar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEstado("enviando");
+    const club = f.club === "otro" ? f.otroClub : f.club;
+    const message = [
+      `Proyecto: ${proyecto.titulo} (${proyecto.categoria})`,
+      `Club: ${club}`,
+      `Nombre: ${f.nombre}`,
+      `Cargo en el club: ${f.cargo || "-"}`,
+      `Correo: ${f.email}`,
+      `Teléfono: ${f.telefono || "-"}`,
+      `Forma de participar: ${f.participacion}`,
+      `Voluntarios estimados: ${f.voluntarios || "-"}`,
+      `Fecha tentativa: ${f.fecha || "-"}`,
+      `Comentarios: ${f.comentarios || "-"}`,
+    ].join("\n");
+    try {
+      const r = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: f.nombre, email: f.email, subject: `Rotarios · Adoptar proyecto: ${proyecto.titulo}`, message }),
+      });
+      setEstado(r.ok ? "ok" : "error");
+    } catch {
+      setEstado("error");
+    }
+  };
+
+  const input = "w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A2E6C]";
+  const label = "block text-sm font-semibold text-gray-700 mb-1";
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50" onClick={onClose} role="dialog" aria-modal="true" aria-label={`Adoptar ${proyecto.titulo}`}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="relative">
+          <img src={proyecto.imagen} alt="" className="w-full h-32 object-cover rounded-t-2xl" />
+          <button onClick={onClose} aria-label="Cerrar" className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center hover:bg-white">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="p-6">
+          <div className="text-xs font-bold uppercase tracking-wide text-[#E8401C]">Adoptar proyecto · {proyecto.categoria}</div>
+          <h3 className="text-xl font-extrabold text-[#1A2E6C] mt-1">{proyecto.titulo}</h3>
+          <p className="text-sm text-gray-600 mt-1"><strong>Se necesita:</strong> {proyecto.necesidad}</p>
+
+          {estado === "ok" ? (
+            <div className="text-center py-8">
+              <CheckCircle2 className="mx-auto text-green-600 mb-3" size={48} />
+              <p className="font-bold text-[#1A2E6C] text-lg">¡Gracias por sumarte!</p>
+              <p className="text-sm text-gray-600 mt-1">El equipo de EZER te contactará para conectar a tu club con la asociación.</p>
+              <button onClick={onClose} className="mt-5 px-5 py-2 rounded-lg bg-[#1A2E6C] text-white font-semibold">Cerrar</button>
+            </div>
+          ) : (
+            <form onSubmit={enviar} className="mt-5 space-y-4">
+              <div>
+                <label className={label}>Club rotario *</label>
+                <select required value={f.club} onChange={set("club")} className={input}>
+                  <option value="">Selecciona tu club</option>
+                  {clubes.map((c) => <option key={c} value={c}>{c}</option>)}
+                  <option value="otro">Otro club</option>
+                </select>
+                {f.club === "otro" && (
+                  <input required value={f.otroClub} onChange={set("otroClub")} placeholder="Nombre del club y distrito" className={`${input} mt-2`} />
+                )}
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={label}>Nombre *</label>
+                  <input required value={f.nombre} onChange={set("nombre")} className={input} />
+                </div>
+                <div>
+                  <label className={label}>Cargo en el club</label>
+                  <input value={f.cargo} onChange={set("cargo")} placeholder="Ej. Presidente" className={input} />
+                </div>
+                <div>
+                  <label className={label}>Correo *</label>
+                  <input required type="email" value={f.email} onChange={set("email")} className={input} />
+                </div>
+                <div>
+                  <label className={label}>Teléfono</label>
+                  <input type="tel" value={f.telefono} onChange={set("telefono")} className={input} />
+                </div>
+              </div>
+              <div>
+                <label className={label}>¿Cómo quiere participar el club? *</label>
+                <select required value={f.participacion} onChange={set("participacion")} className={input}>
+                  <option>Voluntarios y donativo</option>
+                  <option>Solo voluntarios</option>
+                  <option>Solo donativo / patrocinio</option>
+                  <option>Solicitar subvención a la Fundación Rotaria</option>
+                </select>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={label}>Voluntarios estimados</label>
+                  <input type="number" min={0} value={f.voluntarios} onChange={set("voluntarios")} className={input} />
+                </div>
+                <div>
+                  <label className={label}>Fecha tentativa</label>
+                  <input type="month" value={f.fecha} onChange={set("fecha")} className={input} />
+                </div>
+              </div>
+              <div>
+                <label className={label}>Comentarios</label>
+                <textarea rows={3} value={f.comentarios} onChange={set("comentarios")} className={input} />
+              </div>
+              {estado === "error" && <p className="text-sm text-red-600">No se pudo enviar. Intenta de nuevo o escríbenos a voluntariadocorporativo@ezer.org.mx.</p>}
+              <button type="submit" disabled={estado === "enviando"} className="w-full py-3 rounded-lg bg-[#E8401C] text-white font-bold hover:brightness-110 disabled:opacity-60">
+                {estado === "enviando" ? "Enviando…" : "Enviar solicitud"}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RotariosPage() {
-  const navigate = useNavigate();
+  const [adoptar, setAdoptar] = useState<Proyecto | null>(null);
   const [abierto, setAbierto] = useState<string | null>(DISTRITOS[0].id);
   const [seleccion, setSeleccion] = useState<{ d: string; c: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
@@ -626,7 +764,7 @@ export function RotariosPage() {
                   <strong>Se necesita:</strong> {p.necesidad}
                 </p>
                 <button
-                  onClick={() => navigate("/contactanos")}
+                  onClick={() => setAdoptar(p)}
                   className="mt-4 px-4 py-2 rounded-lg bg-[#E8401C] text-white text-sm font-semibold hover:brightness-110"
                 >
                   Quiero adoptar este proyecto
@@ -637,6 +775,7 @@ export function RotariosPage() {
           </div>
         </div>
       </section>
+      {adoptar && <AdoptarModal proyecto={adoptar} onClose={() => setAdoptar(null)} />}
     </div>
   );
 }
