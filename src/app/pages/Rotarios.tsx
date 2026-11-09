@@ -315,14 +315,14 @@ function MedicionImpacto() {
   ];
 
   return (
-    <section id="impacto" style={{ ["--font-serif" as string]: "'EB Garamond', Georgia, serif" }} className="py-20 px-4 sm:px-6 lg:px-8 bg-[#FAF9F6] scroll-mt-20">
+    <section id="impacto" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#F8FAFC] to-[#EEF2FF] scroll-mt-20">
       <div className="max-w-6xl mx-auto">
         {/* Encabezado editorial */}
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:gap-16 items-end">
           <div>
-            <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#B4233C]">Medición de impacto</p>
-            <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#1A2E6C] mt-3">
-              Medimos el impacto, <em className="text-[#B4233C]">no solo</em> la actividad.
+            <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#E8401C]">Medición de impacto</p>
+            <h2 className="font-extrabold tracking-tight text-4xl md:text-5xl leading-tight text-[#1A2E6C] mt-3">
+              Medimos el impacto, <span className="text-[#E8401C]">no solo</span> la actividad.
             </h2>
           </div>
           <p className="text-gray-600 leading-relaxed">
@@ -338,7 +338,7 @@ function MedicionImpacto() {
             <span key={id} className="inline-flex items-baseline">
               <button
                 onClick={() => { setVista(id); setFiltro("todos"); }}
-                className={`underline-offset-4 decoration-2 ${vista === id ? "underline decoration-[#B4233C] text-[#1A2E6C] font-semibold" : "hover:underline decoration-gray-300"}`}
+                className={`underline-offset-4 decoration-2 ${vista === id ? "underline decoration-[#E8401C] text-[#1A2E6C] font-semibold" : "hover:underline decoration-gray-300"}`}
               >
                 {label}
               </button>
@@ -368,7 +368,7 @@ function MedicionImpacto() {
           ].map((s, i) => (
             <div key={s.t} className={`py-6 sm:py-2 ${i > 0 ? "sm:pl-8 border-t sm:border-t-0 border-[#1A2E6C]/15" : ""} ${i < 2 ? "sm:pr-8" : ""}`}>
               <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-gray-500">{s.sub}</p>
-              <p className="font-serif text-6xl md:text-7xl text-[#1A2E6C] leading-none mt-2 tabular-nums">{fmt(s.n)}</p>
+              <p className="font-extrabold text-5xl md:text-6xl text-[#1A2E6C] leading-none mt-2 tabular-nums">{fmt(s.n)}</p>
               <p className="text-gray-700 mt-2">{s.t}</p>
             </div>
           ))}
@@ -377,13 +377,13 @@ function MedicionImpacto() {
         {/* Resultados + testimonio */}
         <div className="grid lg:grid-cols-[1.3fr_1fr] gap-12 mt-16">
           <div>
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#B4233C]">Resultado</p>
-            <h3 className="font-serif text-2xl md:text-3xl text-[#1A2E6C] mt-2">Lo que se puede contar</h3>
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#E8401C]">Resultado</p>
+            <h3 className="font-extrabold text-2xl md:text-3xl text-[#1A2E6C] mt-2">Lo que se puede contar</h3>
             <ul className="mt-6">
               {eventos.map((e) => (
                 <li key={e.nombre} className="grid grid-cols-[1fr_auto] gap-4 py-4 border-b border-dashed border-[#1A2E6C]/20">
                   <div>
-                    <p className="font-serif text-xl text-[#1A2E6C]">{RESULTADO_POR_EVENTO[e.nombre] ?? e.nombre}</p>
+                    <p className="font-bold text-lg text-[#1A2E6C]">{RESULTADO_POR_EVENTO[e.nombre] ?? e.nombre}</p>
                     <p className="text-sm text-gray-600 mt-0.5">
                       {e.nombre} con {e.asociacion} · {e.club.nombre.replace("Club Rotario ", "Club ")}
                     </p>
@@ -395,9 +395,9 @@ function MedicionImpacto() {
           </div>
 
           <figure className="self-start">
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#B4233C]">Testimonio</p>
-            <img src="/curso-4.jpg" alt="" className="w-full aspect-[4/3] object-cover mt-4 grayscale-[30%]" />
-            <blockquote className="font-serif text-2xl leading-snug text-[#1A2E6C] mt-6">
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#E8401C]">Testimonio</p>
+            <img src="/curso-4.jpg" alt="" className="w-full aspect-[4/3] object-cover mt-4 rounded-2xl shadow-lg" />
+            <blockquote className="text-xl font-semibold italic leading-snug text-[#1A2E6C] mt-6 border-l-4 border-[#F5C200] pl-4">
               “{testimonio.texto}”
             </blockquote>
             <figcaption className="text-sm text-gray-600 mt-3">{testimonio.autor}</figcaption>
@@ -405,11 +405,11 @@ function MedicionImpacto() {
         </div>
 
         {/* Cierre */}
-        <div className="mt-16 bg-[#1A2E6C] px-6 py-8 sm:px-10 grid md:grid-cols-[auto_1fr] gap-4 md:gap-10 items-center">
-          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#D9E37A] md:max-w-[14rem] leading-relaxed">
+        <div className="mt-16 rounded-2xl shadow-xl bg-[#1A2E6C] px-6 py-8 sm:px-10 grid md:grid-cols-[auto_1fr] gap-4 md:gap-10 items-center">
+          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#F5C200] md:max-w-[14rem] leading-relaxed">
             Se suma por club, por distrito y por área de interés de Rotary
           </p>
-          <p className="font-serif text-white text-2xl md:text-3xl leading-snug">
+          <p className="font-extrabold text-white text-xl md:text-2xl leading-snug">
             Cifras listas para los informes del club y para solicitar subvenciones a la Fundación Rotaria.
           </p>
         </div>
