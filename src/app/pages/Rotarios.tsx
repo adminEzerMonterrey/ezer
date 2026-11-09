@@ -275,144 +275,58 @@ function totales(clubes: Club[]) {
   };
 }
 
-type Vista = "club" | "distrito" | "area";
-
 function MedicionImpacto() {
-  const [vista, setVista] = useState<Vista>("distrito");
-  const [filtro, setFiltro] = useState("todos");
-
-  const todosEventos = DISTRITOS.flatMap((d) =>
-    d.clubes.flatMap((c) => c.eventos.map((e) => ({ ...e, club: c, distrito: d, area: AREA_POR_EVENTO[e.nombre] ?? "Otra" }))),
-  );
-
-  const opciones: { id: string; label: string }[] =
-    vista === "distrito"
-      ? DISTRITOS.map((d) => ({ id: d.id, label: d.nombre }))
-      : vista === "club"
-        ? DISTRITOS.flatMap((d) => d.clubes.map((c) => ({ id: c.id, label: c.nombre.replace("Club Rotario ", "") })))
-        : [...new Set(todosEventos.map((e) => e.area))].map((a) => ({ id: a, label: a }));
-
-  const eventos = todosEventos.filter((e) =>
-    filtro === "todos"
-      ? true
-      : vista === "distrito"
-        ? e.distrito.id === filtro
-        : vista === "club"
-          ? e.club.id === filtro
-          : e.area === filtro,
-  );
-
+  const eventos = DISTRITOS.flatMap((d) => d.clubes.flatMap((c) => c.eventos));
   const voluntarios = eventos.reduce((s, e) => s + e.voluntarios, 0);
   const beneficiarios = eventos.reduce((s, e) => s + e.beneficiarios, 0);
   const asociaciones = new Set(eventos.map((e) => e.asociacion)).size;
   const fmt = (n: number) => n.toLocaleString("es-MX");
   const testimonio = TESTIMONIOS[0];
 
-  const vistas: [Vista, string][] = [
-    ["distrito", "distrito"],
-    ["club", "club"],
-    ["area", "área de interés"],
+  const cifras = [
+    { etiqueta: "Participación", numero: fmt(voluntarios), texto: `voluntarios y ${fmt(voluntarios * HORAS_POR_VOLUNTARIO)} horas de servicio`, color: "#E8401C" },
+    { etiqueta: "Alcance", numero: fmt(beneficiarios), texto: `personas atendidas en ${asociaciones} asociaciones`, color: "#F5C200" },
+    { etiqueta: "Resultado", numero: "300", texto: "cobijas, 140 lentes y 120 comidas diarias, entre otros", color: "#1A2E6C" },
   ];
 
   return (
     <section id="impacto" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#F8FAFC] to-[#EEF2FF] scroll-mt-20">
       <div className="max-w-6xl mx-auto">
-        {/* Encabezado editorial */}
-        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:gap-16 items-end">
-          <div>
-            <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#E8401C]">Medición de impacto</p>
-            <h2 className="font-extrabold tracking-tight text-4xl md:text-5xl leading-tight text-[#1A2E6C] mt-3">
-              Medimos el impacto, <span className="text-[#E8401C]">no solo</span> la actividad.
-            </h2>
-          </div>
-          <p className="text-gray-600 leading-relaxed">
-            Después de cada evento registramos quién fue, a quién se ayudó, qué cambió y qué dijo la comunidad.
-            Así cada club tiene cifras reales para sus informes.
-          </p>
+        <div className="text-center max-w-3xl mx-auto">
+          <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#E8401C] bg-[#E8401C]/10 px-3 py-1 rounded-full">
+            Medición de impacto
+          </span>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-[#1A2E6C] mt-4 leading-tight tracking-tight">
+            Medimos el impacto, <span className="text-[#E8401C]">no solo la actividad</span>
+          </h2>
         </div>
 
-        {/* Filtro como frase */}
-        <div className="mt-12 pt-5 border-t border-[#1A2E6C]/20 text-gray-700 flex flex-wrap items-baseline gap-x-2 gap-y-2">
-          <span>Ver por</span>
-          {vistas.map(([id, label], i) => (
-            <span key={id} className="inline-flex items-baseline">
-              <button
-                onClick={() => { setVista(id); setFiltro("todos"); }}
-                className={`underline-offset-4 decoration-2 ${vista === id ? "underline decoration-[#E8401C] text-[#1A2E6C] font-semibold" : "hover:underline decoration-gray-300"}`}
-              >
-                {label}
-              </button>
-              {i < vistas.length - 1 && <span className="text-gray-400">,</span>}
-            </span>
-          ))}
-          <span className="text-gray-400 mx-1">—</span>
-          <select
-            value={filtro}
-            onChange={(e) => setFiltro(e.target.value)}
-            aria-label="Elegir"
-            className="bg-transparent border-0 border-b-2 border-[#1A2E6C] font-semibold text-[#1A2E6C] pr-6 py-0 focus:outline-none cursor-pointer"
-          >
-            <option value="todos">todos</option>
-            {opciones.map((o) => (
-              <option key={o.id} value={o.id}>{o.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Cifras grandes */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 mt-10 sm:divide-x divide-[#1A2E6C]/15">
-          {[
-            { n: voluntarios, t: "rotarios voluntarios", sub: "Participación" },
-            { n: voluntarios * HORAS_POR_VOLUNTARIO, t: "horas de servicio", sub: "Participación" },
-            { n: beneficiarios, t: `personas atendidas en ${asociaciones} ${asociaciones === 1 ? "asociación" : "asociaciones"}`, sub: "Alcance" },
-          ].map((s, i) => (
-            <div key={s.t} className={`py-6 sm:py-2 ${i > 0 ? "sm:pl-8 border-t sm:border-t-0 border-[#1A2E6C]/15" : ""} ${i < 2 ? "sm:pr-8" : ""}`}>
-              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-gray-500">{s.sub}</p>
-              <p className="font-extrabold text-5xl md:text-6xl text-[#1A2E6C] leading-none mt-2 tabular-nums">{fmt(s.n)}</p>
-              <p className="text-gray-700 mt-2">{s.t}</p>
+        <div className="grid md:grid-cols-3 gap-5 mt-12">
+          {cifras.map((c) => (
+            <div key={c.etiqueta} className="relative bg-white rounded-2xl p-7 shadow-lg shadow-[#1A2E6C]/5 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: c.color }} />
+              <p className="text-xs font-bold tracking-widest uppercase text-gray-500">{c.etiqueta}</p>
+              <p className="text-5xl md:text-6xl font-extrabold text-[#1A2E6C] mt-3 tracking-tight">{c.numero}</p>
+              <p className="text-gray-600 mt-2">{c.texto}</p>
             </div>
           ))}
         </div>
 
-        {/* Resultados + testimonio */}
-        <div className="grid lg:grid-cols-[1.3fr_1fr] gap-12 mt-16">
-          <div>
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#E8401C]">Resultado</p>
-            <h3 className="font-extrabold text-2xl md:text-3xl text-[#1A2E6C] mt-2">Lo que se puede contar</h3>
-            <ul className="mt-6">
-              {eventos.map((e) => (
-                <li key={e.nombre} className="grid grid-cols-[1fr_auto] gap-4 py-4 border-b border-dashed border-[#1A2E6C]/20">
-                  <div>
-                    <p className="font-bold text-lg text-[#1A2E6C]">{RESULTADO_POR_EVENTO[e.nombre] ?? e.nombre}</p>
-                    <p className="text-sm text-gray-600 mt-0.5">
-                      {e.nombre} con {e.asociacion} · {e.club.nombre.replace("Club Rotario ", "Club ")}
-                    </p>
-                  </div>
-                  <p className="text-sm text-gray-500 whitespace-nowrap pt-1">{e.fecha}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <figure className="self-start">
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#E8401C]">Testimonio</p>
-            <img src="/curso-4.jpg" alt="" className="w-full aspect-[4/3] object-cover mt-4 rounded-2xl shadow-lg" />
-            <blockquote className="text-xl font-semibold italic leading-snug text-[#1A2E6C] mt-6 border-l-4 border-[#F5C200] pl-4">
+        <div className="grid md:grid-cols-[1fr_1.4fr] gap-0 mt-5 rounded-2xl overflow-hidden shadow-xl bg-[#1A2E6C]">
+          <img src="/curso-4.jpg" alt="" className="w-full h-56 md:h-full object-cover" />
+          <figure className="p-8 md:p-10 flex flex-col justify-center">
+            <p className="text-xs font-bold tracking-widest uppercase text-[#F5C200]">Testimonio</p>
+            <blockquote className="text-white text-xl md:text-2xl font-semibold leading-snug mt-3">
               “{testimonio.texto}”
             </blockquote>
-            <figcaption className="text-sm text-gray-600 mt-3">{testimonio.autor}</figcaption>
+            <figcaption className="text-white/70 text-sm mt-4">— {testimonio.autor}</figcaption>
           </figure>
         </div>
 
-        {/* Cierre */}
-        <div className="mt-16 rounded-2xl shadow-xl bg-[#1A2E6C] px-6 py-8 sm:px-10 grid md:grid-cols-[auto_1fr] gap-4 md:gap-10 items-center">
-          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#F5C200] md:max-w-[14rem] leading-relaxed">
-            Se suma por club, por distrito y por área de interés de Rotary
-          </p>
-          <p className="font-extrabold text-white text-xl md:text-2xl leading-snug">
-            Cifras listas para los informes del club y para solicitar subvenciones a la Fundación Rotaria.
-          </p>
-        </div>
+        <p className="text-center text-gray-600 mt-10 max-w-2xl mx-auto">
+          Todo se suma <strong className="text-[#1A2E6C]">por club, por distrito y por área de interés de Rotary</strong>: cifras listas para los
+          informes del club y para solicitar subvenciones a la Fundación Rotaria.
+        </p>
       </div>
     </section>
   );
