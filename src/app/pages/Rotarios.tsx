@@ -289,7 +289,7 @@ function MedicionImpacto() {
     vista === "distrito"
       ? DISTRITOS.map((d) => ({ id: d.id, label: d.nombre }))
       : vista === "club"
-        ? DISTRITOS.flatMap((d) => d.clubes.map((c) => ({ id: c.id, label: c.nombre })))
+        ? DISTRITOS.flatMap((d) => d.clubes.map((c) => ({ id: c.id, label: c.nombre.replace("Club Rotario ", "") })))
         : [...new Set(todosEventos.map((e) => e.area))].map((a) => ({ id: a, label: a }));
 
   const eventos = todosEventos.filter((e) =>
@@ -305,170 +305,116 @@ function MedicionImpacto() {
   const voluntarios = eventos.reduce((s, e) => s + e.voluntarios, 0);
   const beneficiarios = eventos.reduce((s, e) => s + e.beneficiarios, 0);
   const asociaciones = new Set(eventos.map((e) => e.asociacion)).size;
-  const resultados = eventos.map((e) => RESULTADO_POR_EVENTO[e.nombre]).filter(Boolean).slice(0, 3);
-  const testimonio = TESTIMONIOS[Math.abs(filtro.length + vista.length) % TESTIMONIOS.length];
-
   const fmt = (n: number) => n.toLocaleString("es-MX");
+  const testimonio = TESTIMONIOS[0];
 
-  const columnas = [
-    {
-      etiqueta: "Participación",
-      titulo: "Voluntarios y horas",
-      desc: "Quiénes asistieron y cuántas horas de servicio dio cada uno.",
-      cuerpo: (
-        <>
-          <div className="text-4xl font-extrabold text-[#1A2E6C]">{fmt(voluntarios)}</div>
-          <div className="text-sm text-gray-600">voluntarios · <strong>{fmt(voluntarios * HORAS_POR_VOLUNTARIO)}</strong> horas</div>
-        </>
-      ),
-    },
-    {
-      etiqueta: "Alcance",
-      titulo: "Beneficiarios",
-      desc: "Personas atendidas y la asociación que las recibe.",
-      cuerpo: (
-        <>
-          <div className="text-4xl font-extrabold text-[#1A2E6C]">{fmt(beneficiarios)}</div>
-          <div className="text-sm text-gray-600">personas · <strong>{asociaciones}</strong> asociaciones</div>
-        </>
-      ),
-    },
-    {
-      etiqueta: "Resultado",
-      titulo: "Algo que se puede contar",
-      desc: "Árboles plantados, comidas servidas, viviendas mejoradas.",
-      cuerpo: (
-        <ul className="space-y-1">
-          {resultados.map((r) => (
-            <li key={r} className="text-base font-bold text-[#1A2E6C]">✓ {r}</li>
-          ))}
-        </ul>
-      ),
-    },
-    {
-      etiqueta: "Testimonio",
-      titulo: "La voz de la comunidad",
-      desc: "Un comentario breve de la asociación o de un beneficiario.",
-      cuerpo: (
-        <figure>
-          <blockquote className="text-sm italic text-gray-800">"{testimonio.texto}"</blockquote>
-          <figcaption className="text-xs font-semibold text-[#1A2E6C] mt-1">— {testimonio.autor}</figcaption>
-        </figure>
-      ),
-    },
+  const vistas: [Vista, string][] = [
+    ["distrito", "distrito"],
+    ["club", "club"],
+    ["area", "área de interés"],
   ];
 
   return (
-    <section id="impacto" className="py-16 px-4 sm:px-6 lg:px-8 bg-[#FAF9F6] scroll-mt-20">
+    <section id="impacto" style={{ ["--font-serif" as string]: "'EB Garamond', Georgia, serif" }} className="py-20 px-4 sm:px-6 lg:px-8 bg-[#FAF9F6] scroll-mt-20">
       <div className="max-w-6xl mx-auto">
-        <div className="text-xs font-bold tracking-[0.15em] uppercase text-[#B4233C]">Medición de impacto</div>
-        <h2 className="text-3xl md:text-5xl font-serif text-[#1A2E6C] mt-2 pb-6 border-b border-gray-300">
-          Medimos el impacto, no solo la actividad
-        </h2>
+        {/* Encabezado editorial */}
+        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:gap-16 items-end">
+          <div>
+            <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#B4233C]">Medición de impacto</p>
+            <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#1A2E6C] mt-3">
+              Medimos el impacto, <em className="text-[#B4233C]">no solo</em> la actividad.
+            </h2>
+          </div>
+          <p className="text-gray-600 leading-relaxed">
+            Después de cada evento registramos quién fue, a quién se ayudó, qué cambió y qué dijo la comunidad.
+            Así cada club tiene cifras reales para sus informes.
+          </p>
+        </div>
 
-        {/* Selector: por club, distrito o área de interés */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-6">
-          <div className="inline-flex rounded-xl bg-white border border-gray-200 p-1 self-start">
-            {([
-              ["distrito", "Por distrito"],
-              ["club", "Por club"],
-              ["area", "Por área de interés"],
-            ] as [Vista, string][]).map(([id, label]) => (
+        {/* Filtro como frase */}
+        <div className="mt-12 pt-5 border-t border-[#1A2E6C]/20 text-gray-700 flex flex-wrap items-baseline gap-x-2 gap-y-2">
+          <span>Ver por</span>
+          {vistas.map(([id, label], i) => (
+            <span key={id} className="inline-flex items-baseline">
               <button
-                key={id}
                 onClick={() => { setVista(id); setFiltro("todos"); }}
-                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold transition ${vista === id ? "bg-[#1A2E6C] text-white" : "text-[#1A2E6C] hover:bg-gray-100"}`}
+                className={`underline-offset-4 decoration-2 ${vista === id ? "underline decoration-[#B4233C] text-[#1A2E6C] font-semibold" : "hover:underline decoration-gray-300"}`}
               >
                 {label}
               </button>
-            ))}
-          </div>
+              {i < vistas.length - 1 && <span className="text-gray-400">,</span>}
+            </span>
+          ))}
+          <span className="text-gray-400 mx-1">—</span>
           <select
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
-            className="px-4 py-2 rounded-xl border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#1A2E6C]"
+            aria-label="Elegir"
+            className="bg-transparent border-0 border-b-2 border-[#1A2E6C] font-semibold text-[#1A2E6C] pr-6 py-0 focus:outline-none cursor-pointer"
           >
-            <option value="todos">Todos</option>
+            <option value="todos">todos</option>
             {opciones.map((o) => (
               <option key={o.id} value={o.id}>{o.label}</option>
             ))}
           </select>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
-          {columnas.map((c) => (
-            <div key={c.etiqueta} className="border-t-2 border-[#1A2E6C] pt-4 flex flex-col">
-              <div className="text-xs font-bold tracking-[0.12em] uppercase text-[#B4233C]">{c.etiqueta}</div>
-              <div className="text-lg font-bold text-[#1A2E6C] mt-1">{c.titulo}</div>
-              <p className="text-sm text-gray-600 mt-1 mb-4">{c.desc}</p>
-              <div className="mt-auto rounded-xl bg-white border border-gray-200 p-4 min-h-[110px]">{c.cuerpo}</div>
+        {/* Cifras grandes */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 mt-10 sm:divide-x divide-[#1A2E6C]/15">
+          {[
+            { n: voluntarios, t: "rotarios voluntarios", sub: "Participación" },
+            { n: voluntarios * HORAS_POR_VOLUNTARIO, t: "horas de servicio", sub: "Participación" },
+            { n: beneficiarios, t: `personas atendidas en ${asociaciones} ${asociaciones === 1 ? "asociación" : "asociaciones"}`, sub: "Alcance" },
+          ].map((s, i) => (
+            <div key={s.t} className={`py-6 sm:py-2 ${i > 0 ? "sm:pl-8 border-t sm:border-t-0 border-[#1A2E6C]/15" : ""} ${i < 2 ? "sm:pr-8" : ""}`}>
+              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-gray-500">{s.sub}</p>
+              <p className="font-serif text-6xl md:text-7xl text-[#1A2E6C] leading-none mt-2 tabular-nums">{fmt(s.n)}</p>
+              <p className="text-gray-700 mt-2">{s.t}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-10 rounded-xl bg-[#1A2E6C] px-6 py-6 sm:px-8">
-          <div className="text-xs font-bold tracking-[0.15em] uppercase text-[#D9E37A]">
-            Se suma por club, por distrito y por área de interés de Rotary
+        {/* Resultados + testimonio */}
+        <div className="grid lg:grid-cols-[1.3fr_1fr] gap-12 mt-16">
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#B4233C]">Resultado</p>
+            <h3 className="font-serif text-2xl md:text-3xl text-[#1A2E6C] mt-2">Lo que se puede contar</h3>
+            <ul className="mt-6">
+              {eventos.map((e) => (
+                <li key={e.nombre} className="grid grid-cols-[1fr_auto] gap-4 py-4 border-b border-dashed border-[#1A2E6C]/20">
+                  <div>
+                    <p className="font-serif text-xl text-[#1A2E6C]">{RESULTADO_POR_EVENTO[e.nombre] ?? e.nombre}</p>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                      {e.nombre} con {e.asociacion} · {e.club.nombre.replace("Club Rotario ", "Club ")}
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-500 whitespace-nowrap pt-1">{e.fecha}</p>
+                </li>
+              ))}
+            </ul>
           </div>
-          <p className="text-white text-xl md:text-2xl font-serif mt-2">
+
+          <figure className="self-start">
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#B4233C]">Testimonio</p>
+            <img src="/curso-4.jpg" alt="" className="w-full aspect-[4/3] object-cover mt-4 grayscale-[30%]" />
+            <blockquote className="font-serif text-2xl leading-snug text-[#1A2E6C] mt-6">
+              “{testimonio.texto}”
+            </blockquote>
+            <figcaption className="text-sm text-gray-600 mt-3">{testimonio.autor}</figcaption>
+          </figure>
+        </div>
+
+        {/* Cierre */}
+        <div className="mt-16 bg-[#1A2E6C] px-6 py-8 sm:px-10 grid md:grid-cols-[auto_1fr] gap-4 md:gap-10 items-center">
+          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#D9E37A] md:max-w-[14rem] leading-relaxed">
+            Se suma por club, por distrito y por área de interés de Rotary
+          </p>
+          <p className="font-serif text-white text-2xl md:text-3xl leading-snug">
             Cifras listas para los informes del club y para solicitar subvenciones a la Fundación Rotaria.
           </p>
         </div>
       </div>
     </section>
-  );
-}
-
-function ClubDetalle({ club, distrito, onBack }: { club: Club; distrito: Distrito; onBack: () => void }) {
-  const t = totales([club]);
-  return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8">
-      <button onClick={onBack} className="inline-flex items-center gap-1 text-sm font-semibold text-[#1A2E6C] hover:text-[#E8401C] mb-4">
-        <ArrowLeft size={16} /> Volver a {distrito.nombre}
-      </button>
-      <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1A2E6C]">{club.nombre}</h3>
-      <p className="text-gray-500 flex items-center gap-1 mt-1">
-        <MapPin size={16} /> {club.ciudad} · {club.socios} socios · {distrito.nombre}
-      </p>
-
-      <div className="grid grid-cols-3 gap-3 my-6">
-        {[
-          { v: t.eventos, l: "Eventos" },
-          { v: t.beneficiarios, l: "Beneficiarios" },
-          { v: t.voluntarios, l: "Voluntarios" },
-        ].map((s) => (
-          <div key={s.l} className="rounded-xl bg-[#EEF2FF] p-3 text-center">
-            <div className="text-2xl font-extrabold text-[#1A2E6C]">{s.v.toLocaleString("es-MX")}</div>
-            <div className="text-xs sm:text-sm text-gray-600">{s.l}</div>
-          </div>
-        ))}
-      </div>
-
-      <h4 className="font-bold text-[#1A2E6C] mb-3">Eventos realizados con EZER</h4>
-      <div className="space-y-5">
-        {club.eventos.map((e) => (
-          <article key={e.nombre} className="rounded-xl border border-gray-200 p-4">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h5 className="font-bold text-lg text-gray-900">{e.nombre}</h5>
-              <span className="text-sm text-gray-500 flex items-center gap-1">
-                <CalendarDays size={14} /> {e.fecha}
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Con <strong>{e.asociacion}</strong> · {e.beneficiarios} beneficiarios · {e.voluntarios} voluntarios
-            </p>
-            <p className="text-sm text-gray-800 mt-2">
-              <span className="font-semibold text-[#E8401C]">Impacto:</span> {e.impacto}
-            </p>
-            <div className="grid grid-cols-3 gap-2 mt-3">
-              {e.fotos.map((src, i) => (
-                <img key={i} src={src} alt={`${e.nombre} foto ${i + 1}`} loading="lazy" className="w-full aspect-[4/3] object-cover rounded-lg" />
-              ))}
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
   );
 }
 
