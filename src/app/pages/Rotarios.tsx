@@ -379,18 +379,6 @@ function MedicionImpacto() {
           ))}
         </div>
 
-        <div className="relative mt-10 rounded-2xl bg-[#1A2E6C] px-8 py-10 md:px-12 overflow-hidden shadow-xl">
-          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-[#F5C200]/10 pointer-events-none" />
-          <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full bg-[#E8401C]/10 pointer-events-none" />
-          <div className="relative">
-            <p className="text-xs md:text-sm font-bold tracking-widest uppercase text-[#F5C200]">
-              Se suma por club, por distrito y por área de interés de Rotary
-            </p>
-            <p className="text-white text-2xl md:text-3xl font-extrabold leading-snug mt-3 max-w-4xl">
-              Cifras listas para los informes del club y para solicitar subvenciones a la Fundación Rotaria.
-            </p>
-          </div>
-        </div>
       </div>
     </section>
   );
