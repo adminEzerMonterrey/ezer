@@ -28,6 +28,7 @@ export const navItems: readonly NavItem[] = [
   { label: "2. Universidades", path: "/universidades" },
   { label: "3. Aliados Voluntarios", path: "/aliados" },
   { label: "Empresas Aliadas", path: "/empresas-aliadas" },
+  { label: "Rotarios", path: "/rotarios" },
   { label: "Cursos de Sensibilización", path: "/cursos" },
   { label: "Contáctanos", path: "/contactanos" },
 ];

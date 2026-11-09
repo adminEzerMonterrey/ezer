@@ -18,6 +18,7 @@ const AliadosPage = lazy(() => import("./pages/Aliados").then((m) => ({ default:
 const EmpresasAliadasPage = lazy(() => import("./pages/EmpresasAliadas").then((m) => ({ default: m.EmpresasAliadasPage })));
 const CursosSensibilizacionPage = lazy(() => import("./pages/CursosSensibilizacion").then((m) => ({ default: m.CursosSensibilizacionPage })));
 const UniversidadesPage = lazy(() => import("./pages/Universidades").then((m) => ({ default: m.UniversidadesPage })));
+const RotariosPage = lazy(() => import("./pages/Rotarios").then((m) => ({ default: m.RotariosPage })));
 const ProyectosPage = lazy(() => import("./pages/Proyectos").then((m) => ({ default: m.ProyectosPage })));
 const MontemorelosPage = lazy(() => import("./pages/universidades/Montemorelos").then((m) => ({ default: m.MontemorelosPage })));
 
@@ -141,6 +142,11 @@ export default function App() {
         <Route path="/proyectos" element={
           <AppShell>
             <ProyectosPage />
+          </AppShell>
+        } />
+        <Route path="/rotarios" element={
+          <AppShell>
+            <RotariosPage />
           </AppShell>
         } />
         <Route path="/aliados" element={<AliadosPageWrapper />} />
