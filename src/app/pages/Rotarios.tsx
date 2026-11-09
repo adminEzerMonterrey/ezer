@@ -187,6 +187,12 @@ const BANCO_PROYECTOS = [
     categoria: "Infraestructura",
     descripcion: "Construir rampas, barandales y baños accesibles en una casa hogar para personas con discapacidad motriz.",
     necesidad: "Material de construcción y 15 voluntarios por 2 sábados",
+    asociacion: "Casa hogar para personas con discapacidad motriz",
+    beneficiarios: "35 residentes",
+    duracion: "2 fines de semana",
+    presupuesto: "$85,000 MXN",
+    impactoEsperado: "Que las 35 personas residentes se muevan solas y con seguridad por toda la casa.",
+    pasos: ["Diagnóstico de accesibilidad con un arquitecto", "Compra de material", "Construcción de rampas y barandales", "Adaptación de 2 baños"],
     color: "#1A2E6C",
   },
   {
@@ -195,6 +201,12 @@ const BANCO_PROYECTOS = [
     categoria: "Medio ambiente",
     descripcion: "Instalar un sistema solar que reduzca el gasto de luz de un albergue y libere recursos para alimentos.",
     necesidad: "Donativo para equipo e instaladores certificados",
+    asociacion: "Albergue para personas migrantes",
+    beneficiarios: "60 personas por noche",
+    duracion: "3 meses",
+    presupuesto: "$180,000 MXN",
+    impactoEsperado: "Ahorro de hasta 70% en luz, que se destina a alimentos.",
+    pasos: ["Estudio de consumo eléctrico", "Compra de paneles e inversor", "Instalación certificada", "Capacitación al personal"],
     color: "#F5C200",
   },
   {
@@ -203,6 +215,12 @@ const BANCO_PROYECTOS = [
     categoria: "Educación",
     descripcion: "Cubrir el transporte de 30 estudiantes de zonas rurales que hoy abandonan la escuela por la distancia.",
     necesidad: "Patrocinio anual por estudiante",
+    asociacion: "Escuela secundaria rural",
+    beneficiarios: "30 estudiantes",
+    duracion: "1 ciclo escolar",
+    presupuesto: "$4,500 MXN por estudiante",
+    impactoEsperado: "Cero abandono escolar por distancia durante el ciclo.",
+    pasos: ["Selección de estudiantes con la escuela", "Convenio con transportista local", "Seguimiento mensual de asistencia", "Informe de cierre de ciclo"],
     color: "#E8401C",
   },
   {
@@ -211,6 +229,12 @@ const BANCO_PROYECTOS = [
     categoria: "Salud",
     descripcion: "Jornadas mensuales de limpieza y revisión dental para niñas y niños de casas hogar.",
     necesidad: "Dentistas voluntarios y material de curación",
+    asociacion: "Red de casas hogar infantiles",
+    beneficiarios: "150 niñas y niños",
+    duracion: "12 meses",
+    presupuesto: "$60,000 MXN",
+    impactoEsperado: "Que cada niña y niño tenga al menos 2 revisiones dentales al año.",
+    pasos: ["Convocatoria a dentistas rotarios", "Calendario de visitas por casa hogar", "Jornadas mensuales", "Reporte de salud bucal"],
     color: "#1A2E6C",
   },
   {
@@ -219,6 +243,12 @@ const BANCO_PROYECTOS = [
     categoria: "Tecnología",
     descripcion: "Enseñar uso de celular, videollamadas y trámites en línea a adultos mayores en estancias de día.",
     necesidad: "Tabletas en donación y voluntarios 1 vez por semana",
+    asociacion: "Estancia de día para adultos mayores",
+    beneficiarios: "40 adultos mayores",
+    duracion: "4 meses",
+    presupuesto: "$50,000 MXN",
+    impactoEsperado: "Que puedan hacer videollamadas con su familia y trámites en línea sin ayuda.",
+    pasos: ["Donación de 20 tabletas", "Diseño de clases sencillas", "16 sesiones semanales", "Graduación con las familias"],
     color: "#F5C200",
   },
   {
@@ -227,6 +257,12 @@ const BANCO_PROYECTOS = [
     categoria: "Agua y saneamiento",
     descripcion: "Garantizar agua limpia en una comunidad que hoy depende de pipas para su escuela y centro comunitario.",
     necesidad: "Estudio técnico, perforación y filtro",
+    asociacion: "Comunidad rural con escuela y centro comunitario",
+    beneficiarios: "420 habitantes",
+    duracion: "6 meses",
+    presupuesto: "$350,000 MXN",
+    impactoEsperado: "Agua potable todo el año, sin depender de pipas.",
+    pasos: ["Estudio hidrológico", "Perforación del pozo", "Instalación de bomba y filtro", "Comité comunitario de mantenimiento"],
     color: "#E8401C",
   },
 ];
@@ -497,8 +533,92 @@ function AdoptarModal({ proyecto, onClose }: { proyecto: Proyecto; onClose: () =
   );
 }
 
+function ProyectoDetalle({ proyecto: p, onClose, onAdoptar }: { proyecto: Proyecto; onClose: () => void; onAdoptar: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const datos = [
+    { l: "Asociación", v: p.asociacion },
+    { l: "Beneficiarios", v: p.beneficiarios },
+    { l: "Duración", v: p.duracion },
+    { l: "Presupuesto estimado", v: p.presupuesto },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 animate-[fadeIn_.2s_ease-out]" onClick={onClose} role="dialog" aria-modal="true" aria-label={p.titulo}>
+      <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(12px)}to{opacity:1;transform:none}}`}</style>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto animate-[popIn_.25s_ease-out]" onClick={(e) => e.stopPropagation()}>
+        <div className="relative">
+          <img src={p.imagen} alt={p.titulo} className="w-full h-56 md:h-72 object-cover rounded-t-2xl" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent rounded-t-2xl" />
+          <button onClick={onClose} aria-label="Cerrar" className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center hover:bg-white">
+            <X size={20} />
+          </button>
+          <div className="absolute bottom-5 left-6 right-6">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/90" style={{ color: p.color === "#F5C200" ? "#8A6D00" : p.color }}>
+              {p.categoria}
+            </span>
+            <h3 className="text-2xl md:text-3xl font-extrabold text-white mt-2">{p.titulo}</h3>
+          </div>
+        </div>
+
+        <div className="p-6 md:p-8">
+          <p className="text-gray-700 text-lg leading-relaxed">{p.descripcion}</p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+            {datos.map((d) => (
+              <div key={d.l} className="rounded-xl bg-[#EEF2FF] p-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-gray-500">{d.l}</p>
+                <p className="text-sm font-bold text-[#1A2E6C] mt-1">{d.v}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 mt-8">
+            <div>
+              <h4 className="font-extrabold text-[#1A2E6C]">¿Cómo se realizaría?</h4>
+              <ol className="mt-3 space-y-2">
+                {p.pasos.map((paso, i) => (
+                  <li key={paso} className="flex gap-3 text-sm text-gray-700">
+                    <span className="w-6 h-6 shrink-0 rounded-full bg-[#1A2E6C] text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                    {paso}
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div className="space-y-4">
+              <div className="rounded-xl border-l-4 border-[#F5C200] bg-[#FFFBEB] p-4">
+                <h4 className="font-extrabold text-[#1A2E6C] text-sm">Impacto esperado</h4>
+                <p className="text-sm text-gray-700 mt-1">{p.impactoEsperado}</p>
+              </div>
+              <div className="rounded-xl border-l-4 border-[#E8401C] bg-[#FFF4F0] p-4">
+                <h4 className="font-extrabold text-[#1A2E6C] text-sm">Se necesita</h4>
+                <p className="text-sm text-gray-700 mt-1">{p.necesidad}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            <button onClick={onAdoptar} className="flex-1 py-3 rounded-xl bg-[#E8401C] text-white font-bold hover:brightness-110 active:scale-[.98] transition">
+              Quiero adoptar este proyecto
+            </button>
+            <button onClick={onClose} className="sm:w-40 py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50">
+              Volver
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RotariosPage() {
   const [adoptar, setAdoptar] = useState<Proyecto | null>(null);
+  const [detalle, setDetalle] = useState<Proyecto | null>(null);
   const [abierto, setAbierto] = useState<string | null>(DISTRITOS[0].id);
   const [seleccion, setSeleccion] = useState<{ d: string; c: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
@@ -635,34 +755,42 @@ export function RotariosPage() {
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {BANCO_PROYECTOS.map((p) => (
-              <article key={p.titulo} className="rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
-                <img src={p.imagen} alt={p.titulo} loading="lazy" className="w-full aspect-[16/9] object-cover" />
-                <div className="p-6 flex flex-col flex-1">
-                <span
-                  className="self-start text-xs font-bold px-3 py-1 rounded-full mb-3"
-                  style={{ background: `${p.color}1A`, color: p.color === "#F5C200" ? "#8A6D00" : p.color }}
-                >
-                  {p.categoria}
-                </span>
-                <h3 className="text-lg font-extrabold text-[#1A2E6C] flex items-start gap-2">
-                  <Lightbulb size={20} className="text-[#F5C200] shrink-0 mt-0.5" /> {p.titulo}
-                </h3>
-                <p className="text-sm text-gray-700 mt-2 flex-1">{p.descripcion}</p>
-                <p className="text-sm text-gray-500 mt-3">
-                  <strong>Se necesita:</strong> {p.necesidad}
-                </p>
-                <button
-                  onClick={() => setAdoptar(p)}
-                  className="mt-4 px-4 py-2 rounded-lg bg-[#E8401C] text-white text-sm font-semibold hover:brightness-110"
-                >
-                  Quiero adoptar este proyecto
-                </button>
+              <button
+                type="button"
+                key={p.titulo}
+                onClick={() => setDetalle(p)}
+                className="group text-left rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A2E6C]"
+              >
+                <div className="overflow-hidden">
+                  <img src={p.imagen} alt={p.titulo} loading="lazy" className="w-full aspect-[16/9] object-cover transition-transform duration-500 group-hover:scale-110" />
                 </div>
-              </article>
+                <div className="p-6 flex flex-col flex-1">
+                  <span
+                    className="self-start text-xs font-bold px-3 py-1 rounded-full mb-3"
+                    style={{ background: `${p.color}1A`, color: p.color === "#F5C200" ? "#8A6D00" : p.color }}
+                  >
+                    {p.categoria}
+                  </span>
+                  <h3 className="text-lg font-extrabold text-[#1A2E6C] flex items-start gap-2">
+                    <Lightbulb size={20} className="text-[#F5C200] shrink-0 mt-0.5" /> {p.titulo}
+                  </h3>
+                  <p className="text-sm text-gray-700 mt-2 flex-1">{p.descripcion}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#E8401C]">
+                    Ver proyecto <ChevronRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </button>
             ))}
           </div>
         </div>
       </section>
+      {detalle && (
+        <ProyectoDetalle
+          proyecto={detalle}
+          onClose={() => setDetalle(null)}
+          onAdoptar={() => { setAdoptar(detalle); setDetalle(null); }}
+        />
+      )}
       {adoptar && <AdoptarModal proyecto={adoptar} onClose={() => setAdoptar(null)} />}
     </div>
   );
