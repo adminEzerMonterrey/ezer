@@ -770,13 +770,6 @@ export function RotariosPage() {
                     >
                       Quiero adoptar este proyecto
                     </button>
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); setDetalle(p); }}
-                      className="inline-flex items-center gap-0.5 text-sm font-bold text-[#1A2E6C] hover:text-[#E8401C]"
-                    >
-                      Ver más <ChevronRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
-                    </button>
                   </div>
                 </div>
               </article>
