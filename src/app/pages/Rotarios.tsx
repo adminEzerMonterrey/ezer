@@ -743,11 +743,10 @@ export function RotariosPage() {
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {BANCO_PROYECTOS.map((p) => (
-              <button
-                type="button"
+              <article
                 key={p.titulo}
                 onClick={() => setDetalle(p)}
-                className="group text-left rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A2E6C]"
+                className="group cursor-pointer text-left rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A2E6C]"
               >
                 <div className="overflow-hidden">
                   <img src={p.imagen} alt={p.titulo} loading="lazy" className="w-full aspect-[16/9] object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -763,11 +762,24 @@ export function RotariosPage() {
                     <Lightbulb size={20} className="text-[#F5C200] shrink-0 mt-0.5" /> {p.titulo}
                   </h3>
                   <p className="text-sm text-gray-700 mt-2 flex-1">{p.descripcion}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#E8401C]">
-                    Ver proyecto <ChevronRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
+                  <div className="mt-5 flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setAdoptar(p); }}
+                      className="flex-1 px-4 py-2.5 rounded-lg bg-[#E8401C] text-white text-sm font-bold hover:brightness-110 active:scale-95 transition"
+                    >
+                      Quiero adoptar este proyecto
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setDetalle(p); }}
+                      className="inline-flex items-center gap-0.5 text-sm font-bold text-[#1A2E6C] hover:text-[#E8401C]"
+                    >
+                      Ver más <ChevronRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                    </button>
+                  </div>
                 </div>
-              </button>
+              </article>
             ))}
           </div>
         </div>
