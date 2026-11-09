@@ -9,6 +9,10 @@ import {
   ArrowLeft,
   X,
   CheckCircle2,
+  Users,
+  HeartHandshake,
+  BarChart3,
+  MessageCircle,
 } from "lucide-react";
 
 // ⚠️ Datos de ejemplo para mostrar la sección. Reemplazar con los distritos,
@@ -275,58 +279,82 @@ function totales(clubes: Club[]) {
   };
 }
 
+const MEDICION = [
+  {
+    etiqueta: "Participación",
+    titulo: "Voluntarios y horas",
+    texto: "Quiénes asistieron y cuántas horas de servicio dio cada uno.",
+    icon: Users,
+    color: "#E8401C",
+  },
+  {
+    etiqueta: "Alcance",
+    titulo: "Beneficiarios",
+    texto: "Personas atendidas y la asociación que las recibe.",
+    icon: HeartHandshake,
+    color: "#F5C200",
+  },
+  {
+    etiqueta: "Resultado",
+    titulo: "Algo que se puede contar",
+    texto: "Árboles plantados, comidas servidas, viviendas mejoradas.",
+    icon: BarChart3,
+    color: "#1A2E6C",
+  },
+  {
+    etiqueta: "Testimonio",
+    titulo: "La voz de la comunidad",
+    texto: "Un comentario breve de la asociación o de un beneficiario.",
+    icon: MessageCircle,
+    color: "#E8401C",
+  },
+];
+
 function MedicionImpacto() {
-  const eventos = DISTRITOS.flatMap((d) => d.clubes.flatMap((c) => c.eventos));
-  const voluntarios = eventos.reduce((s, e) => s + e.voluntarios, 0);
-  const beneficiarios = eventos.reduce((s, e) => s + e.beneficiarios, 0);
-  const asociaciones = new Set(eventos.map((e) => e.asociacion)).size;
-  const fmt = (n: number) => n.toLocaleString("es-MX");
-  const testimonio = TESTIMONIOS[0];
-
-  const cifras = [
-    { etiqueta: "Participación", numero: fmt(voluntarios), texto: `voluntarios y ${fmt(voluntarios * HORAS_POR_VOLUNTARIO)} horas de servicio`, color: "#E8401C" },
-    { etiqueta: "Alcance", numero: fmt(beneficiarios), texto: `personas atendidas en ${asociaciones} asociaciones`, color: "#F5C200" },
-    { etiqueta: "Resultado", numero: "300", texto: "cobijas, 140 lentes y 120 comidas diarias, entre otros", color: "#1A2E6C" },
-  ];
-
   return (
-    <section id="impacto" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#F8FAFC] to-[#EEF2FF] scroll-mt-20">
+    <section id="impacto" className="py-20 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-20">
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-3xl mx-auto">
-          <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#E8401C] bg-[#E8401C]/10 px-3 py-1 rounded-full">
-            Medición de impacto
-          </span>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-[#1A2E6C] mt-4 leading-tight tracking-tight">
-            Medimos el impacto, <span className="text-[#E8401C]">no solo la actividad</span>
+          <p className="text-sm font-bold tracking-widest uppercase text-[#E8401C]">Medición de impacto</p>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-[#1A2E6C] mt-3 leading-tight tracking-tight">
+            Medimos el impacto, no solo la actividad
           </h2>
+          <div className="w-20 h-1.5 bg-[#F5C200] rounded-full mx-auto mt-6" />
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5 mt-12">
-          {cifras.map((c) => (
-            <div key={c.etiqueta} className="relative bg-white rounded-2xl p-7 shadow-lg shadow-[#1A2E6C]/5 overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: c.color }} />
-              <p className="text-xs font-bold tracking-widest uppercase text-gray-500">{c.etiqueta}</p>
-              <p className="text-5xl md:text-6xl font-extrabold text-[#1A2E6C] mt-3 tracking-tight">{c.numero}</p>
-              <p className="text-gray-600 mt-2">{c.texto}</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
+          {MEDICION.map(({ etiqueta, titulo, texto, icon: Icon, color }) => (
+            <div
+              key={etiqueta}
+              className="group bg-white rounded-2xl p-7 border border-gray-100 shadow-lg shadow-[#1A2E6C]/5 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
+            >
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
+                style={{ background: `${color}1A` }}
+              >
+                <Icon size={28} style={{ color: color === "#F5C200" ? "#C99A00" : color }} />
+              </div>
+              <p className="text-xs font-bold tracking-widest uppercase" style={{ color: color === "#F5C200" ? "#C99A00" : color }}>
+                {etiqueta}
+              </p>
+              <h3 className="text-xl font-extrabold text-[#1A2E6C] mt-1">{titulo}</h3>
+              <p className="text-gray-600 mt-2 leading-relaxed">{texto}</p>
             </div>
           ))}
         </div>
 
-        <div className="grid md:grid-cols-[1fr_1.4fr] gap-0 mt-5 rounded-2xl overflow-hidden shadow-xl bg-[#1A2E6C]">
-          <img src="/curso-4.jpg" alt="" className="w-full h-56 md:h-full object-cover" />
-          <figure className="p-8 md:p-10 flex flex-col justify-center">
-            <p className="text-xs font-bold tracking-widest uppercase text-[#F5C200]">Testimonio</p>
-            <blockquote className="text-white text-xl md:text-2xl font-semibold leading-snug mt-3">
-              “{testimonio.texto}”
-            </blockquote>
-            <figcaption className="text-white/70 text-sm mt-4">— {testimonio.autor}</figcaption>
-          </figure>
+        <div className="relative mt-10 rounded-2xl bg-[#1A2E6C] px-8 py-10 md:px-12 overflow-hidden shadow-xl">
+          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-[#F5C200]/10 pointer-events-none" />
+          <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full bg-[#E8401C]/10 pointer-events-none" />
+          <div className="relative">
+            <p className="text-xs md:text-sm font-bold tracking-widest uppercase text-[#F5C200]">
+              Se suma por club, por distrito y por área de interés de Rotary
+            </p>
+            <p className="text-white text-2xl md:text-3xl font-extrabold leading-snug mt-3 max-w-4xl">
+              Cifras listas para los informes del club y para solicitar subvenciones a la Fundación Rotaria.
+            </p>
+          </div>
         </div>
-
-        <p className="text-center text-gray-600 mt-10 max-w-2xl mx-auto">
-          Todo se suma <strong className="text-[#1A2E6C]">por club, por distrito y por área de interés de Rotary</strong>: cifras listas para los
-          informes del club y para solicitar subvenciones a la Fundación Rotaria.
-        </p>
       </div>
     </section>
   );
