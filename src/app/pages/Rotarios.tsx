@@ -4,12 +4,8 @@ import {
   ChevronDown,
   ChevronRight,
   Search,
-  Users,
-  HeartHandshake,
   MapPin,
   CalendarDays,
-  Trophy,
-  Quote,
   Lightbulb,
   ArrowLeft,
 } from "lucide-react";
@@ -239,13 +235,181 @@ const TESTIMONIOS = [
   },
 ];
 
+// Áreas de interés de Rotary International, asignadas a cada evento de ejemplo.
+const AREA_POR_EVENTO: Record<string, string> = {
+  "Posada navideña con adultos mayores": "Desarrollo comunitario",
+  "Rehabilitación de comedor comunitario": "Desarrollo comunitario",
+  "Feria de salud visual": "Prevención de enfermedades",
+  "Huerto escolar": "Medio ambiente",
+  "Colecta de invierno": "Desarrollo comunitario",
+  "Taller de oficios para mujeres": "Desarrollo económico",
+  "Día deportivo incluyente": "Educación básica",
+};
+// Resultado contable de cada evento (lo que se puede contar).
+const RESULTADO_POR_EVENTO: Record<string, string> = {
+  "Posada navideña con adultos mayores": "65 cenas y regalos",
+  "Rehabilitación de comedor comunitario": "120 comidas diarias",
+  "Feria de salud visual": "140 lentes entregados",
+  "Huerto escolar": "12 camas de cultivo",
+  "Colecta de invierno": "300 cobijas",
+  "Taller de oficios para mujeres": "10 negocios nuevos",
+  "Día deportivo incluyente": "95 jóvenes en deporte",
+};
+const HORAS_POR_VOLUNTARIO = 4;
+
 function totales(clubes: Club[]) {
   const eventos = clubes.flatMap((c) => c.eventos);
   return {
     eventos: eventos.length,
     beneficiarios: eventos.reduce((s, e) => s + e.beneficiarios, 0),
     voluntarios: eventos.reduce((s, e) => s + e.voluntarios, 0),
+    horas: eventos.reduce((s, e) => s + e.voluntarios * HORAS_POR_VOLUNTARIO, 0),
+    asociaciones: new Set(eventos.map((e) => e.asociacion)).size,
   };
+}
+
+type Vista = "club" | "distrito" | "area";
+
+function MedicionImpacto() {
+  const [vista, setVista] = useState<Vista>("distrito");
+  const [filtro, setFiltro] = useState("todos");
+
+  const todosEventos = DISTRITOS.flatMap((d) =>
+    d.clubes.flatMap((c) => c.eventos.map((e) => ({ ...e, club: c, distrito: d, area: AREA_POR_EVENTO[e.nombre] ?? "Otra" }))),
+  );
+
+  const opciones: { id: string; label: string }[] =
+    vista === "distrito"
+      ? DISTRITOS.map((d) => ({ id: d.id, label: d.nombre }))
+      : vista === "club"
+        ? DISTRITOS.flatMap((d) => d.clubes.map((c) => ({ id: c.id, label: c.nombre })))
+        : [...new Set(todosEventos.map((e) => e.area))].map((a) => ({ id: a, label: a }));
+
+  const eventos = todosEventos.filter((e) =>
+    filtro === "todos"
+      ? true
+      : vista === "distrito"
+        ? e.distrito.id === filtro
+        : vista === "club"
+          ? e.club.id === filtro
+          : e.area === filtro,
+  );
+
+  const voluntarios = eventos.reduce((s, e) => s + e.voluntarios, 0);
+  const beneficiarios = eventos.reduce((s, e) => s + e.beneficiarios, 0);
+  const asociaciones = new Set(eventos.map((e) => e.asociacion)).size;
+  const resultados = eventos.map((e) => RESULTADO_POR_EVENTO[e.nombre]).filter(Boolean).slice(0, 3);
+  const testimonio = TESTIMONIOS[Math.abs(filtro.length + vista.length) % TESTIMONIOS.length];
+
+  const fmt = (n: number) => n.toLocaleString("es-MX");
+
+  const columnas = [
+    {
+      etiqueta: "Participación",
+      titulo: "Voluntarios y horas",
+      desc: "Quiénes asistieron y cuántas horas de servicio dio cada uno.",
+      cuerpo: (
+        <>
+          <div className="text-4xl font-extrabold text-[#1A2E6C]">{fmt(voluntarios)}</div>
+          <div className="text-sm text-gray-600">voluntarios · <strong>{fmt(voluntarios * HORAS_POR_VOLUNTARIO)}</strong> horas</div>
+        </>
+      ),
+    },
+    {
+      etiqueta: "Alcance",
+      titulo: "Beneficiarios",
+      desc: "Personas atendidas y la asociación que las recibe.",
+      cuerpo: (
+        <>
+          <div className="text-4xl font-extrabold text-[#1A2E6C]">{fmt(beneficiarios)}</div>
+          <div className="text-sm text-gray-600">personas · <strong>{asociaciones}</strong> asociaciones</div>
+        </>
+      ),
+    },
+    {
+      etiqueta: "Resultado",
+      titulo: "Algo que se puede contar",
+      desc: "Árboles plantados, comidas servidas, viviendas mejoradas.",
+      cuerpo: (
+        <ul className="space-y-1">
+          {resultados.map((r) => (
+            <li key={r} className="text-base font-bold text-[#1A2E6C]">✓ {r}</li>
+          ))}
+        </ul>
+      ),
+    },
+    {
+      etiqueta: "Testimonio",
+      titulo: "La voz de la comunidad",
+      desc: "Un comentario breve de la asociación o de un beneficiario.",
+      cuerpo: (
+        <figure>
+          <blockquote className="text-sm italic text-gray-800">"{testimonio.texto}"</blockquote>
+          <figcaption className="text-xs font-semibold text-[#1A2E6C] mt-1">— {testimonio.autor}</figcaption>
+        </figure>
+      ),
+    },
+  ];
+
+  return (
+    <section id="impacto" className="py-16 px-4 sm:px-6 lg:px-8 bg-[#FAF9F6] scroll-mt-20">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-xs font-bold tracking-[0.15em] uppercase text-[#B4233C]">Medición de impacto</div>
+        <h2 className="text-3xl md:text-5xl font-serif text-[#1A2E6C] mt-2 pb-6 border-b border-gray-300">
+          Medimos el impacto, no solo la actividad
+        </h2>
+
+        {/* Selector: por club, distrito o área de interés */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-6">
+          <div className="inline-flex rounded-xl bg-white border border-gray-200 p-1 self-start">
+            {([
+              ["distrito", "Por distrito"],
+              ["club", "Por club"],
+              ["area", "Por área de interés"],
+            ] as [Vista, string][]).map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => { setVista(id); setFiltro("todos"); }}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold transition ${vista === id ? "bg-[#1A2E6C] text-white" : "text-[#1A2E6C] hover:bg-gray-100"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <select
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            className="px-4 py-2 rounded-xl border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#1A2E6C]"
+          >
+            <option value="todos">Todos</option>
+            {opciones.map((o) => (
+              <option key={o.id} value={o.id}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
+          {columnas.map((c) => (
+            <div key={c.etiqueta} className="border-t-2 border-[#1A2E6C] pt-4 flex flex-col">
+              <div className="text-xs font-bold tracking-[0.12em] uppercase text-[#B4233C]">{c.etiqueta}</div>
+              <div className="text-lg font-bold text-[#1A2E6C] mt-1">{c.titulo}</div>
+              <p className="text-sm text-gray-600 mt-1 mb-4">{c.desc}</p>
+              <div className="mt-auto rounded-xl bg-white border border-gray-200 p-4 min-h-[110px]">{c.cuerpo}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 rounded-xl bg-[#1A2E6C] px-6 py-6 sm:px-8">
+          <div className="text-xs font-bold tracking-[0.15em] uppercase text-[#D9E37A]">
+            Se suma por club, por distrito y por área de interés de Rotary
+          </div>
+          <p className="text-white text-xl md:text-2xl font-serif mt-2">
+            Cifras listas para los informes del club y para solicitar subvenciones a la Fundación Rotaria.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function ClubDetalle({ club, distrito, onBack }: { club: Club; distrito: Distrito; onBack: () => void }) {
@@ -307,8 +471,6 @@ export function RotariosPage() {
   const [seleccion, setSeleccion] = useState<{ d: string; c: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
 
-  const global = useMemo(() => totales(DISTRITOS.flatMap((d) => d.clubes)), []);
-  const totalClubes = DISTRITOS.reduce((s, d) => s + d.clubes.length, 0);
 
   const q = busqueda.trim().toLowerCase();
   const distritosFiltrados = useMemo(
@@ -354,37 +516,7 @@ export function RotariosPage() {
       </section>
 
       {/* IMPACTO */}
-      <section id="impacto" className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1A2E6C] text-center mb-10">Nuestro impacto juntos</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { icon: Users, titulo: "Participación", valor: global.voluntarios, texto: "rotarios voluntarios" },
-              { icon: MapPin, titulo: "Alcance", valor: totalClubes, texto: `clubes en ${DISTRITOS.length} distritos` },
-              { icon: Trophy, titulo: "Resultados", valor: global.eventos, texto: "eventos realizados" },
-              { icon: HeartHandshake, titulo: "Impacto", valor: global.beneficiarios, texto: "personas beneficiadas" },
-            ].map(({ icon: Icon, titulo, valor, texto }) => (
-              <div key={titulo} className="rounded-2xl border border-gray-200 p-5 text-center shadow-sm">
-                <Icon className="mx-auto text-[#E8401C] mb-2" size={28} />
-                <div className="text-xs font-bold uppercase tracking-wide text-gray-500">{titulo}</div>
-                <div className="text-3xl md:text-4xl font-extrabold text-[#1A2E6C] my-1">{valor.toLocaleString("es-MX")}</div>
-                <div className="text-sm text-gray-600">{texto}</div>
-              </div>
-            ))}
-          </div>
-
-          <h3 className="text-2xl font-extrabold text-[#1A2E6C] text-center mt-14 mb-6">Testimonios</h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            {TESTIMONIOS.map((t) => (
-              <figure key={t.autor} className="rounded-2xl bg-[#F8FAFC] p-6 border border-gray-100">
-                <Quote className="text-[#F5C200] mb-2" size={28} />
-                <blockquote className="text-gray-800 italic">"{t.texto}"</blockquote>
-                <figcaption className="text-sm font-semibold text-[#1A2E6C] mt-3">— {t.autor}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+      <MedicionImpacto />
 
       {/* DISTRITOS Y CLUBES */}
       <section id="clubes" className="py-16 px-4 sm:px-6 lg:px-8 bg-[#F8FAFC] scroll-mt-20">
