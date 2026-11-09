@@ -178,6 +178,7 @@ const DISTRITOS: Distrito[] = [
 const BANCO_PROYECTOS = [
   {
     titulo: "Rampas y accesibilidad",
+    imagen: "/banco/rampas.jpg",
     categoria: "Infraestructura",
     descripcion: "Construir rampas, barandales y baños accesibles en una casa hogar para personas con discapacidad motriz.",
     necesidad: "Material de construcción y 15 voluntarios por 2 sábados",
@@ -185,6 +186,7 @@ const BANCO_PROYECTOS = [
   },
   {
     titulo: "Paneles solares para albergue",
+    imagen: "/banco/solar.jpg",
     categoria: "Medio ambiente",
     descripcion: "Instalar un sistema solar que reduzca el gasto de luz de un albergue y libere recursos para alimentos.",
     necesidad: "Donativo para equipo e instaladores certificados",
@@ -192,6 +194,7 @@ const BANCO_PROYECTOS = [
   },
   {
     titulo: "Becas de transporte escolar",
+    imagen: "/banco/transporte.jpg",
     categoria: "Educación",
     descripcion: "Cubrir el transporte de 30 estudiantes de zonas rurales que hoy abandonan la escuela por la distancia.",
     necesidad: "Patrocinio anual por estudiante",
@@ -199,6 +202,7 @@ const BANCO_PROYECTOS = [
   },
   {
     titulo: "Consultorio dental móvil",
+    imagen: "/banco/dental.jpg",
     categoria: "Salud",
     descripcion: "Jornadas mensuales de limpieza y revisión dental para niñas y niños de casas hogar.",
     necesidad: "Dentistas voluntarios y material de curación",
@@ -206,6 +210,7 @@ const BANCO_PROYECTOS = [
   },
   {
     titulo: "Alfabetización digital de adultos mayores",
+    imagen: "/banco/digital.jpg",
     categoria: "Tecnología",
     descripcion: "Enseñar uso de celular, videollamadas y trámites en línea a adultos mayores en estancias de día.",
     necesidad: "Tabletas en donación y voluntarios 1 vez por semana",
@@ -213,6 +218,7 @@ const BANCO_PROYECTOS = [
   },
   {
     titulo: "Pozo y filtro de agua potable",
+    imagen: "/banco/agua.jpg",
     categoria: "Agua y saneamiento",
     descripcion: "Garantizar agua limpia en una comunidad que hoy depende de pipas para su escuela y centro comunitario.",
     necesidad: "Estudio técnico, perforación y filtro",
@@ -603,7 +609,9 @@ export function RotariosPage() {
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {BANCO_PROYECTOS.map((p) => (
-              <article key={p.titulo} className="rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col">
+              <article key={p.titulo} className="rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+                <img src={p.imagen} alt={p.titulo} loading="lazy" className="w-full aspect-[16/9] object-cover" />
+                <div className="p-6 flex flex-col flex-1">
                 <span
                   className="self-start text-xs font-bold px-3 py-1 rounded-full mb-3"
                   style={{ background: `${p.color}1A`, color: p.color === "#F5C200" ? "#8A6D00" : p.color }}
@@ -623,6 +631,7 @@ export function RotariosPage() {
                 >
                   Quiero adoptar este proyecto
                 </button>
+                </div>
               </article>
             ))}
           </div>
