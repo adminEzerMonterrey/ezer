@@ -384,6 +384,59 @@ function MedicionImpacto() {
   );
 }
 
+function ClubDetalle({ club, distrito, onBack }: { club: Club; distrito: Distrito; onBack: () => void }) {
+  const t = totales([club]);
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8">
+      <button onClick={onBack} className="inline-flex items-center gap-1 text-sm font-semibold text-[#1A2E6C] hover:text-[#E8401C] mb-4">
+        <ArrowLeft size={16} /> Volver a {distrito.nombre}
+      </button>
+      <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1A2E6C]">{club.nombre}</h3>
+      <p className="text-gray-500 flex items-center gap-1 mt-1">
+        <MapPin size={16} /> {club.ciudad} · {club.socios} socios · {distrito.nombre}
+      </p>
+
+      <div className="grid grid-cols-3 gap-3 my-6">
+        {[
+          { v: t.eventos, l: "Eventos" },
+          { v: t.beneficiarios, l: "Beneficiarios" },
+          { v: t.voluntarios, l: "Voluntarios" },
+        ].map((s) => (
+          <div key={s.l} className="rounded-xl bg-[#EEF2FF] p-3 text-center">
+            <div className="text-2xl font-extrabold text-[#1A2E6C]">{s.v.toLocaleString("es-MX")}</div>
+            <div className="text-xs sm:text-sm text-gray-600">{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      <h4 className="font-bold text-[#1A2E6C] mb-3">Eventos realizados con EZER</h4>
+      <div className="space-y-5">
+        {club.eventos.map((e) => (
+          <article key={e.nombre} className="rounded-xl border border-gray-200 p-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h5 className="font-bold text-lg text-gray-900">{e.nombre}</h5>
+              <span className="text-sm text-gray-500 flex items-center gap-1">
+                <CalendarDays size={14} /> {e.fecha}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mt-1">
+              Con <strong>{e.asociacion}</strong> · {e.beneficiarios} beneficiarios · {e.voluntarios} voluntarios
+            </p>
+            <p className="text-sm text-gray-800 mt-2">
+              <span className="font-semibold text-[#E8401C]">Impacto:</span> {e.impacto}
+            </p>
+            <div className="grid grid-cols-3 gap-2 mt-3">
+              {e.fotos.map((src, i) => (
+                <img key={i} src={src} alt={`${e.nombre} foto ${i + 1}`} loading="lazy" className="w-full aspect-[4/3] object-cover rounded-lg" />
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 type Proyecto = (typeof BANCO_PROYECTOS)[number];
 
 function AdoptarModal({ proyecto, onClose }: { proyecto: Proyecto; onClose: () => void }) {
