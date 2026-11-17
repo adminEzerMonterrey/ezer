@@ -119,7 +119,8 @@ export default async function handler(req, res) {
 
       <p>Nos pondremos en contacto contigo lo más pronto posible para darte más detalles y coordinar la participación.</p>
       <br>
-      <p>Atentamente,<br><strong>Equipo EZER</strong></p>
+      <p>Atentamente,</p>
+      <img src="https://ezer-eventos.vercel.app/firma-correo.jpg" width="580" alt="EZER · La Casa del Voluntario" style="display:block;width:100%;max-width:580px;height:auto;border:0;margin-top:12px;">
     `;
 
     // Si el correo falla (p. ej. contraseña SMTP vencida), el webhook a Make

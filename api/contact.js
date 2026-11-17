@@ -89,11 +89,8 @@ ezer-eventos.vercel.app`;
       </ul>
       <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
       <br>
-      <p>Saludos cordiales,<br>
-      <strong>Equipo EZER</strong><br>
-      EZER A.B.P. · La Casa del Voluntario<br>
-      <a href="mailto:voluntariadocorporativo@ezer.org.mx">voluntariadocorporativo@ezer.org.mx</a><br>
-      <a href="https://ezer-eventos.vercel.app">ezer-eventos.vercel.app</a></p>
+      <p>Saludos cordiales,</p>
+      <img src="https://ezer-eventos.vercel.app/firma-correo.jpg" width="580" alt="EZER · La Casa del Voluntario" style="display:block;width:100%;max-width:580px;height:auto;border:0;margin-top:12px;">
     `;
 
     const info = await transporter.sendMail({

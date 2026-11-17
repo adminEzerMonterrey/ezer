@@ -100,7 +100,8 @@ export default async function handler(req, res) {
         </ul>
         <p>Nuestro equipo revisará tu información y se pondrá en contacto contigo en las próximas <strong>48 horas</strong>.</p>
         <br>
-        <p>Atentamente,<br><strong>Equipo EZER</strong></p>
+        <p>Atentamente,</p>
+      <img src="https://ezer-eventos.vercel.app/firma-correo.jpg" width="580" alt="EZER · La Casa del Voluntario" style="display:block;width:100%;max-width:580px;height:auto;border:0;margin-top:12px;">
       `,
       attachments: (hasFile && fileData && fileName) ? [
         {

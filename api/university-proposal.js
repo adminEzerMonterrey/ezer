@@ -92,11 +92,8 @@ ezer-eventos.vercel.app`;
       </ul>
       <p><strong>Nos pondremos en contacto contigo muy pronto para buscar la asociación beneficiaria ideal y hacer realidad tu evento.</strong></p>
       <br>
-      <p>Saludos cordiales,<br>
-      <strong>Equipo EZER</strong><br>
-      EZER A.B.P. · La Casa del Voluntario<br>
-      <a href="mailto:voluntariadocorporativo@ezer.org.mx">voluntariadocorporativo@ezer.org.mx</a><br>
-      <a href="https://ezer-eventos.vercel.app">ezer-eventos.vercel.app</a></p>
+      <p>Saludos cordiales,</p>
+      <img src="https://ezer-eventos.vercel.app/firma-correo.jpg" width="580" alt="EZER · La Casa del Voluntario" style="display:block;width:100%;max-width:580px;height:auto;border:0;margin-top:12px;">
     `;
 
     // Un solo correo al proponente, con copia a voluntariado, para que la

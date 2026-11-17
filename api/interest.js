@@ -208,7 +208,8 @@ ezer-eventos.vercel.app`;
       ${eventFilesHtml}
       ${calendlyHtml}
       <br>
-      <p>Atentamente,<br><strong>Equipo EZER</strong></p>
+      <p>Atentamente,</p>
+      <img src="https://ezer-eventos.vercel.app/firma-correo.jpg" width="580" alt="EZER · La Casa del Voluntario" style="display:block;width:100%;max-width:580px;height:auto;border:0;margin-top:12px;">
     `;
 
     // A empresas y personas les escribe E-1 (bienvenida con Calendly y archivos
